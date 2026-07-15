@@ -52,7 +52,7 @@ function createStyles(colors: SemanticColors) {
     card: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: theme.radius.md, borderWidth: 1, gap: theme.spacing.lg, justifyContent: 'space-between', minHeight: 250, padding: theme.spacing.lg },
     comingSoonCard: { backgroundColor: colors.surfaceMuted, borderStyle: 'dashed' },
     content: { gap: theme.spacing.sm },
-    eyebrow: { color: colors.accent, fontSize: 11, fontWeight: '900', letterSpacing: 1.1 },
+    eyebrow: { color: colors.primary, fontSize: 11, fontWeight: '900', letterSpacing: 1.1 },
     title: { color: colors.text, fontSize: 23, fontWeight: '800', lineHeight: 29 },
     description: { color: colors.mutedText, fontSize: 15, lineHeight: 23 },
     button: { alignItems: 'center', alignSelf: 'flex-start', borderColor: colors.primary, borderRadius: theme.radius.sm, borderWidth: 1, flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs, minHeight: 44, paddingHorizontal: theme.spacing.sm, paddingVertical: theme.spacing.xs },

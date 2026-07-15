@@ -35,6 +35,6 @@ function createStyles(colors: SemanticColors) {
     soon: { backgroundColor: colors.warningSurface },
     label: { fontSize: 11, fontWeight: '800', letterSpacing: 0.4 },
     availableLabel: { color: colors.success },
-    soonLabel: { color: colors.warning },
+    soonLabel: { color: colors.text },
   });
 }

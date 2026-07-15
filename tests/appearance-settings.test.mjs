@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
 import test from 'node:test';
 
 import {
@@ -52,6 +53,34 @@ function createMemoryStorage(initialValue) {
   };
 }
 
+function relativeLuminance(hex) {
+  const channels = hex
+    .slice(1)
+    .match(/../g)
+    .map((channel) => Number.parseInt(channel, 16) / 255)
+    .map((channel) =>
+      channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4,
+    );
+
+  return (0.2126 * channels[0]) + (0.7152 * channels[1]) + (0.0722 * channels[2]);
+}
+
+function contrastRatio(foreground, background) {
+  const foregroundLuminance = relativeLuminance(foreground);
+  const backgroundLuminance = relativeLuminance(background);
+  const lighter = Math.max(foregroundLuminance, backgroundLuminance);
+  const darker = Math.min(foregroundLuminance, backgroundLuminance);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+function sourceFiles(directory) {
+  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const path = join(directory, entry.name);
+    if (entry.isDirectory()) return sourceFiles(path);
+    return /\.(ts|tsx)$/.test(entry.name) ? [path] : [];
+  });
+}
+
 test('every appearance preset contains all required semantic tokens', () => {
   for (const preset of Object.values(appearancePresets)) {
     for (const mode of ['light', 'dark']) {
@@ -60,6 +89,75 @@ test('every appearance preset contains all required semantic tokens', () => {
       }
     }
   }
+});
+
+test('Forest Dark uses the refined calm semantic palette', () => {
+  const dark = appearancePresets.forest.dark;
+  assert.deepEqual(
+    {
+      background: dark.background,
+      surface: dark.surface,
+      surfaceMuted: dark.surfaceMuted,
+      text: dark.text,
+      mutedText: dark.mutedText,
+      primary: dark.primary,
+      selection: dark.selection,
+      border: dark.border,
+      accent: dark.accent,
+      accentMuted: dark.accentMuted,
+      focus: dark.focus,
+    },
+    {
+      background: '#0F1713',
+      surface: '#18241E',
+      surfaceMuted: '#213128',
+      text: '#F1F5F2',
+      mutedText: '#A8B8B0',
+      primary: '#86C9AA',
+      selection: '#284A3B',
+      border: '#354A40',
+      accent: '#D08A5B',
+      accentMuted: '#493426',
+      focus: '#E0A078',
+    },
+  );
+});
+
+test('Forest Light and Dark text roles meet WCAG AA contrast', () => {
+  for (const mode of ['light', 'dark']) {
+    const colors = appearancePresets.forest[mode];
+    const pairs = [
+      ['text/background', colors.text, colors.background],
+      ['text/surface', colors.text, colors.surface],
+      ['mutedText/background', colors.mutedText, colors.background],
+      ['mutedText/surfaceMuted', colors.mutedText, colors.surfaceMuted],
+      ['primary/surface', colors.primary, colors.surface],
+      ['primary/selection', colors.primary, colors.selection],
+      ['onPrimary/primary', colors.onPrimary, colors.primary],
+      ['onAccent/accent', colors.onAccent, colors.accent],
+      ['text/warningSurface', colors.text, colors.warningSurface],
+      ['footerText/footerBackground', colors.footerText, colors.footerBackground],
+      ['footerMuted/footerBackground', colors.footerMuted, colors.footerBackground],
+      ['heroMuted/primary', colors.heroMuted, colors.primary],
+    ];
+
+    for (const [name, foreground, background] of pairs) {
+      assert.ok(
+        contrastRatio(foreground, background) >= 4.5,
+        `forest.${mode} ${name} must meet 4.5:1 contrast`,
+      );
+    }
+  }
+});
+
+test('ordinary component text does not consume the orange accent token', () => {
+  for (const path of sourceFiles('src')) {
+    const source = readFileSync(path, 'utf8');
+    assert.doesNotMatch(source, /color:\s*colors\.accent\b/, `${path} uses accent for text`);
+  }
+
+  const heroSource = readFileSync('src/features/home/components/HeroSection.tsx', 'utf8');
+  assert.match(heroSource, /backgroundColor:\s*colors\.accent\b/);
 });
 
 test('stored valid settings are restored', () => {

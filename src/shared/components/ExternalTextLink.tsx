@@ -38,7 +38,7 @@ export function ExternalTextLink({ label, url, style, textStyle }: ExternalTextL
 
 function createStyles(colors: SemanticColors) {
   return StyleSheet.create({
-    label: { color: colors.accent, fontSize: 13, fontWeight: '700' },
+    label: { color: colors.primary, fontSize: 13, fontWeight: '700' },
     focused: { outlineColor: colors.focus, outlineStyle: 'solid', outlineWidth: 2 },
     pressed: { opacity: 0.65 },
     underlined: { textDecorationLine: 'underline' },
