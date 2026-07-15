@@ -8,23 +8,29 @@ const COMMIT_ENV_NAMES = [
   'COMMIT_SHA',
   'SOURCE_VERSION',
 ];
+const BUILD_TIME_ZONE = 'Europe/Nicosia';
 
 function normalizeCommitSha(value) {
   const candidate = typeof value === 'string' ? value.trim() : '';
   return /^[0-9a-f]{7,40}$/i.test(candidate) ? candidate.slice(0, 7).toLowerCase() : null;
 }
 
-function formatUtcTimestamp(date = new Date()) {
+function formatCyprusTimestamp(date = new Date()) {
   if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
     throw new TypeError('A valid build date is required.');
   }
 
-  const year = date.getUTCFullYear();
-  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-  const day = String(date.getUTCDate()).padStart(2, '0');
-  const hour = String(date.getUTCHours()).padStart(2, '0');
-  const minute = String(date.getUTCMinutes()).padStart(2, '0');
-  return `${year}${month}${day}_${hour}${minute}`;
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: BUILD_TIME_ZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(date);
+  const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
+  return `${values.year}${values.month}${values.day}_${values.hour}${values.minute}`;
 }
 
 function readLocalGitSha() {
@@ -41,12 +47,13 @@ function resolveBuildVersion({ env = process.env, date = new Date(), resolveLoca
     .find(Boolean);
   const shortSha = environmentSha || normalizeCommitSha(resolveLocalSha());
 
-  return shortSha ? `version_${formatUtcTimestamp(date)}_${shortSha}` : 'version_dev_local';
+  return shortSha ? `version_${formatCyprusTimestamp(date)}_${shortSha}` : 'version_dev_local';
 }
 
 module.exports = {
   COMMIT_ENV_NAMES,
-  formatUtcTimestamp,
+  BUILD_TIME_ZONE,
+  formatCyprusTimestamp,
   normalizeCommitSha,
   resolveBuildVersion,
 };

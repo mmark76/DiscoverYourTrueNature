@@ -5,13 +5,24 @@ import test from 'node:test';
 
 const require = createRequire(import.meta.url);
 const {
-  formatUtcTimestamp,
+  BUILD_TIME_ZONE,
+  formatCyprusTimestamp,
   normalizeCommitSha,
   resolveBuildVersion,
 } = require('../scripts/buildVersion.cjs');
 
-test('build timestamp uses the required UTC format', () => {
-  assert.equal(formatUtcTimestamp(new Date('2026-07-15T18:34:59-07:00')), '20260716_0134');
+test('winter builds use Europe/Nicosia standard time at UTC+2', () => {
+  assert.equal(BUILD_TIME_ZONE, 'Europe/Nicosia');
+  assert.equal(formatCyprusTimestamp(new Date('2026-01-15T18:34:59Z')), '20260115_2034');
+});
+
+test('summer builds use Europe/Nicosia daylight time at UTC+3', () => {
+  assert.equal(formatCyprusTimestamp(new Date('2026-07-15T18:34:59Z')), '20260715_2134');
+});
+
+test('Cyprus daylight-saving transition skips from 02:59 to 04:00', () => {
+  assert.equal(formatCyprusTimestamp(new Date('2026-03-29T00:59:00Z')), '20260329_0259');
+  assert.equal(formatCyprusTimestamp(new Date('2026-03-29T01:00:00Z')), '20260329_0400');
 });
 
 test('Cloudflare deployment SHA produces a seven-character build version', () => {
@@ -21,7 +32,7 @@ test('Cloudflare deployment SHA produces a seven-character build version', () =>
     date: new Date('2026-07-15T18:34:00Z'),
     resolveLocalSha: () => 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
   });
-  assert.equal(version, 'version_20260715_1834_2ed6b36');
+  assert.equal(version, 'version_20260715_2134_2ed6b36');
   assert.doesNotMatch(version, /f83463e7/i);
 });
 
@@ -33,7 +44,7 @@ test('invalid metadata falls back to local Git and then development fallback', (
       date: new Date('2026-07-15T18:34:00Z'),
       resolveLocalSha: () => 'abcdef0123456789abcdef0123456789abcdef01',
     }),
-    'version_20260715_1834_abcdef0',
+    'version_20260715_2134_abcdef0',
   );
   assert.equal(resolveBuildVersion({ env: {}, resolveLocalSha: () => null }), 'version_dev_local');
 });

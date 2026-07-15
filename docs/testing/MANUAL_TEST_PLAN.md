@@ -156,5 +156,7 @@ Feedback, Markellos Ecosystem, build version. Verify calm visible keyboard focus
 targets.
 
 For exported/deployed builds, confirm the format is `version_YYYYMMDD_HHmm_abcdefg`, the timestamp
-is UTC, and only seven commit characters are visible. For a local checkout, confirm Git HEAD is used;
+uses Cyprus local time from the IANA `Europe/Nicosia` timezone, and only seven commit characters are
+visible. Check a winter build against UTC+2 and a summer build against UTC+3 to confirm daylight-saving
+time is applied without using the browser or device timezone. For a local checkout, confirm Git HEAD is used;
 without deployment or Git metadata, confirm `version_dev_local` appears.

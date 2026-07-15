@@ -122,7 +122,9 @@ Build configuration prepares this public identifier during Expo configuration/ex
 
 `version_YYYYMMDD_HHmm_abcdefg`
 
-The timestamp is UTC. Commit lookup prefers Cloudflare Pages `CF_PAGES_COMMIT_SHA`, supports common
+The timestamp is generated in Cyprus local time using the IANA `Europe/Nicosia` timezone, so winter
+UTC+2 and summer UTC+3 daylight-saving changes are applied automatically without using the browser
+or device timezone. Commit lookup prefers Cloudflare Pages `CF_PAGES_COMMIT_SHA`, supports common
 CI commit variables, falls back to the local Git HEAD, and exposes only the first seven SHA
 characters. When neither deployment nor Git metadata is available, it uses `version_dev_local`.
 Runtime footer code only renders the already-prepared value.
