@@ -9,6 +9,10 @@ Create an AI-guided self-discovery experience that conducts an adaptive conversa
 **Discover Your Animal Archetype.**  
 **Ανακάλυψε το ζωικό σου αρχέτυπο.**
 
+## Working URL
+
+**https://animalswithin.markellosecosystem.com**
+
 ## Current status
 
 This document is intentionally minimal and will evolve as the product concept is validated.
