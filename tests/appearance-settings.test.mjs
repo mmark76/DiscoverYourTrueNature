@@ -91,36 +91,27 @@ test('every appearance preset contains all required semantic tokens', () => {
   }
 });
 
-test('Forest Dark uses the refined calm semantic palette', () => {
-  const dark = appearancePresets.forest.dark;
-  assert.deepEqual(
-    {
-      background: dark.background,
-      surface: dark.surface,
-      surfaceMuted: dark.surfaceMuted,
-      text: dark.text,
-      mutedText: dark.mutedText,
-      primary: dark.primary,
-      selection: dark.selection,
-      border: dark.border,
-      accent: dark.accent,
-      accentMuted: dark.accentMuted,
-      focus: dark.focus,
-    },
-    {
-      background: '#0F1713',
-      surface: '#18241E',
-      surfaceMuted: '#213128',
-      text: '#F1F5F2',
-      mutedText: '#A8B8B0',
-      primary: '#86C9AA',
-      selection: '#284A3B',
-      border: '#354A40',
-      accent: '#D08A5B',
-      accentMuted: '#493426',
-      focus: '#E0A078',
-    },
-  );
+test('Forest uses the exact soft sage Light and Dark semantic palettes', () => {
+  assert.deepEqual(appearancePresets.forest.light, {
+    background: '#F4F2EC', backgroundMuted: '#ECEDE8', surface: '#FAF9F5', surfaceMuted: '#F0F1ED',
+    text: '#3D4843', mutedText: '#5F6A64', primary: '#556C60', primaryPressed: '#485F53',
+    onPrimary: '#FFFFFF', accent: '#A39482', accentPressed: '#8E806F', onAccent: '#332E28',
+    accentMuted: '#EEE8E0', border: '#D8DDD8', borderStrong: '#B8C1BB', focus: '#786B5B',
+    disabled: '#D6D9D5', disabledText: '#5F6A64', success: '#526E5F', successSurface: '#E3EAE5',
+    warning: '#6F6253', warningSurface: '#EEE8E0', progressTrack: '#E2E6E2', selection: '#E1E8E3',
+    footerBackground: '#E8EBE7', footerText: '#3D4843', footerMuted: '#626C67', heroMuted: '#E8EEE9',
+    heroDecoration: '#B8C8BF', heroDecorationStrong: '#81998C',
+  });
+  assert.deepEqual(appearancePresets.forest.dark, {
+    background: '#1B211E', backgroundMuted: '#202824', surface: '#262E2A', surfaceMuted: '#2D3732',
+    text: '#E5E9E6', mutedText: '#A6AEA9', primary: '#A1B8AC', primaryPressed: '#B5C8BE',
+    onPrimary: '#24302A', accent: '#B5A692', accentPressed: '#C5B7A5', onAccent: '#2D2923',
+    accentMuted: '#3A342D', border: '#3E4943', borderStrong: '#59655F', focus: '#B9AA96',
+    disabled: '#343C38', disabledText: '#929B96', success: '#9DB6A8', successSurface: '#303D36',
+    warning: '#B5A692', warningSurface: '#3A342D', progressTrack: '#39433E', selection: '#36443D',
+    footerBackground: '#171C1A', footerText: '#E5E9E6', footerMuted: '#A5AEA9', heroMuted: '#DCE5E0',
+    heroDecoration: '#667D72', heroDecorationStrong: '#B2C5BB',
+  });
 });
 
 test('Forest Light and Dark text roles meet WCAG AA contrast', () => {
@@ -134,11 +125,12 @@ test('Forest Light and Dark text roles meet WCAG AA contrast', () => {
       ['primary/surface', colors.primary, colors.surface],
       ['primary/selection', colors.primary, colors.selection],
       ['onPrimary/primary', colors.onPrimary, colors.primary],
-      ['onAccent/accent', colors.onAccent, colors.accent],
-      ['text/warningSurface', colors.text, colors.warningSurface],
+      ['warning/warningSurface', colors.warning, colors.warningSurface],
+      ['success/successSurface', colors.success, colors.successSurface],
       ['footerText/footerBackground', colors.footerText, colors.footerBackground],
       ['footerMuted/footerBackground', colors.footerMuted, colors.footerBackground],
-      ['heroMuted/primary', colors.heroMuted, colors.primary],
+      ['text/selection', colors.text, colors.selection],
+      ['mutedText/selection', colors.mutedText, colors.selection],
     ];
 
     for (const [name, foreground, background] of pairs) {
@@ -150,14 +142,42 @@ test('Forest Light and Dark text roles meet WCAG AA contrast', () => {
   }
 });
 
-test('ordinary component text does not consume the orange accent token', () => {
+test('ordinary text, links, and action backgrounds do not consume accent', () => {
   for (const path of sourceFiles('src')) {
     const source = readFileSync(path, 'utf8');
     assert.doesNotMatch(source, /color:\s*colors\.accent\b/, `${path} uses accent for text`);
   }
 
-  const heroSource = readFileSync('src/features/home/components/HeroSection.tsx', 'utf8');
-  assert.match(heroSource, /backgroundColor:\s*colors\.accent\b/);
+  const componentSources = sourceFiles('src')
+    .filter((path) => path.endsWith('.tsx'))
+    .map((path) => readFileSync(path, 'utf8'))
+    .join('\n');
+  assert.doesNotMatch(componentSources, /button[^}]*backgroundColor:\s*colors\.accent\b/is);
+  assert.doesNotMatch(componentSources, /#[A-Fa-f0-9]{6}/, 'components must not hard-code palette colors');
+
+  for (const path of [
+    'src/features/home/components/HeroSection.tsx',
+    'src/features/information/components/HowItWorksScreen.tsx',
+    'src/features/results/components/ResultScreen.tsx',
+  ]) {
+    const source = readFileSync(path, 'utf8');
+    assert.match(source, /backgroundColor:\s*colors\.primary\b/, `${path} must use primary actions`);
+    assert.match(source, /color:\s*colors\.onPrimary\b/, `${path} must use onPrimary action text`);
+  }
+
+  const externalLink = readFileSync('src/shared/components/ExternalTextLink.tsx', 'utf8');
+  const footer = readFileSync('src/shared/components/AppFooter.tsx', 'utf8');
+  assert.doesNotMatch(externalLink, /colors\.accent/);
+  assert.doesNotMatch(footer, /colors\.accent/);
+});
+
+test('Coming Soon and selected states use calm semantic surfaces', () => {
+  const badge = readFileSync('src/shared/components/StatusBadge.tsx', 'utf8');
+  const optionGroup = readFileSync('src/settings/components/SettingsOptionGroup.tsx', 'utf8');
+  const assessment = readFileSync('src/features/assessment/components/OptionButton.tsx', 'utf8');
+  assert.match(badge, /backgroundColor:\s*colors\.warningSurface/);
+  assert.match(optionGroup, /backgroundColor:\s*colors\.selection/);
+  assert.match(assessment, /backgroundColor:\s*colors\.selection/);
 });
 
 test('stored valid settings are restored', () => {

@@ -3,7 +3,6 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { useTranslation } from '../../../i18n/useTranslation';
 import { useAppearance } from '../../../settings/AppearanceProvider';
 import type { SemanticColors } from '../../../settings/appearanceTypes';
-import { AppFooter } from '../../../shared/components/AppFooter';
 import { AppText } from '../../../shared/components/AppText';
 import { FocusablePressable } from '../../../shared/components/FocusablePressable';
 import { PageContent } from '../../../shared/components/PageContent';
@@ -49,7 +48,6 @@ export function HowItWorksScreen({ onStart }: HowItWorksScreenProps) {
           <AppText style={styles.buttonText}>{copy.action}</AppText>
         </FocusablePressable>
       </PageContent>
-      <AppFooter />
     </ScrollView>
   );
 }

@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { formatTranslation } from '../../../i18n/translations';
 import { useTranslation } from '../../../i18n/useTranslation';
@@ -30,7 +30,7 @@ export function AssessmentScreen({ question, questionNumber, totalQuestions, onS
   const styles = createStyles(colors);
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container} style={styles.scrollView}>
       <View>
         <AppText style={styles.eyebrow}>{copy.eyebrow}</AppText>
         <AppText style={styles.counter}>{counter}</AppText>
@@ -56,13 +56,14 @@ export function AssessmentScreen({ question, questionNumber, totalQuestions, onS
         ))}
       </View>
       <AppText style={styles.note}>{copy.instruction}</AppText>
-    </View>
+    </ScrollView>
   );
 }
 
 function createStyles(colors: SemanticColors) {
   return StyleSheet.create({
-    container: { alignSelf: 'center', flex: 1, gap: theme.spacing.lg, justifyContent: 'space-between', maxWidth: 720, padding: theme.spacing.lg, width: '100%' },
+    scrollView: { backgroundColor: colors.background, flex: 1 },
+    container: { alignSelf: 'center', flexGrow: 1, gap: theme.spacing.lg, justifyContent: 'space-between', maxWidth: 720, padding: theme.spacing.lg, width: '100%' },
     eyebrow: { color: colors.primary, fontSize: 12, fontWeight: '700', letterSpacing: 1.2 },
     counter: { color: colors.mutedText, fontSize: 14, marginTop: theme.spacing.sm },
     progressTrack: { backgroundColor: colors.progressTrack, borderRadius: 999, height: 8, marginTop: theme.spacing.sm, overflow: 'hidden' },

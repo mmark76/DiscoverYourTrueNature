@@ -1,63 +1,123 @@
-import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Platform, StyleSheet, useWindowDimensions, View } from 'react-native';
+import type { LayoutChangeEvent, ViewStyle } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { buildVersion } from '../../config/buildInfo';
+import { createFeedbackMailto } from '../../config/feedback';
 import { useTranslation } from '../../i18n/useTranslation';
 import { useAppearance } from '../../settings/AppearanceProvider';
 import type { SemanticColors } from '../../settings/appearanceTypes';
+import { useFooterLayout } from '../layout/FooterLayoutProvider';
+import { theme } from '../styles/theme';
 import { AppText } from './AppText';
 import { ExternalTextLink } from './ExternalTextLink';
 import { PageContent } from './PageContent';
-import { theme } from '../styles/theme';
 
 const ecosystemUrl = 'https://markellosecosystem.com';
+const compactFooterBreakpoint = 520;
 
 export function AppFooter() {
   const { colors } = useAppearance();
   const { content } = useTranslation();
+  const { setFooterHeight } = useFooterLayout();
   const { width } = useWindowDimensions();
-  const stacked = width < theme.layout.mobileBreakpoint;
+  const compact = width < compactFooterBreakpoint;
   const styles = createStyles(colors);
+  const feedbackUrl = createFeedbackMailto({
+    languageLabel: content.common.selectedLanguageName,
+    buildVersion,
+  });
+
+  function measureFooter(event: LayoutChangeEvent) {
+    setFooterHeight(event.nativeEvent.layout.height);
+  }
 
   return (
-    <View accessibilityLabel={content.footer.accessibilityLabel} style={styles.footer}>
-      <PageContent style={[styles.footerInner, stacked && styles.footerInnerStacked]}>
-        <View style={[styles.copy, stacked && styles.stackedCopy]}>
-          <AppText style={styles.copyright}>{content.footer.copyright}</AppText>
-          <AppText style={styles.disclaimer}>{content.footer.entertainment}</AppText>
-          <AppText style={styles.disclaimer}>{content.footer.notDiagnosis}</AppText>
+    <SafeAreaView
+      accessibilityLabel={content.footer.accessibilityLabel}
+      edges={['bottom', 'left', 'right']}
+      onLayout={measureFooter}
+      style={styles.footer}
+    >
+      <PageContent style={styles.footerInner}>
+        <View testID="footer-row-disclaimer" style={styles.disclaimerRow}>
+          <AppText style={styles.disclaimer}>{content.footer.compactDisclaimer}</AppText>
         </View>
 
-        <View style={[styles.links, stacked && styles.stackedLinks]}>
-          <AppText accessibilityState={{ disabled: true }} style={styles.placeholder}>
-            {content.footer.privacyComingSoon}
-          </AppText>
-          <AppText accessibilityState={{ disabled: true }} style={styles.placeholder}>
-            {content.footer.feedbackComingSoon}
+        <View
+          accessibilityLabel={content.footer.navigationLabel}
+          testID="footer-row-navigation"
+          style={[styles.navigationRow, compact && styles.navigationRowCompact]}
+        >
+          <AppText
+            accessibilityLabel={content.footer.privacyAccessibilityLabel}
+            accessibilityState={{ disabled: true }}
+            style={[styles.placeholder, compact && styles.compactLinkLabel]}
+          >
+            {compact ? content.footer.privacyLabel : content.footer.privacyStatus}
           </AppText>
           <ExternalTextLink
-            label={content.footer.ecosystemLink}
-            url={ecosystemUrl}
-            style={styles.ecosystemLink}
-            textStyle={styles.ecosystemLabel}
+            accessibilityLabel={content.footer.feedbackAccessibilityLabel}
+            label={content.footer.feedbackLabel}
+            url={feedbackUrl}
+            style={styles.link}
+            textStyle={[styles.linkLabel, compact && styles.compactLinkLabel]}
           />
+          <ExternalTextLink
+            accessibilityLabel={content.footer.ecosystemAccessibilityLabel}
+            label={compact ? content.footer.ecosystemCompactLabel : content.footer.ecosystemLabel}
+            url={ecosystemUrl}
+            style={styles.link}
+            textStyle={[styles.linkLabel, compact && styles.compactLinkLabel]}
+          />
+          <AppText
+            accessibilityLabel={`${content.footer.buildAccessibilityLabel}: ${buildVersion}`}
+            style={[styles.buildVersion, compact && styles.buildVersionCompact]}
+          >
+            {buildVersion}
+          </AppText>
         </View>
       </PageContent>
-    </View>
+    </SafeAreaView>
   );
 }
 
 function createStyles(colors: SemanticColors) {
   return StyleSheet.create({
-    footer: { backgroundColor: colors.footerBackground },
-    footerInner: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.lg, justifyContent: 'space-between', paddingVertical: theme.spacing.xl },
-    footerInnerStacked: { flexDirection: 'column' },
-    copy: { flex: 1, gap: 4, minWidth: 260 },
-    copyright: { color: colors.footerText, fontSize: 13, fontWeight: '700' },
-    disclaimer: { color: colors.footerMuted, fontSize: 12, lineHeight: 18 },
-    links: { alignItems: 'flex-end', gap: theme.spacing.xs, minWidth: 250 },
-    stackedCopy: { alignItems: 'flex-start', minWidth: 0, width: '100%' },
-    stackedLinks: { alignItems: 'flex-end', minWidth: 0, width: '100%' },
-    placeholder: { color: colors.disabledText, fontSize: 12, textAlign: 'right' },
-    ecosystemLink: { maxWidth: '100%', minHeight: 44, justifyContent: 'center' },
-    ecosystemLabel: { color: colors.footerText, fontSize: 12, textAlign: 'right' },
+    footer: {
+      backgroundColor: colors.footerBackground,
+      borderTopColor: colors.border,
+      borderTopWidth: 1,
+      bottom: 0,
+      left: 0,
+      position: Platform.OS === 'web' ? ('fixed' as unknown as ViewStyle['position']) : 'absolute',
+      right: 0,
+      zIndex: 20,
+    },
+    footerInner: { gap: 2, paddingBottom: 5, paddingTop: 5 },
+    disclaimerRow: { minWidth: 0, width: '100%' },
+    disclaimer: { color: colors.footerMuted, fontSize: 10, lineHeight: 14 },
+    navigationRow: {
+      alignItems: 'center',
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: theme.spacing.sm,
+      minWidth: 0,
+      width: '100%',
+    },
+    navigationRowCompact: { columnGap: 6 },
+    placeholder: { color: colors.footerMuted, flexShrink: 1, fontSize: 10, lineHeight: 14 },
+    link: { flexShrink: 1, justifyContent: 'center' },
+    linkLabel: { color: colors.primary, fontSize: 10, lineHeight: 14 },
+    compactLinkLabel: { fontSize: 8.5, lineHeight: 12 },
+    buildVersion: {
+      color: colors.footerMuted,
+      flexShrink: 0,
+      fontSize: 9,
+      lineHeight: 14,
+      marginLeft: 'auto',
+      textAlign: 'right',
+    },
+    buildVersionCompact: { fontSize: 7.5, lineHeight: 12 },
   });
 }

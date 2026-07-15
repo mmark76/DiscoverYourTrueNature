@@ -9,11 +9,12 @@ import { AppText } from './AppText';
 interface ExternalTextLinkProps {
   label: string;
   url: string;
+  accessibilityLabel?: string;
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
 }
 
-export function ExternalTextLink({ label, url, style, textStyle }: ExternalTextLinkProps) {
+export function ExternalTextLink({ accessibilityLabel, label, url, style, textStyle }: ExternalTextLinkProps) {
   const { colors } = useAppearance();
   const [focused, setFocused] = useState(false);
   const [hovered, setHovered] = useState(false);
@@ -22,8 +23,9 @@ export function ExternalTextLink({ label, url, style, textStyle }: ExternalTextL
 
   return (
     <Pressable
-      accessibilityLabel={label}
+      accessibilityLabel={accessibilityLabel ?? label}
       accessibilityRole="link"
+      hitSlop={8}
       onBlur={() => setFocused(false)}
       onFocus={() => setFocused(true)}
       onHoverIn={() => setHovered(true)}

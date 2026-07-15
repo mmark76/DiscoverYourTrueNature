@@ -43,10 +43,10 @@ test('coming-soon dashboard cards do not expose actions', () => {
   assert.equal(homeFeatures.length, 6);
   assert.deepEqual(
     activeCards.map(({ id }) => id),
-    ['discovery', 'animals', 'how-it-works'],
+    ['discovery', 'animals', 'how-it-works', 'feedback'],
   );
   assert.deepEqual(
     comingSoonCards.map(({ id }) => id),
-    ['compare', 'share', 'feedback'],
+    ['compare', 'share'],
   );
 });

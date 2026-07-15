@@ -6,6 +6,7 @@ export const greekContent = {
     comingSoon: 'Προσεχώς',
     availablePrototype: 'Διαθέσιμο στο πρωτότυπο',
     status: 'Κατάσταση',
+    selectedLanguageName: 'Ελληνικά',
   },
   header: {
     home: 'Αρχική',
@@ -20,6 +21,7 @@ export const greekContent = {
     greekLanguage: 'Ελληνικά',
     englishLanguage: 'Αγγλικά',
     ecosystemLink: 'Επιστροφή στο Markellos Ecosystem',
+    feedbackAccessibilityLabel: 'Αποστολή σχολίων μέσω email',
   },
   home: {
     heroEyebrow: 'ΜΙΑ ΨΥΧΑΓΩΓΙΚΗ ΕΞΕΡΕΥΝΗΣΗ',
@@ -68,6 +70,7 @@ export const greekContent = {
         title: 'Στείλε feedback',
         description:
           'Πες μας αν το αποτέλεσμα σε εξέφρασε, ποιες ερωτήσεις σε δυσκόλεψαν και αν θα το μοιραζόσουν με φίλο.',
+        actionLabel: 'Feedback',
       },
     },
   },
@@ -316,11 +319,16 @@ export const greekContent = {
   },
   footer: {
     accessibilityLabel: 'Πληροφορίες και σύνδεσμοι του Animals Within',
-    copyright: '© 2026 Markellos Markides. Με επιφύλαξη παντός δικαιώματος.',
-    entertainment: 'Ψυχαγωγική εμπειρία αυτογνωσίας.',
-    notDiagnosis: 'Δεν αποτελεί ψυχολογική διάγνωση ή επιστημονική αξιολόγηση.',
-    privacyComingSoon: 'Απόρρητο — Προσεχώς',
-    feedbackComingSoon: 'Feedback — Προσεχώς',
-    ecosystemLink: 'Επιστροφή στο Markellos Ecosystem',
+    compactDisclaimer: 'Ψυχαγωγική εμπειρία αυτογνωσίας — όχι ψυχολογική διάγνωση ή επιστημονική αξιολόγηση.',
+    navigationLabel: 'Σύνδεσμοι υποσέλιδου και πληροφορίες έκδοσης',
+    privacyLabel: 'Απόρρητο',
+    privacyStatus: 'Απόρρητο — Προσεχώς',
+    privacyAccessibilityLabel: 'Απόρρητο — Προσεχώς',
+    feedbackLabel: 'Feedback',
+    feedbackAccessibilityLabel: 'Αποστολή σχολίων μέσω email',
+    ecosystemLabel: 'Markellos Ecosystem',
+    ecosystemCompactLabel: 'Ecosystem',
+    ecosystemAccessibilityLabel: 'Επιστροφή στο Markellos Ecosystem',
+    buildAccessibilityLabel: 'Έκδοση κατασκευής εφαρμογής',
   },
 } satisfies TranslationContent;

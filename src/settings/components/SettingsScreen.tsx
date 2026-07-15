@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { useTranslation } from '../../i18n/useTranslation';
-import { AppFooter } from '../../shared/components/AppFooter';
 import { AppText } from '../../shared/components/AppText';
 import { FocusablePressable } from '../../shared/components/FocusablePressable';
 import { PageContent } from '../../shared/components/PageContent';
@@ -149,7 +148,6 @@ export function SettingsScreen({ onBack }: SettingsScreenProps) {
           <AppText style={styles.backButtonText}>← {copy.back}</AppText>
         </FocusablePressable>
       </PageContent>
-      <AppFooter />
     </ScrollView>
   );
 }
@@ -193,13 +191,15 @@ function createStyles(colors: SemanticColors) {
     confirmationText: { color: colors.text, fontSize: 15, lineHeight: 23 },
     actions: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
     dangerButton: {
-      backgroundColor: colors.warning,
+      backgroundColor: colors.warningSurface,
+      borderColor: colors.warning,
       borderRadius: theme.radius.sm,
+      borderWidth: 1,
       minHeight: 44,
       paddingHorizontal: theme.spacing.md,
       paddingVertical: theme.spacing.sm,
     },
-    dangerButtonText: { color: colors.onAccent, fontSize: 14, fontWeight: '800' },
+    dangerButtonText: { color: colors.warning, fontSize: 14, fontWeight: '800' },
     secondaryButton: {
       borderColor: colors.borderStrong,
       borderRadius: theme.radius.sm,

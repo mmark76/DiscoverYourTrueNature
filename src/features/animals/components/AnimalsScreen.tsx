@@ -3,7 +3,6 @@ import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native'
 import { useTranslation } from '../../../i18n/useTranslation';
 import { useAppearance } from '../../../settings/AppearanceProvider';
 import type { SemanticColors } from '../../../settings/appearanceTypes';
-import { AppFooter } from '../../../shared/components/AppFooter';
 import { AppText } from '../../../shared/components/AppText';
 import { PageContent } from '../../../shared/components/PageContent';
 import { theme } from '../../../shared/styles/theme';
@@ -33,7 +32,6 @@ export function AnimalsScreen() {
         </View>
         <AppText style={styles.note}>{copy.catalogNote}</AppText>
       </PageContent>
-      <AppFooter />
     </ScrollView>
   );
 }

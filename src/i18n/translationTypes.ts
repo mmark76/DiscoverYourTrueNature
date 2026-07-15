@@ -38,6 +38,7 @@ export interface TranslationContent {
     comingSoon: string;
     availablePrototype: string;
     status: string;
+    selectedLanguageName: string;
   };
   header: {
     home: string;
@@ -52,6 +53,7 @@ export interface TranslationContent {
     greekLanguage: string;
     englishLanguage: string;
     ecosystemLink: string;
+    feedbackAccessibilityLabel: string;
   };
   home: {
     heroEyebrow: string;
@@ -139,11 +141,16 @@ export interface TranslationContent {
   };
   footer: {
     accessibilityLabel: string;
-    copyright: string;
-    entertainment: string;
-    notDiagnosis: string;
-    privacyComingSoon: string;
-    feedbackComingSoon: string;
-    ecosystemLink: string;
+    compactDisclaimer: string;
+    navigationLabel: string;
+    privacyLabel: string;
+    privacyStatus: string;
+    privacyAccessibilityLabel: string;
+    feedbackLabel: string;
+    feedbackAccessibilityLabel: string;
+    ecosystemLabel: string;
+    ecosystemCompactLabel: string;
+    ecosystemAccessibilityLabel: string;
+    buildAccessibilityLabel: string;
   };
 }

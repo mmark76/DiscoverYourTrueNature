@@ -33,7 +33,7 @@ export function FeatureCard({ feature, width, onAction }: FeatureCardProps) {
       {feature.action ? (
         <FocusablePressable
           accessibilityLabel={copy.actionLabel}
-          accessibilityRole="button"
+          accessibilityRole={feature.action.type === 'feedback' ? 'link' : 'button'}
           onPress={onAction}
           style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
         >

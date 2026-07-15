@@ -6,6 +6,7 @@ export const englishContent = {
     comingSoon: 'Coming Soon',
     availablePrototype: 'Available in the prototype',
     status: 'Status',
+    selectedLanguageName: 'English',
   },
   header: {
     home: 'Home',
@@ -20,6 +21,7 @@ export const englishContent = {
     greekLanguage: 'Greek',
     englishLanguage: 'English',
     ecosystemLink: 'Return to Markellos Ecosystem',
+    feedbackAccessibilityLabel: 'Send feedback by email',
   },
   home: {
     heroEyebrow: 'AN ENTERTAINMENT EXPLORATION',
@@ -68,6 +70,7 @@ export const englishContent = {
         title: 'Send feedback',
         description:
           'Tell us whether the result felt right, which questions were difficult, and whether you would share it with a friend.',
+        actionLabel: 'Feedback',
       },
     },
   },
@@ -316,11 +319,16 @@ export const englishContent = {
   },
   footer: {
     accessibilityLabel: 'Animals Within information and links',
-    copyright: '© 2026 Markellos Markides. All rights reserved.',
-    entertainment: 'An entertainment self-discovery experience.',
-    notDiagnosis: 'It is not a psychological diagnosis or a scientifically validated assessment.',
-    privacyComingSoon: 'Privacy — Coming Soon',
-    feedbackComingSoon: 'Feedback — Coming Soon',
-    ecosystemLink: 'Return to Markellos Ecosystem',
+    compactDisclaimer: 'Entertainment self-discovery — not a psychological diagnosis or scientifically validated assessment.',
+    navigationLabel: 'Footer links and build information',
+    privacyLabel: 'Privacy',
+    privacyStatus: 'Privacy — Coming Soon',
+    privacyAccessibilityLabel: 'Privacy — Coming Soon',
+    feedbackLabel: 'Feedback',
+    feedbackAccessibilityLabel: 'Send feedback by email',
+    ecosystemLabel: 'Markellos Ecosystem',
+    ecosystemCompactLabel: 'Ecosystem',
+    ecosystemAccessibilityLabel: 'Return to Markellos Ecosystem',
+    buildAccessibilityLabel: 'Application build version',
   },
 } satisfies TranslationContent;

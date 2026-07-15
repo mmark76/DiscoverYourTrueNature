@@ -14,11 +14,12 @@ The responsive home dashboard provides:
 - an informational catalog of all 12 provisional animals;
 - a transparent explanation of how the prototype works;
 - desktop, tablet, and mobile layouts;
-- persistent appearance controls available from every screen.
+- persistent appearance controls available from every screen;
+- a compact fixed footer with an active email Feedback action and build identifier.
 - complete Greek and English content, including questions, results, the animal catalog,
   accessibility labels, and disclaimers.
 
-Comparison, result sharing, feedback, privacy content, and seven additional assessment outcomes
+Comparison, result sharing, privacy content, and seven additional assessment outcomes
 are clearly marked **Προσεχώς / Coming Soon**. They are not active features and the seven future animals do not
 participate in scoring.
 
@@ -98,6 +99,39 @@ keyboard focus. Layouts wrap for touch, large Greek labels, and Extra Large text
 remote fonts. Bilingual manual testing covers wide desktop, laptop, tablet, and mobile widths with
 Normal and Extra Large text, including keyboard and screen-reader labels.
 
+### Soft Sage Forest theme
+
+Forest Light uses warm cream and near-white surfaces with charcoal-green text, while Forest Dark
+uses charcoal-sage surfaces rather than near-black green. Contrast-adjusted semantic text and
+primary values preserve WCAG-readable normal text. Primary actions consistently use `primary` and
+`onPrimary` in every theme; secondary actions use muted surfaces or subtle borders. The taupe
+`accent` token is reserved for rare decoration and is not used for ordinary text, links, or buttons.
+
+## Fixed footer, build information, and Feedback
+
+The application shell owns one footer for every screen. It measures the rendered footer (including
+its bottom safe-area inset) and reserves exactly that live height beneath the active screen. The
+offset therefore updates when language, text scale, viewport width, zoom, or wrapping changes,
+without feature screens carrying hard-coded footer margins.
+
+The footer has exactly two semantic rows: a localized compact entertainment disclaimer, then
+Privacy status, Feedback, Markellos Ecosystem, and the build identifier. It remains fixed to the
+viewport, aligned to the same shared page-width container as the header and main content.
+
+Build configuration prepares this public identifier during Expo configuration/export:
+
+`version_YYYYMMDD_HHmm_abcdefg`
+
+The timestamp is UTC. Commit lookup prefers Cloudflare Pages `CF_PAGES_COMMIT_SHA`, supports common
+CI commit variables, falls back to the local Git HEAD, and exposes only the first seven SHA
+characters. When neither deployment nor Git metadata is available, it uses `version_dev_local`.
+Runtime footer code only renders the already-prepared value.
+
+Feedback in the header and footer opens the user's email client with a draft addressed to
+`markellos.markides@gmail.com`. The centralized mailto builder URL-encodes the subject, selected
+interface language, current build identifier, line breaks, and a blank Feedback area; it never sends
+mail automatically and requires no backend.
+
 ## Repository structure
 
 - `src/features/home/` — dashboard content and feature cards.
@@ -106,6 +140,7 @@ Normal and Extra Large text, including keyboard and screen-reader labels.
 - `src/features/assessment/` — existing questions and scoring flow.
 - `src/features/results/` — existing primary and secondary result presentation.
 - `src/i18n/` — typed Greek and English dictionaries plus the translation hook.
+- `src/config/` — prepared build information and centralized Feedback mailto construction.
 - `src/shared/` — shared shell components and earthy theme tokens.
 - `src/settings/` — appearance provider, presets, persistence, and Settings screen.
 - `docs/` — requirements, architecture, decisions, development, and testing documentation.

@@ -24,7 +24,8 @@
 - **Τα 12 Ζώα / The 12 Animals** opens the informational catalog.
 - **Πώς Λειτουργεί / How It Works** opens the scoring and disclaimer explanation.
 - Header and footer ecosystem links open `https://markellosecosystem.com`.
-- Feedback, Privacy, comparison, and sharing remain marked **Προσεχώς / Coming Soon** and are not actionable.
+- Header and footer Feedback links open an email draft; Privacy, comparison, and sharing remain
+  marked **Προσεχώς / Coming Soon** and are not actionable.
 
 ## Assessment state and result
 
@@ -108,3 +109,52 @@ For each representative combination:
 For scenarios 3–9, also verify that switching language does not navigate away from the current
 screen. At each responsive width, test keyboard focus, localized accessibility labels, selected and
 disabled states, complete answer-option wrapping, and the absence of horizontal overflow.
+
+## Soft Sage Forest and fixed-footer review
+
+Run and record all 22 scenarios below:
+
+1. Forest Light on desktop.
+2. Forest Dark on desktop.
+3. Forest Light on mobile.
+4. Forest Dark on mobile.
+5. Greek interface.
+6. English interface.
+7. Normal text.
+8. Extra Large text.
+9. Browser zoom at both 125% and 200%.
+10. Home screen with the fixed footer.
+11. Assessment screen, including the final answer options.
+12. Result screen actions.
+13. Animals screen final cards.
+14. How It Works final call to action.
+15. Settings final controls.
+16. Mobile safe area.
+17. Keyboard navigation through footer links.
+18. Feedback mailto from the header.
+19. Feedback mailto from the footer.
+20. Build version visible at the bottom-right.
+21. Refresh after deployment and verify the version remains stable for that build.
+22. Deploy a later commit and verify the version changes automatically.
+
+For every applicable scenario, confirm the footer remains fixed and visually quiet, contains only
+the two semantic rows, and never covers content or keyboard focus. Verify the measured content
+offset responds to wrapping, language, Extra Large text, zoom, and safe-area changes. Confirm there
+is no horizontal scrolling and that Privacy, Feedback, Ecosystem, and the build identifier share the
+second semantic row at supported mobile widths.
+
+Verify Forest uses soft cream/sage or charcoal-sage surfaces, readable subdued text, soft selected
+states, and calm focus indicators. No orange button or ordinary accent-colored text should remain.
+Primary actions must use the semantic primary fill and `onPrimary` text in Forest, Ocean, Amber, and
+Plum; Coming Soon badges must remain muted and readable.
+
+For both Feedback entry points, verify the email client opens a draft without sending it. Confirm the
+recipient is `markellos.markides@gmail.com`, the subject is `Animals Within Feedback`, and the body
+contains the selected localized language name, current build identifier, and a blank Feedback area.
+Inspect the footer with a screen reader in both languages and verify this order: disclaimer, Privacy,
+Feedback, Markellos Ecosystem, build version. Verify calm visible keyboard focus and usable touch
+targets.
+
+For exported/deployed builds, confirm the format is `version_YYYYMMDD_HHmm_abcdefg`, the timestamp
+is UTC, and only seven commit characters are visible. For a local checkout, confirm Git HEAD is used;
+without deployment or Git metadata, confirm `version_dev_local` appears.

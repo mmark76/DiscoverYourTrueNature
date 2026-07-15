@@ -1,5 +1,7 @@
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 
+import { buildVersion } from '../../config/buildInfo';
+import { createFeedbackMailto } from '../../config/feedback';
 import { AppScreen, NavigableScreen } from '../../app/navigation';
 import { useTranslation } from '../../i18n/useTranslation';
 import { useAppearance } from '../../settings/AppearanceProvider';
@@ -33,6 +35,10 @@ export function AppHeader({ currentScreen, onNavigate, onOpenSettings }: AppHead
   const { width } = useWindowDimensions();
   const compact = width < 920;
   const styles = createStyles(colors);
+  const feedbackUrl = createFeedbackMailto({
+    languageLabel: content.common.selectedLanguageName,
+    buildVersion,
+  });
   const languageLabels: Record<AppLanguage, string> = {
     el: content.header.greekLanguage,
     en: content.header.englishLanguage,
@@ -80,10 +86,13 @@ export function AppHeader({ currentScreen, onNavigate, onOpenSettings }: AppHead
             );
           })}
 
-          <View accessibilityState={{ disabled: true }} style={styles.feedbackPlaceholder}>
-            <AppText style={styles.feedbackLabel}>{content.header.feedback}</AppText>
-            <AppText style={styles.soonLabel}>{content.common.comingSoon}</AppText>
-          </View>
+          <ExternalTextLink
+            accessibilityLabel={content.header.feedbackAccessibilityLabel}
+            label={content.header.feedback}
+            url={feedbackUrl}
+            style={styles.feedbackLink}
+            textStyle={styles.navLabel}
+          />
 
           <View accessibilityLabel={content.header.languageLabel} style={styles.languageSelector}>
             {(['el', 'en'] as const).map((language) => {
@@ -150,9 +159,7 @@ function createStyles(colors: SemanticColors) {
     navButtonSelected: { backgroundColor: colors.selection },
     navLabel: { color: colors.mutedText, fontSize: 13, fontWeight: '700' },
     navLabelSelected: { color: colors.primary },
-    feedbackPlaceholder: { alignItems: 'center', minHeight: 44, paddingHorizontal: theme.spacing.sm, justifyContent: 'center' },
-    feedbackLabel: { color: colors.disabledText, fontSize: 13, fontWeight: '700' },
-    soonLabel: { color: colors.mutedText, fontSize: 9, fontWeight: '800', textTransform: 'uppercase' },
+    feedbackLink: { justifyContent: 'center', minHeight: 44, paddingHorizontal: theme.spacing.sm },
     languageSelector: { borderColor: colors.border, borderRadius: theme.radius.sm, borderWidth: 1, flexDirection: 'row', overflow: 'hidden' },
     languageOption: { alignItems: 'center', justifyContent: 'center', minHeight: 42, minWidth: 42 },
     languageOptionSelected: { backgroundColor: colors.selection },

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { SafeAreaView, StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { SafeAreaProvider, SafeAreaView as InsetSafeAreaView } from 'react-native-safe-area-context';
 
 import { AppScreen, NavigableScreen } from './src/app/navigation';
 import { AnimalsScreen } from './src/features/animals/components/AnimalsScreen';
@@ -17,12 +18,15 @@ import { ResultScreen } from './src/features/results/components/ResultScreen';
 import { AppearanceProvider, useAppearance } from './src/settings/AppearanceProvider';
 import { SettingsScreen } from './src/settings/components/SettingsScreen';
 import { AppHeader } from './src/shared/components/AppHeader';
+import { AppShell } from './src/shared/layout/AppShell';
 
 export default function App() {
   return (
-    <AppearanceProvider>
-      <AppContent />
-    </AppearanceProvider>
+    <SafeAreaProvider>
+      <AppearanceProvider>
+        <AppContent />
+      </AppearanceProvider>
+    </SafeAreaProvider>
   );
 }
 
@@ -90,9 +94,10 @@ function AppContent() {
   }
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
-      <View style={[styles.appFrame, { backgroundColor: colors.background }]}>
-        <AppHeader currentScreen={screen} onNavigate={navigate} onOpenSettings={openSettings} />
+    <InsetSafeAreaView edges={['top', 'left', 'right']} style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <AppShell
+        header={<AppHeader currentScreen={screen} onNavigate={navigate} onOpenSettings={openSettings} />}
+      >
 
         {screen === 'home' && <HomeScreen onNavigate={navigate} />}
 
@@ -120,17 +125,13 @@ function AppContent() {
         {screen === 'settings' && (
           <SettingsScreen onBack={() => setScreen(settingsReturnScreen)} />
         )}
-      </View>
-    </SafeAreaView>
+      </AppShell>
+    </InsetSafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-  },
-  appFrame: {
-    flex: 1,
-    width: '100%',
   },
 });
