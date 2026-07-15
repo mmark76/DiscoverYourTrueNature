@@ -295,7 +295,7 @@ export const englishContent = {
     light: 'Light',
     dark: 'Dark',
     colorTheme: 'Color theme',
-    forest: 'Forest',
+    forest: 'Warm Ivory',
     ocean: 'Ocean',
     amber: 'Amber',
     plum: 'Plum',

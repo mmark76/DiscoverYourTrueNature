@@ -23,7 +23,7 @@ export function FocusablePressable({ onBlur, onFocus, style, ...props }: Pressab
         focused && {
           outlineColor: colors.focus,
           outlineStyle: 'solid',
-          outlineWidth: 3,
+          outlineWidth: 2,
         },
       ]}
     />

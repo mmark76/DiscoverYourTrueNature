@@ -295,7 +295,7 @@ export const greekContent = {
     light: 'Φωτεινή',
     dark: 'Σκοτεινή',
     colorTheme: 'Χρωματικό θέμα',
-    forest: 'Δάσος',
+    forest: 'Ζεστό Κρεμ',
     ocean: 'Ωκεανός',
     amber: 'Κεχριμπάρι',
     plum: 'Δαμάσκηνο',

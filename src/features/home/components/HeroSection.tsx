@@ -48,9 +48,9 @@ function createStyles(colors: SemanticColors) {
     hero: { backgroundColor: colors.selection, borderColor: colors.border, borderRadius: theme.radius.lg, borderWidth: 1, flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.lg, overflow: 'hidden', padding: theme.spacing.xl },
     copy: { flex: 1, gap: theme.spacing.sm, minWidth: 220, zIndex: 1 },
     eyebrow: { color: colors.primary, fontSize: 11, fontWeight: '800', letterSpacing: 1.3 },
-    title: { color: colors.text, fontSize: 44, fontWeight: '900', letterSpacing: -1, lineHeight: 49 },
-    subtitle: { color: colors.text, fontSize: 21, fontWeight: '700', lineHeight: 29 },
-    description: { color: colors.mutedText, fontSize: 16, lineHeight: 25, maxWidth: 620 },
+    title: { color: colors.heading, fontSize: 44, fontWeight: '900', letterSpacing: -1, lineHeight: 49 },
+    subtitle: { color: colors.heading, fontSize: 21, fontWeight: '700', lineHeight: 29 },
+    description: { color: colors.text, fontSize: 16, lineHeight: 25, maxWidth: 620 },
     button: { alignSelf: 'flex-start', backgroundColor: colors.primary, borderRadius: theme.radius.sm, marginTop: theme.spacing.xs, minHeight: 44, paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.sm },
     buttonPressed: { backgroundColor: colors.primaryPressed },
     buttonText: { color: colors.onPrimary, fontSize: 15, fontWeight: '800' },
@@ -58,7 +58,7 @@ function createStyles(colors: SemanticColors) {
     motifCircleLarge: { borderColor: colors.heroDecoration, borderRadius: 999, borderWidth: 1, height: 180, position: 'absolute', width: 180 },
     motifCircleMedium: { borderColor: colors.heroMuted, borderRadius: 999, borderWidth: 1, height: 132, opacity: 0.65, position: 'absolute', width: 132 },
     motifCircleSmall: { backgroundColor: colors.heroDecorationStrong, borderRadius: 999, height: 94, position: 'absolute', width: 94 },
-    motifText: { color: colors.text, fontSize: 34, fontWeight: '900' },
+    motifText: { color: colors.heading, fontSize: 34, fontWeight: '900' },
     motifCaption: { color: colors.mutedText, fontSize: 12, fontWeight: '700', marginTop: 2 },
   });
 }

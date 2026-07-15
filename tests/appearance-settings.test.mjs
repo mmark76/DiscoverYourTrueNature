@@ -23,6 +23,7 @@ const requiredSemanticTokens = [
   'surface',
   'surfaceMuted',
   'text',
+  'heading',
   'mutedText',
   'primary',
   'accent',
@@ -91,46 +92,49 @@ test('every appearance preset contains all required semantic tokens', () => {
   }
 });
 
-test('Forest uses the exact soft sage Light and Dark semantic palettes', () => {
+test('the internal Forest theme uses the exact Warm Ivory Light and Dark palettes', () => {
   assert.deepEqual(appearancePresets.forest.light, {
-    background: '#F4F2EC', backgroundMuted: '#ECEDE8', surface: '#FAF9F5', surfaceMuted: '#F0F1ED',
-    text: '#3D4843', mutedText: '#5F6A64', primary: '#556C60', primaryPressed: '#485F53',
-    onPrimary: '#FFFFFF', accent: '#A39482', accentPressed: '#8E806F', onAccent: '#332E28',
-    accentMuted: '#EEE8E0', border: '#D8DDD8', borderStrong: '#B8C1BB', focus: '#786B5B',
-    disabled: '#D6D9D5', disabledText: '#5F6A64', success: '#526E5F', successSurface: '#E3EAE5',
-    warning: '#6F6253', warningSurface: '#EEE8E0', progressTrack: '#E2E6E2', selection: '#E1E8E3',
-    footerBackground: '#E8EBE7', footerText: '#3D4843', footerMuted: '#626C67', heroMuted: '#E8EEE9',
-    heroDecoration: '#B8C8BF', heroDecorationStrong: '#81998C',
+    background: '#F3EBDD', backgroundMuted: '#EEE4D3', surface: '#FFFCF5', surfaceMuted: '#F8F2E7',
+    text: '#26364A', heading: '#4A210E', mutedText: '#5D6879', primary: '#AD5200', primaryPressed: '#873409',
+    onPrimary: '#FFFFFF', accent: '#A9430D', accentPressed: '#873409', onAccent: '#FFFFFF',
+    accentMuted: '#FFF1D6', border: '#CBD5DF', borderStrong: '#AEBBC8', focus: '#C86400',
+    disabled: '#DDD8CF', disabledText: '#68717C', success: '#55705E', successSurface: '#E8EFE9',
+    warning: '#9A5A16', warningSurface: '#FFF0D8', progressTrack: '#E5DED1', selection: '#FFF0D2',
+    footerBackground: '#FFFCF5', footerText: '#53657C', footerMuted: '#687589', heroMuted: '#F5E6CD',
+    heroDecoration: '#E8C18C', heroDecorationStrong: '#C97924',
   });
   assert.deepEqual(appearancePresets.forest.dark, {
-    background: '#1B211E', backgroundMuted: '#202824', surface: '#262E2A', surfaceMuted: '#2D3732',
-    text: '#E5E9E6', mutedText: '#A6AEA9', primary: '#A1B8AC', primaryPressed: '#B5C8BE',
-    onPrimary: '#24302A', accent: '#B5A692', accentPressed: '#C5B7A5', onAccent: '#2D2923',
-    accentMuted: '#3A342D', border: '#3E4943', borderStrong: '#59655F', focus: '#B9AA96',
-    disabled: '#343C38', disabledText: '#929B96', success: '#9DB6A8', successSurface: '#303D36',
-    warning: '#B5A692', warningSurface: '#3A342D', progressTrack: '#39433E', selection: '#36443D',
-    footerBackground: '#171C1A', footerText: '#E5E9E6', footerMuted: '#A5AEA9', heroMuted: '#DCE5E0',
-    heroDecoration: '#667D72', heroDecorationStrong: '#B2C5BB',
+    background: '#1E1915', backgroundMuted: '#27201A', surface: '#30271F', surfaceMuted: '#392E25',
+    text: '#DCE2EA', heading: '#F3D4B8', mutedText: '#AAB3C0', primary: '#E89A3D', primaryPressed: '#F0AE58',
+    onPrimary: '#2D1807', accent: '#D9852D', accentPressed: '#E79B45', onAccent: '#2D1807',
+    accentMuted: '#493421', border: '#51463B', borderStrong: '#746658', focus: '#F0AE58',
+    disabled: '#3E3832', disabledText: '#9D968E', success: '#9AB5A0', successSurface: '#2D3930',
+    warning: '#E4A55C', warningSurface: '#493421', progressTrack: '#463D34', selection: '#493621',
+    footerBackground: '#18130F', footerText: '#D7DEE7', footerMuted: '#9EA8B5', heroMuted: '#4A321F',
+    heroDecoration: '#8C5A2D', heroDecorationStrong: '#E8B779',
   });
 });
 
-test('Forest Light and Dark text roles meet WCAG AA contrast', () => {
+test('Warm Ivory Light and Dark text roles meet WCAG AA contrast', () => {
   for (const mode of ['light', 'dark']) {
     const colors = appearancePresets.forest[mode];
     const pairs = [
       ['text/background', colors.text, colors.background],
       ['text/surface', colors.text, colors.surface],
+      ['heading/background', colors.heading, colors.background],
+      ['heading/surface', colors.heading, colors.surface],
       ['mutedText/background', colors.mutedText, colors.background],
       ['mutedText/surfaceMuted', colors.mutedText, colors.surfaceMuted],
       ['primary/surface', colors.primary, colors.surface],
       ['primary/selection', colors.primary, colors.selection],
       ['onPrimary/primary', colors.onPrimary, colors.primary],
+      ['onAccent/accent', colors.onAccent, colors.accent],
       ['warning/warningSurface', colors.warning, colors.warningSurface],
       ['success/successSurface', colors.success, colors.successSurface],
       ['footerText/footerBackground', colors.footerText, colors.footerBackground],
       ['footerMuted/footerBackground', colors.footerMuted, colors.footerBackground],
       ['text/selection', colors.text, colors.selection],
-      ['mutedText/selection', colors.mutedText, colors.selection],
+      ['heading/selection', colors.heading, colors.selection],
     ];
 
     for (const [name, foreground, background] of pairs) {
@@ -142,21 +146,23 @@ test('Forest Light and Dark text roles meet WCAG AA contrast', () => {
   }
 });
 
-test('ordinary text, links, and action backgrounds do not consume accent', () => {
-  for (const path of sourceFiles('src')) {
-    const source = readFileSync(path, 'utf8');
-    assert.doesNotMatch(source, /color:\s*colors\.accent\b/, `${path} uses accent for text`);
-  }
-
+test('components use semantic Warm Ivory roles without hard-coded legacy sage values', () => {
   const componentSources = sourceFiles('src')
     .filter((path) => path.endsWith('.tsx'))
     .map((path) => readFileSync(path, 'utf8'))
     .join('\n');
-  assert.doesNotMatch(componentSources, /button[^}]*backgroundColor:\s*colors\.accent\b/is);
   assert.doesNotMatch(componentSources, /#[A-Fa-f0-9]{6}/, 'components must not hard-code palette colors');
+  assert.doesNotMatch(
+    componentSources,
+    /#(?:F4F2EC|556C60|485F53|1B211E|A1B8AC|36443D)\b/i,
+    'components must not hard-code former sage palette values',
+  );
+  const forestValues = JSON.stringify(appearancePresets.forest);
+  assert.doesNotMatch(forestValues, /#(?:F4F2EC|556C60|485F53|1B211E|A1B8AC|36443D)\b/i);
 
   for (const path of [
     'src/features/home/components/HeroSection.tsx',
+    'src/features/home/components/FeatureCard.tsx',
     'src/features/information/components/HowItWorksScreen.tsx',
     'src/features/results/components/ResultScreen.tsx',
   ]) {
@@ -165,10 +171,58 @@ test('ordinary text, links, and action backgrounds do not consume accent', () =>
     assert.match(source, /color:\s*colors\.onPrimary\b/, `${path} must use onPrimary action text`);
   }
 
-  const externalLink = readFileSync('src/shared/components/ExternalTextLink.tsx', 'utf8');
   const footer = readFileSync('src/shared/components/AppFooter.tsx', 'utf8');
-  assert.doesNotMatch(externalLink, /colors\.accent/);
-  assert.doesNotMatch(footer, /colors\.accent/);
+  assert.match(footer, /backgroundColor:\s*colors\.footerBackground/);
+  assert.match(footer, /color:\s*colors\.footerMuted/);
+});
+
+test('page and card headings use heading while body copy uses text', () => {
+  const headingFiles = [
+    'src/features/home/components/HeroSection.tsx',
+    'src/features/home/components/FeatureCard.tsx',
+    'src/features/home/components/HomeScreen.tsx',
+    'src/features/assessment/components/AssessmentScreen.tsx',
+    'src/features/animals/components/AnimalCard.tsx',
+    'src/features/animals/components/AnimalsScreen.tsx',
+    'src/features/information/components/HowItWorksScreen.tsx',
+    'src/features/results/components/ResultScreen.tsx',
+    'src/settings/components/SettingsScreen.tsx',
+  ];
+  for (const path of headingFiles) {
+    const source = readFileSync(path, 'utf8');
+    assert.match(source, /color:\s*colors\.heading\b/, `${path} must use heading`);
+  }
+  for (const path of [
+    'src/features/home/components/HeroSection.tsx',
+    'src/features/home/components/FeatureCard.tsx',
+    'src/features/assessment/components/OptionButton.tsx',
+    'src/features/animals/components/AnimalCard.tsx',
+    'src/features/animals/components/AnimalsScreen.tsx',
+    'src/features/information/components/HowItWorksScreen.tsx',
+    'src/features/results/components/ResultScreen.tsx',
+    'src/settings/components/SettingsScreen.tsx',
+  ]) {
+    const source = readFileSync(path, 'utf8');
+    assert.match(source, /color:\s*colors\.text\b/, `${path} must retain body text`);
+  }
+});
+
+test('navigation, cards, and settings controls use warm semantic selected states', () => {
+  const header = readFileSync('src/shared/components/AppHeader.tsx', 'utf8');
+  const cards = readFileSync('src/features/home/components/FeatureCard.tsx', 'utf8');
+  const optionGroup = readFileSync('src/settings/components/SettingsOptionGroup.tsx', 'utf8');
+  assert.match(header, /navButtonSelected:\s*\{[^}]*backgroundColor:\s*colors\.selection[^}]*borderColor:\s*colors\.primary/);
+  assert.match(cards, /backgroundColor:\s*colors\.surface/);
+  assert.match(cards, /borderColor:\s*colors\.border/);
+  assert.match(optionGroup, /backgroundColor:\s*colors\.selection/);
+});
+
+test('Ocean, Amber, and Plum retain text-compatible heading tokens', () => {
+  for (const themeName of ['ocean', 'amber', 'plum']) {
+    for (const mode of ['light', 'dark']) {
+      assert.equal(appearancePresets[themeName][mode].heading, appearancePresets[themeName][mode].text);
+    }
+  }
 });
 
 test('Coming Soon and selected states use calm semantic surfaces', () => {
@@ -262,6 +316,8 @@ test('settings labels resolve in Greek and English', () => {
   assert.equal(getTranslation('en').header.settings, 'Settings');
   assert.equal(getTranslation('el').settings.readable, 'Υψηλής αναγνωσιμότητας');
   assert.equal(getTranslation('en').settings.readable, 'Highly Readable');
+  assert.equal(getTranslation('el').settings.forest, 'Ζεστό Κρεμ');
+  assert.equal(getTranslation('en').settings.forest, 'Warm Ivory');
 });
 
 test('no raw settings translation key is exposed as translated content', () => {

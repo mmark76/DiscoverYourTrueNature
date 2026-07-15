@@ -81,13 +81,14 @@ changing the current question, or replacing an existing result.
 Supported settings:
 
 - appearance mode: System, Light, or Dark;
-- color theme: Forest, Ocean, Amber, or Plum, each with light and dark semantic palettes;
+- color theme: Warm Ivory, Ocean, Amber, or Plum, each with light and dark semantic palettes;
 - font family: System Sans, Serif, or Highly Readable system fonts;
 - text size: Small, Normal, Large, or Extra Large;
 - Greek and English content across every screen.
 
-The defaults are device-locale language, System appearance, Forest colors, System Sans, and Normal
-text size. Settings use one guarded storage abstraction and are restored after refresh when storage
+The defaults are device-locale language, System appearance, Warm Ivory colors, System Sans, and Normal
+text size. Warm Ivory retains the internal ID `forest` so existing persisted preferences remain valid.
+Settings use one guarded storage abstraction and are restored after refresh when storage
 is available. Missing, invalid, or inaccessible stored values safely fall back to defaults.
 
 Reset requires an in-application confirmation and restores all documented defaults. It does not
@@ -99,13 +100,48 @@ keyboard focus. Layouts wrap for touch, large Greek labels, and Extra Large text
 remote fonts. Bilingual manual testing covers wide desktop, laptop, tablet, and mobile widths with
 Normal and Extra Large text, including keyboard and screen-reader labels.
 
-### Soft Sage Forest theme
+### Warm Ivory theme
 
-Forest Light uses warm cream and near-white surfaces with charcoal-green text, while Forest Dark
-uses charcoal-sage surfaces rather than near-black green. Contrast-adjusted semantic text and
-primary values preserve WCAG-readable normal text. Primary actions consistently use `primary` and
-`onPrimary` in every theme; secondary actions use muted surfaces or subtle borders. The taupe
-`accent` token is reserved for rare decoration and is not used for ordinary text, links, or buttons.
+The default theme is displayed as **Warm Ivory** in English and **Ζεστό Κρεμ** in Greek while keeping
+the persisted internal identifier `forest`. Light mode combines warm ivory and cream surfaces with
+ink-blue body text, warm-brown headings, blue-grey borders, and controlled burnt-orange actions.
+Dark mode uses espresso and charcoal surfaces with cream headings and amber actions rather than a
+green identity.
+
+Every appearance preset defines the centralized `heading` token. Page titles, card titles, and
+important section headings use `heading`; paragraph copy uses `text`, and secondary copy uses
+`mutedText`. Ocean, Amber, and Plum initially map `heading` to their existing text color.
+
+Warm Ivory Light uses `#F3EBDD` background, `#FFFCF5` surface, `#26364A` text, `#4A210E`
+heading, `#AD5200` primary, `#CBD5DF` border, and `#FFF0D2` selection. Warm Ivory Dark uses
+`#1E1915` background, `#30271F` surface, `#DCE2EA` text, `#F3D4B8` heading, `#E89A3D`
+primary, `#51463B` border, and `#493621` selection. The Light primary and muted roles are slightly
+darker than the visual reference so normal button, link, and secondary text retain readable contrast.
+
+The complete Warm Ivory semantic palettes are:
+
+```text
+Light: background #F3EBDD; backgroundMuted #EEE4D3; surface #FFFCF5; surfaceMuted #F8F2E7;
+text #26364A; heading #4A210E; mutedText #5D6879; primary #AD5200; primaryPressed #873409;
+onPrimary #FFFFFF; accent #A9430D; accentPressed #873409; onAccent #FFFFFF; accentMuted #FFF1D6;
+border #CBD5DF; borderStrong #AEBBC8; focus #C86400; disabled #DDD8CF; disabledText #68717C;
+success #55705E; successSurface #E8EFE9; warning #9A5A16; warningSurface #FFF0D8;
+selection #FFF0D2; progressTrack #E5DED1; footerBackground #FFFCF5; footerText #53657C;
+footerMuted #687589; heroMuted #F5E6CD; heroDecoration #E8C18C; heroDecorationStrong #C97924.
+
+Dark: background #1E1915; backgroundMuted #27201A; surface #30271F; surfaceMuted #392E25;
+text #DCE2EA; heading #F3D4B8; mutedText #AAB3C0; primary #E89A3D; primaryPressed #F0AE58;
+onPrimary #2D1807; accent #D9852D; accentPressed #E79B45; onAccent #2D1807; accentMuted #493421;
+border #51463B; borderStrong #746658; focus #F0AE58; disabled #3E3832; disabledText #9D968E;
+success #9AB5A0; successSurface #2D3930; warning #E4A55C; warningSurface #493421;
+selection #493621; progressTrack #463D34; footerBackground #18130F; footerText #D7DEE7;
+footerMuted #9EA8B5; heroMuted #4A321F; heroDecoration #8C5A2D; heroDecorationStrong #E8B779.
+```
+
+Primary actions use the burnt-orange `primary` fill with `onPrimary` text and `primaryPressed` when
+pressed. Secondary actions remain cream or transparent with blue-grey borders. Warning and destructive
+actions retain their own semantic roles. Active navigation and selected controls use the pale amber
+selection surface with an orange border; Coming Soon badges use warm muted status surfaces.
 
 ## Fixed footer, build information, and Feedback
 
@@ -116,7 +152,9 @@ without feature screens carrying hard-coded footer margins.
 
 The footer has exactly two semantic rows: a localized compact entertainment disclaimer, then
 Privacy status, Feedback, Markellos Ecosystem, and the build identifier. It remains fixed to the
-viewport, aligned to the same shared page-width container as the header and main content.
+viewport, aligned to the same shared page-width container as the header and main content. Warm Ivory
+uses a quiet cream footer, blue-grey top border and text, restrained burnt-orange links, and a muted
+version string without changing the measured-height or safe-area architecture.
 
 Build configuration prepares this public identifier during Expo configuration/export:
 
@@ -129,7 +167,7 @@ CI commit variables, falls back to the local Git HEAD, and exposes only the firs
 characters. When neither deployment nor Git metadata is available, it uses `version_dev_local`.
 Runtime footer code only renders the already-prepared value.
 
-Feedback in the header and footer opens the user's email client with a draft addressed to
+Feedback in the header, Home card, and footer opens the user's email client with a draft addressed to
 `markellos.markides@gmail.com`. The centralized mailto builder URL-encodes the subject, selected
 interface language, current build identifier, line breaks, and a blank Feedback area; it never sends
 mail automatically and requires no backend.

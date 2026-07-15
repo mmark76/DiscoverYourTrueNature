@@ -53,11 +53,11 @@ function createStyles(colors: SemanticColors) {
     comingSoonCard: { backgroundColor: colors.surfaceMuted, borderStyle: 'dashed' },
     content: { gap: theme.spacing.sm },
     eyebrow: { color: colors.primary, fontSize: 11, fontWeight: '900', letterSpacing: 1.1 },
-    title: { color: colors.text, fontSize: 23, fontWeight: '800', lineHeight: 29 },
-    description: { color: colors.mutedText, fontSize: 15, lineHeight: 23 },
-    button: { alignItems: 'center', alignSelf: 'flex-start', borderColor: colors.primary, borderRadius: theme.radius.sm, borderWidth: 1, flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs, minHeight: 44, paddingHorizontal: theme.spacing.sm, paddingVertical: theme.spacing.xs },
-    buttonPressed: { backgroundColor: colors.selection },
-    buttonText: { color: colors.primary, fontSize: 14, fontWeight: '800' },
-    arrow: { color: colors.primary, fontSize: 17, fontWeight: '700' },
+    title: { color: colors.heading, fontSize: 23, fontWeight: '800', lineHeight: 29 },
+    description: { color: colors.text, fontSize: 15, lineHeight: 23 },
+    button: { alignItems: 'center', alignSelf: 'flex-start', backgroundColor: colors.primary, borderColor: colors.primary, borderRadius: theme.radius.sm, borderWidth: 1, flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs, minHeight: 44, paddingHorizontal: theme.spacing.sm, paddingVertical: theme.spacing.xs },
+    buttonPressed: { backgroundColor: colors.primaryPressed, borderColor: colors.primaryPressed },
+    buttonText: { color: colors.onPrimary, fontSize: 14, fontWeight: '800' },
+    arrow: { color: colors.onPrimary, fontSize: 17, fontWeight: '700' },
   });
 }

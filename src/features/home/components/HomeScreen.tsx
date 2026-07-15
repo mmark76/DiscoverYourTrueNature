@@ -61,7 +61,7 @@ function createStyles(colors: SemanticColors) {
     content: { gap: theme.spacing.xl, paddingVertical: theme.spacing.lg },
     sectionHeading: { gap: theme.spacing.xs },
     sectionEyebrow: { color: colors.primary, fontSize: 11, fontWeight: '900', letterSpacing: 1.2 },
-    sectionTitle: { color: colors.text, fontSize: 28, fontWeight: '800', lineHeight: 35 },
+    sectionTitle: { color: colors.heading, fontSize: 28, fontWeight: '800', lineHeight: 35 },
     grid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md },
   });
 }

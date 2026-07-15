@@ -159,8 +159,8 @@ function createStyles(colors: SemanticColors) {
     content: { gap: theme.spacing.lg, paddingVertical: theme.spacing.lg },
     introduction: { gap: theme.spacing.sm, maxWidth: 780 },
     eyebrow: { color: colors.primary, fontSize: 11, fontWeight: '900', letterSpacing: 1.2 },
-    title: { color: colors.text, fontSize: 40, fontWeight: '900', lineHeight: 47 },
-    description: { color: colors.mutedText, fontSize: 17, lineHeight: 26 },
+    title: { color: colors.heading, fontSize: 40, fontWeight: '900', lineHeight: 47 },
+    description: { color: colors.text, fontSize: 17, lineHeight: 26 },
     settingsCard: {
       backgroundColor: colors.surface,
       borderColor: colors.border,
@@ -178,8 +178,8 @@ function createStyles(colors: SemanticColors) {
       padding: theme.spacing.lg,
     },
     previewLabel: { color: colors.primary, fontSize: 11, fontWeight: '900', letterSpacing: 1 },
-    previewTitle: { color: colors.text, fontSize: 25, fontWeight: '800' },
-    previewBody: { color: colors.mutedText, fontSize: 16, lineHeight: 24 },
+    previewTitle: { color: colors.heading, fontSize: 25, fontWeight: '800' },
+    previewBody: { color: colors.text, fontSize: 16, lineHeight: 24 },
     confirmation: {
       backgroundColor: colors.warningSurface,
       borderColor: colors.warning,

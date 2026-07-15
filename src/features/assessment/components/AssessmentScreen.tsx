@@ -68,7 +68,7 @@ function createStyles(colors: SemanticColors) {
     counter: { color: colors.mutedText, fontSize: 14, marginTop: theme.spacing.sm },
     progressTrack: { backgroundColor: colors.progressTrack, borderRadius: 999, height: 8, marginTop: theme.spacing.sm, overflow: 'hidden' },
     progressFill: { backgroundColor: colors.primary, height: '100%' },
-    question: { color: colors.text, fontSize: 28, fontWeight: '700', lineHeight: 36 },
+    question: { color: colors.heading, fontSize: 28, fontWeight: '700', lineHeight: 36 },
     options: { gap: theme.spacing.sm },
     note: { color: colors.mutedText, fontSize: 13, lineHeight: 19, textAlign: 'center' },
   });

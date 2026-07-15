@@ -43,8 +43,8 @@ function createStyles(colors: SemanticColors) {
     content: { gap: theme.spacing.xl, paddingVertical: theme.spacing.lg },
     introduction: { gap: theme.spacing.sm, maxWidth: 760 },
     eyebrow: { color: colors.primary, fontSize: 11, fontWeight: '900', letterSpacing: 1.2 },
-    title: { color: colors.text, fontSize: 40, fontWeight: '900', lineHeight: 47 },
-    description: { color: colors.mutedText, fontSize: 17, lineHeight: 26 },
+    title: { color: colors.heading, fontSize: 40, fontWeight: '900', lineHeight: 47 },
+    description: { color: colors.text, fontSize: 17, lineHeight: 26 },
     grid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md },
     note: { backgroundColor: colors.warningSurface, borderRadius: theme.radius.md, color: colors.warning, fontSize: 13, lineHeight: 20, padding: theme.spacing.md },
   });

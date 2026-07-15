@@ -130,7 +130,7 @@ export function AppHeader({ currentScreen, onNavigate, onOpenSettings }: AppHead
             ]}
           >
             <AppText accessibilityElementsHidden style={styles.settingsIcon}>⚙</AppText>
-            <AppText style={styles.navLabel}>{content.header.settings}</AppText>
+            <AppText style={[styles.navLabel, currentScreen === 'settings' && styles.navLabelSelected]}>{content.header.settings}</AppText>
           </FocusablePressable>
 
           <ExternalTextLink
@@ -152,20 +152,20 @@ function createStyles(colors: SemanticColors) {
     headerInnerCompact: { alignItems: 'flex-start', flexDirection: 'column', gap: theme.spacing.sm },
     brandButton: { alignItems: 'center', borderRadius: theme.radius.sm, flexDirection: 'row', gap: theme.spacing.xs, minHeight: 44 },
     brandMark: { backgroundColor: colors.accent, borderRadius: 999, height: 12, width: 12 },
-    brand: { color: colors.text, fontSize: 20, fontWeight: '800' },
+    brand: { color: colors.heading, fontSize: 20, fontWeight: '800' },
     navigation: { alignItems: 'center', flexDirection: 'row', flexShrink: 1, flexWrap: 'wrap', gap: 4, justifyContent: 'flex-end' },
     navigationCompact: { justifyContent: 'flex-start', width: '100%' },
-    navButton: { borderRadius: theme.radius.sm, minHeight: 44, paddingHorizontal: theme.spacing.sm, paddingVertical: theme.spacing.xs },
-    navButtonSelected: { backgroundColor: colors.selection },
-    navLabel: { color: colors.mutedText, fontSize: 13, fontWeight: '700' },
-    navLabelSelected: { color: colors.primary },
+    navButton: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: theme.radius.sm, borderWidth: 1, minHeight: 44, paddingHorizontal: theme.spacing.sm, paddingVertical: theme.spacing.xs },
+    navButtonSelected: { backgroundColor: colors.selection, borderColor: colors.primary },
+    navLabel: { color: colors.text, fontSize: 13, fontWeight: '700' },
+    navLabelSelected: { color: colors.accent },
     feedbackLink: { justifyContent: 'center', minHeight: 44, paddingHorizontal: theme.spacing.sm },
     languageSelector: { borderColor: colors.border, borderRadius: theme.radius.sm, borderWidth: 1, flexDirection: 'row', overflow: 'hidden' },
     languageOption: { alignItems: 'center', justifyContent: 'center', minHeight: 42, minWidth: 42 },
     languageOptionSelected: { backgroundColor: colors.selection },
     languageLabel: { color: colors.mutedText, fontSize: 11, fontWeight: '800' },
     languageLabelSelected: { color: colors.primary },
-    settingsControl: { alignItems: 'center', borderRadius: theme.radius.sm, flexDirection: 'row', gap: 5, minHeight: 44, paddingHorizontal: theme.spacing.sm, paddingVertical: theme.spacing.xs },
+    settingsControl: { alignItems: 'center', backgroundColor: colors.surface, borderColor: colors.border, borderRadius: theme.radius.sm, borderWidth: 1, flexDirection: 'row', gap: 5, minHeight: 44, paddingHorizontal: theme.spacing.sm, paddingVertical: theme.spacing.xs },
     settingsIcon: { color: colors.primary, fontSize: 16, fontWeight: '800' },
     ecosystemLink: { marginLeft: 'auto', maxWidth: '100%', minHeight: 44, justifyContent: 'center' },
     ecosystemLabel: { textAlign: 'right' },

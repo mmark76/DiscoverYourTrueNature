@@ -64,7 +64,7 @@ export function SettingsOptionGroup<T extends string>({
 function createStyles(colors: SemanticColors) {
   return StyleSheet.create({
     group: { gap: 10 },
-    groupLabel: { color: colors.text, fontSize: 16, fontWeight: '800' },
+    groupLabel: { color: colors.heading, fontSize: 16, fontWeight: '800' },
     options: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
     option: {
       alignItems: 'center',

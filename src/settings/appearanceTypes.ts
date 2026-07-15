@@ -19,6 +19,7 @@ export interface SemanticColors {
   surface: string;
   surfaceMuted: string;
   text: string;
+  heading: string;
   mutedText: string;
   primary: string;
   primaryPressed: string;

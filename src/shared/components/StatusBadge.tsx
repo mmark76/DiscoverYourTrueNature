@@ -30,11 +30,11 @@ export function StatusBadge({ label, tone = 'soon' }: StatusBadgeProps) {
 
 function createStyles(colors: SemanticColors) {
   return StyleSheet.create({
-    badge: { alignSelf: 'flex-start', borderRadius: 999, paddingHorizontal: theme.spacing.sm, paddingVertical: 6 },
+    badge: { alignSelf: 'flex-start', borderColor: colors.border, borderRadius: 999, borderWidth: 1, paddingHorizontal: theme.spacing.sm, paddingVertical: 6 },
     available: { backgroundColor: colors.successSurface },
     soon: { backgroundColor: colors.warningSurface },
     label: { fontSize: 11, fontWeight: '800', letterSpacing: 0.4 },
     availableLabel: { color: colors.success },
-    soonLabel: { color: colors.text },
+    soonLabel: { color: colors.heading },
   });
 }

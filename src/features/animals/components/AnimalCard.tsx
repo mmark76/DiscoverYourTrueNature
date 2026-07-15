@@ -55,7 +55,7 @@ function createStyles(colors: SemanticColors) {
     numberAvailable: { backgroundColor: colors.primary },
     numberText: { color: colors.mutedText, fontSize: 13, fontWeight: '800' },
     numberTextAvailable: { color: colors.onPrimary },
-    name: { color: colors.text, flexShrink: 1, fontSize: 22, fontWeight: '800' },
+    name: { color: colors.heading, flexShrink: 1, fontSize: 22, fontWeight: '800' },
     traits: { color: colors.mutedText, flex: 1, fontSize: 15, lineHeight: 23 },
     description: { color: colors.text, fontSize: 14, lineHeight: 21 },
   });

@@ -56,7 +56,7 @@ Test a selective matrix across desktop and mobile:
 
 - Greek and English interface labels;
 - System, Light, and Dark modes;
-- Forest, Ocean, Amber, and Plum themes;
+- Warm Ivory, Ocean, Amber, and Plum themes;
 - System Sans, Serif, and Highly Readable fonts;
 - Normal and Extra Large text sizes.
 
@@ -83,7 +83,7 @@ For each representative combination:
 7. Select System mode and switch the operating-system appearance preference; verify the app follows it.
 8. Choose Extra Large with Greek labels on mobile; verify controls wrap without clipping or overflow.
 9. Select Reset, cancel the inline confirmation, and verify nothing changes.
-10. Confirm Reset and verify locale language, System mode, Forest, System Sans, and Normal size return.
+10. Confirm Reset and verify locale language, System mode, Warm Ivory, System Sans, and Normal size return.
 11. Simulate unavailable or invalid storage and verify the application still loads with safe defaults.
 
 ## Required bilingual scenarios
@@ -110,14 +110,14 @@ For scenarios 3–9, also verify that switching language does not navigate away 
 screen. At each responsive width, test keyboard focus, localized accessibility labels, selected and
 disabled states, complete answer-option wrapping, and the absence of horizontal overflow.
 
-## Soft Sage Forest and fixed-footer review
+## Warm Ivory and fixed-footer review
 
 Run and record all 22 scenarios below:
 
-1. Forest Light on desktop.
-2. Forest Dark on desktop.
-3. Forest Light on mobile.
-4. Forest Dark on mobile.
+1. Warm Ivory Light on desktop.
+2. Warm Ivory Dark on desktop.
+3. Warm Ivory Light on mobile.
+4. Warm Ivory Dark on mobile.
 5. Greek interface.
 6. English interface.
 7. Normal text.
@@ -143,12 +143,19 @@ offset responds to wrapping, language, Extra Large text, zoom, and safe-area cha
 is no horizontal scrolling and that Privacy, Feedback, Ecosystem, and the build identifier share the
 second semantic row at supported mobile widths.
 
-Verify Forest uses soft cream/sage or charcoal-sage surfaces, readable subdued text, soft selected
-states, and calm focus indicators. No orange button or ordinary accent-colored text should remain.
-Primary actions must use the semantic primary fill and `onPrimary` text in Forest, Ocean, Amber, and
-Plum; Coming Soon badges must remain muted and readable.
+Verify Warm Ivory uses sand backgrounds, near-white cream cards, warm-brown headings, ink-blue body
+text, blue-grey borders, pale amber selected states, and calm focus indicators. Primary actions must
+use a controlled burnt-orange semantic `primary` fill with `onPrimary` text in Warm Ivory, Ocean,
+Amber, and Plum; secondary actions must remain quieter and Coming Soon badges muted and readable.
+Confirm no sage or grey-green identity remains. Check that the visible theme labels are **Warm Ivory**
+and **Ζεστό Κρεμ**, while an existing stored `forest` preference still selects this theme.
 
-For both Feedback entry points, verify the email client opens a draft without sending it. Confirm the
+Review Home, assessment, result, 12 Animals, How It Works, and Settings at desktop and mobile widths,
+in Light and Dark mode, in Greek and English, with Normal and Extra Large text. Repeat at 125% and
+200% browser zoom. Confirm cards remain distinct, enabled actions do not resemble disabled controls,
+no content is covered by the footer, and no horizontal scrolling appears.
+
+For the Header, Home card, and Footer Feedback entry points, verify the email client opens a draft without sending it. Confirm the
 recipient is `markellos.markides@gmail.com`, the subject is `Animals Within Feedback`, and the body
 contains the selected localized language name, current build identifier, and a blank Feedback area.
 Inspect the footer with a screen reader in both languages and verify this order: disclaimer, Privacy,
