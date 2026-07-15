@@ -15,13 +15,12 @@ The responsive home dashboard provides:
 - a transparent explanation of how the prototype works;
 - desktop, tablet, and mobile layouts;
 - persistent appearance controls available from every screen;
-- a compact fixed footer with an active email Feedback action and build identifier.
+- a compact fixed footer with an active email Feedback action and build identifier;
 - complete Greek and English content, including questions, results, the animal catalog,
   accessibility labels, and disclaimers.
 
-Comparison, result sharing, privacy content, and seven additional assessment outcomes
-are clearly marked **Προσεχώς / Coming Soon**. They are not active features and the seven future animals do not
-participate in scoring.
+The Home dashboard presents only its three working destinations: the assessment, the 12-animal
+catalog, and How It Works. Seven catalog animals are informational and do not participate in scoring.
 
 ## Run locally
 
@@ -141,7 +140,7 @@ footerMuted #9EA8B5; heroMuted #4A321F; heroDecoration #8C5A2D; heroDecorationSt
 Primary actions use the burnt-orange `primary` fill with `onPrimary` text and `primaryPressed` when
 pressed. Secondary actions remain cream or transparent with blue-grey borders. Warning and destructive
 actions retain their own semantic roles. Active navigation and selected controls use the pale amber
-selection surface with an orange border; Coming Soon badges use warm muted status surfaces.
+selection surface with an orange border; informational catalog badges use warm muted status surfaces.
 
 ## Fixed footer, build information, and Feedback
 
@@ -151,7 +150,7 @@ offset therefore updates when language, text scale, viewport width, zoom, or wra
 without feature screens carrying hard-coded footer margins.
 
 The footer has exactly two semantic rows: a localized compact entertainment disclaimer, then
-Privacy status, Feedback, Markellos Ecosystem, and the build identifier. It remains fixed to the
+Feedback, Markellos Ecosystem, and the build identifier. It remains fixed to the
 viewport, aligned to the same shared page-width container as the header and main content. Warm Ivory
 uses a quiet cream footer, blue-grey top border and text, restrained burnt-orange links, and a muted
 version string without changing the measured-height or safe-area architecture.
@@ -167,7 +166,7 @@ CI commit variables, falls back to the local Git HEAD, and exposes only the firs
 characters. When neither deployment nor Git metadata is available, it uses `version_dev_local`.
 Runtime footer code only renders the already-prepared value.
 
-Feedback in the header, Home card, and footer opens the user's email client with a draft addressed to
+Feedback in the header and footer opens the user's email client with a draft addressed to
 `markellos.markides@gmail.com`. The centralized mailto builder URL-encodes the subject, selected
 interface language, current build identifier, line breaks, and a blank Feedback area; it never sends
 mail automatically and requires no backend.

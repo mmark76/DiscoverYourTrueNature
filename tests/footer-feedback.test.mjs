@@ -12,7 +12,6 @@ import { translations } from '../src/i18n/translations.ts';
 const footerSource = readFileSync('src/shared/components/AppFooter.tsx', 'utf8');
 const headerSource = readFileSync('src/shared/components/AppHeader.tsx', 'utf8');
 const shellSource = readFileSync('src/shared/layout/AppShell.tsx', 'utf8');
-const homeSource = readFileSync('src/features/home/components/HomeScreen.tsx', 'utf8');
 
 test('feedback helper creates the exact encoded mailto draft', () => {
   const buildVersion = 'version_20260715_1834_2ed6b36';
@@ -32,14 +31,13 @@ test('feedback helper creates the exact encoded mailto draft', () => {
   assert.match(mailto, /%0A/);
 });
 
-test('header, footer, and Home share the active centralized Feedback builder', () => {
-  for (const source of [headerSource, footerSource, homeSource]) {
+test('header and footer share the active centralized Feedback builder', () => {
+  for (const source of [headerSource, footerSource]) {
     assert.match(source, /createFeedbackMailto/);
     assert.doesNotMatch(source, /feedbackComingSoon|feedbackPlaceholder/);
   }
   assert.match(headerSource, /url=\{feedbackUrl\}/);
   assert.match(footerSource, /url=\{feedbackUrl\}/);
-  assert.match(homeSource, /Linking\.openURL\(feedbackUrl\)/);
   assert.doesNotMatch(footerSource, /colors\.accent/);
 });
 
@@ -55,13 +53,18 @@ test('footer has exactly two semantic rows in accessible content order', () => {
   assert.equal((footerSource.match(/testID="footer-row-/g) ?? []).length, 2);
   const order = [
     'content.footer.compactDisclaimer',
-    'content.footer.privacyAccessibilityLabel',
     'content.footer.feedbackAccessibilityLabel',
     'content.footer.ecosystemAccessibilityLabel',
     'content.footer.buildAccessibilityLabel',
   ].map((needle) => footerSource.indexOf(needle));
   assert.ok(order.every((index) => index >= 0));
   assert.deepEqual(order, [...order].sort((a, b) => a - b));
+});
+
+test('footer does not render a placeholder Privacy item', () => {
+  assert.doesNotMatch(footerSource, /privacy|accessibilityState=\{\{ disabled: true \}\}/i);
+  assert.equal('privacyLabel' in translations.en.footer, false);
+  assert.equal('privacyLabel' in translations.el.footer, false);
 });
 
 test('footer keeps links and build in one responsive row without horizontal scrolling', () => {

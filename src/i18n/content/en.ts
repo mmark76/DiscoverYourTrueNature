@@ -3,7 +3,7 @@ import type { TranslationContent } from '../translationTypes';
 export const englishContent = {
   common: {
     productName: 'Animals Within',
-    comingSoon: 'Coming Soon',
+    informationalOnly: 'Informational only',
     availablePrototype: 'Available in the prototype',
     status: 'Status',
     selectedLanguageName: 'English',
@@ -54,23 +54,6 @@ export const englishContent = {
         description:
           'Learn how your choices connect to the animal archetypes in this entertainment experience.',
         actionLabel: 'Learn more',
-      },
-      compare: {
-        eyebrow: 'COMPARE',
-        title: 'Compare two results',
-        description: 'A future experience for friends, couples, and families.',
-      },
-      share: {
-        eyebrow: 'SHARE',
-        title: 'Share your animal',
-        description: 'Create a result image you can share with others.',
-      },
-      feedback: {
-        eyebrow: 'HELP SHAPE THE PROTOTYPE',
-        title: 'Send feedback',
-        description:
-          'Tell us whether the result felt right, which questions were difficult, and whether you would share it with a friend.',
-        actionLabel: 'Feedback',
       },
     },
   },
@@ -186,9 +169,9 @@ export const englishContent = {
     eyebrow: 'THE PROVISIONAL ARCHETYPES',
     title: 'The 12 Animals',
     introduction:
-      'Meet the evolving Animals Within world. The first five animals participate in the current prototype; the remaining seven are presented only as future directions.',
+      'Meet the evolving Animals Within world. All twelve animals are included in this informational catalog; five participate in the current assessment and seven cannot appear as results.',
     catalogNote:
-      'These descriptions are provisional and intended for entertainment. Animals marked “Coming Soon” cannot appear as a result in the current assessment.',
+      'These descriptions are provisional and intended for entertainment. Informational animals do not participate in current assessment scoring.',
     cardAccessibility: '{name}: {availability}',
     records: {
       wolf: {
@@ -321,9 +304,6 @@ export const englishContent = {
     accessibilityLabel: 'Animals Within information and links',
     compactDisclaimer: 'Entertainment self-discovery — not a psychological diagnosis or scientifically validated assessment.',
     navigationLabel: 'Footer links and build information',
-    privacyLabel: 'Privacy',
-    privacyStatus: 'Privacy — Coming Soon',
-    privacyAccessibilityLabel: 'Privacy — Coming Soon',
     feedbackLabel: 'Feedback',
     feedbackAccessibilityLabel: 'Send feedback by email',
     ecosystemLabel: 'Markellos Ecosystem',

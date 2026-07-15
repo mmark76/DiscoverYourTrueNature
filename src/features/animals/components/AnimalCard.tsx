@@ -18,7 +18,7 @@ export function AnimalCard({ animal, index, width }: AnimalCardProps) {
   const copy = content.animals.records[animal.id];
   const availability = available
     ? content.common.availablePrototype
-    : content.common.comingSoon;
+    : content.common.informationalOnly;
   const accessibilityLabel = formatTranslation(content.animals.cardAccessibility, {
     availability,
     name: copy.name,
@@ -28,7 +28,7 @@ export function AnimalCard({ animal, index, width }: AnimalCardProps) {
   return (
     <View
       accessibilityLabel={accessibilityLabel}
-      style={[styles.card, { width }, !available && styles.comingSoonCard]}
+      style={[styles.card, { width }, !available && styles.informationalCard]}
     >
       <View style={styles.heading}>
         <View style={[styles.number, available && styles.numberAvailable]}>
@@ -40,7 +40,7 @@ export function AnimalCard({ animal, index, width }: AnimalCardProps) {
       <AppText style={styles.description}>{copy.description}</AppText>
       <StatusBadge
         label={availability}
-        tone={available ? 'available' : 'soon'}
+        tone={available ? 'available' : 'informational'}
       />
     </View>
   );
@@ -49,7 +49,7 @@ export function AnimalCard({ animal, index, width }: AnimalCardProps) {
 function createStyles(colors: SemanticColors) {
   return StyleSheet.create({
     card: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: theme.radius.md, borderWidth: 1, gap: theme.spacing.md, minHeight: 190, padding: theme.spacing.lg },
-    comingSoonCard: { backgroundColor: colors.surfaceMuted },
+    informationalCard: { backgroundColor: colors.surfaceMuted },
     heading: { alignItems: 'center', flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
     number: { alignItems: 'center', backgroundColor: colors.backgroundMuted, borderRadius: 999, height: 38, justifyContent: 'center', width: 38 },
     numberAvailable: { backgroundColor: colors.primary },

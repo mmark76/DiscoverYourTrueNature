@@ -10,7 +10,7 @@ export interface HomeFeatureCopy {
   eyebrow: string;
   title: string;
   description: string;
-  actionLabel?: string;
+  actionLabel: string;
 }
 
 export interface ArchetypeCopy {
@@ -35,7 +35,7 @@ export interface ProcessStepCopy {
 export interface TranslationContent {
   common: {
     productName: string;
-    comingSoon: string;
+    informationalOnly: string;
     availablePrototype: string;
     status: string;
     selectedLanguageName: string;
@@ -143,9 +143,6 @@ export interface TranslationContent {
     accessibilityLabel: string;
     compactDisclaimer: string;
     navigationLabel: string;
-    privacyLabel: string;
-    privacyStatus: string;
-    privacyAccessibilityLabel: string;
     feedbackLabel: string;
     feedbackAccessibilityLabel: string;
     ecosystemLabel: string;

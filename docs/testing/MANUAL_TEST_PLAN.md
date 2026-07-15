@@ -10,7 +10,7 @@
 ## Responsive dashboard
 
 - Desktop (at least 1080 px): verify three feature-card columns and a readable header/footer.
-- Tablet (680–1079 px): verify two feature-card columns and wrapped navigation.
+- Tablet (680–1079 px): verify two cards share the first row and the third forms a balanced full-width row.
 - Mobile (below 680 px): verify one card per row, readable hero copy, and reachable navigation.
 - Repeat at wide desktop, normal laptop, tablet, and mobile widths in both languages.
 - At every size, verify no horizontal scrolling, clipped text, overlapping controls, or hidden
@@ -24,8 +24,8 @@
 - **Τα 12 Ζώα / The 12 Animals** opens the informational catalog.
 - **Πώς Λειτουργεί / How It Works** opens the scoring and disclaimer explanation.
 - Header and footer ecosystem links open `https://markellosecosystem.com`.
-- Header and footer Feedback links open an email draft; Privacy, comparison, and sharing remain
-  marked **Προσεχώς / Coming Soon** and are not actionable.
+- Verify Home contains only the active Discover, 12 Animals, and How It Works cards.
+- Header and footer Feedback links open an email draft.
 
 ## Assessment state and result
 
@@ -40,15 +40,15 @@
 
 - Verify all twelve required animals and provisional trait descriptions are present.
 - Verify Wolf, Owl, Eagle, Dolphin, and Bear show the localized available label.
-- Verify the remaining seven show **Προσεχώς / Coming Soon**.
-- Verify no coming-soon animal can be selected or produced by the assessment.
+- Verify the remaining seven show the localized informational-only label.
+- Verify no informational-only animal can be selected or produced by the assessment.
 
 ## Content and safety
 
 - Verify How It Works identifies the questions as experimental and scoring as deterministic.
 - Verify the home/footer language describes the experience as recreational.
 - Verify the footer says it is not a psychological diagnosis or scientific assessment.
-- Verify there is no invented feedback or privacy destination.
+- Verify there is no Privacy placeholder or invented Privacy destination.
 
 ## Appearance settings
 
@@ -67,7 +67,7 @@ For each representative combination:
   and footer remain readable;
 - verify selected options show both the check indicator and selected styling;
 - verify keyboard focus is clearly visible in every color theme;
-- verify disabled and **Προσεχώς / Coming soon** states remain distinct;
+- verify informational catalog states remain distinct from interactive controls;
 - verify the ecosystem destination remains a text link.
 - inspect meaningful navigation, progress, status, disabled-state, and action labels with a screen reader.
 - verify the selected language control exposes its radio state and never uses a flag.
@@ -140,13 +140,13 @@ Run and record all 22 scenarios below:
 For every applicable scenario, confirm the footer remains fixed and visually quiet, contains only
 the two semantic rows, and never covers content or keyboard focus. Verify the measured content
 offset responds to wrapping, language, Extra Large text, zoom, and safe-area changes. Confirm there
-is no horizontal scrolling and that Privacy, Feedback, Ecosystem, and the build identifier share the
+is no horizontal scrolling and that Feedback, Ecosystem, and the build identifier share the
 second semantic row at supported mobile widths.
 
 Verify Warm Ivory uses sand backgrounds, near-white cream cards, warm-brown headings, ink-blue body
 text, blue-grey borders, pale amber selected states, and calm focus indicators. Primary actions must
 use a controlled burnt-orange semantic `primary` fill with `onPrimary` text in Warm Ivory, Ocean,
-Amber, and Plum; secondary actions must remain quieter and Coming Soon badges muted and readable.
+Amber, and Plum; secondary actions must remain quieter and informational badges muted and readable.
 Confirm no sage or grey-green identity remains. Check that the visible theme labels are **Warm Ivory**
 and **Ζεστό Κρεμ**, while an existing stored `forest` preference still selects this theme.
 
@@ -155,10 +155,10 @@ in Light and Dark mode, in Greek and English, with Normal and Extra Large text. 
 200% browser zoom. Confirm cards remain distinct, enabled actions do not resemble disabled controls,
 no content is covered by the footer, and no horizontal scrolling appears.
 
-For the Header, Home card, and Footer Feedback entry points, verify the email client opens a draft without sending it. Confirm the
+For the Header and Footer Feedback entry points, verify the email client opens a draft without sending it. Confirm the
 recipient is `markellos.markides@gmail.com`, the subject is `Animals Within Feedback`, and the body
 contains the selected localized language name, current build identifier, and a blank Feedback area.
-Inspect the footer with a screen reader in both languages and verify this order: disclaimer, Privacy,
+Inspect the footer with a screen reader in both languages and verify this order: disclaimer,
 Feedback, Markellos Ecosystem, build version. Verify calm visible keyboard focus and usable touch
 targets.
 

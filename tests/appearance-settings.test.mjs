@@ -225,11 +225,12 @@ test('Ocean, Amber, and Plum retain text-compatible heading tokens', () => {
   }
 });
 
-test('Coming Soon and selected states use calm semantic surfaces', () => {
+test('informational catalog badges and selected states use calm semantic surfaces', () => {
   const badge = readFileSync('src/shared/components/StatusBadge.tsx', 'utf8');
   const optionGroup = readFileSync('src/settings/components/SettingsOptionGroup.tsx', 'utf8');
   const assessment = readFileSync('src/features/assessment/components/OptionButton.tsx', 'utf8');
   assert.match(badge, /backgroundColor:\s*colors\.warningSurface/);
+  assert.match(badge, /styles\.informational/);
   assert.match(optionGroup, /backgroundColor:\s*colors\.selection/);
   assert.match(assessment, /backgroundColor:\s*colors\.selection/);
 });

@@ -2,27 +2,22 @@ import type { NavigableScreen } from '../../../app/navigation';
 
 export interface HomeFeature {
   id: string;
-  action?:
-    | { type: 'navigate'; screen: NavigableScreen }
-    | { type: 'feedback' };
+  screen: NavigableScreen;
 }
 
 export const homeFeatures = [
   {
     id: 'discovery',
-    action: { type: 'navigate', screen: 'assessment' },
+    screen: 'assessment',
   },
   {
     id: 'animals',
-    action: { type: 'navigate', screen: 'animals' },
+    screen: 'animals',
   },
   {
     id: 'how-it-works',
-    action: { type: 'navigate', screen: 'how-it-works' },
+    screen: 'how-it-works',
   },
-  { id: 'compare', action: undefined },
-  { id: 'share', action: undefined },
-  { id: 'feedback', action: { type: 'feedback' } },
 ] as const satisfies readonly HomeFeature[];
 
 export type HomeFeatureId = (typeof homeFeatures)[number]['id'];

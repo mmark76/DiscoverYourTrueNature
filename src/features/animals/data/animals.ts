@@ -1,4 +1,4 @@
-export type AnimalAvailability = 'prototype' | 'coming-soon';
+export type AnimalAvailability = 'prototype' | 'informational';
 
 export interface ProvisionalAnimal {
   id: string;
@@ -11,13 +11,13 @@ export const provisionalAnimals = [
   { id: 'eagle', availability: 'prototype' },
   { id: 'dolphin', availability: 'prototype' },
   { id: 'bear', availability: 'prototype' },
-  { id: 'lion', availability: 'coming-soon' },
-  { id: 'fox', availability: 'coming-soon' },
-  { id: 'panther', availability: 'coming-soon' },
-  { id: 'elephant', availability: 'coming-soon' },
-  { id: 'horse', availability: 'coming-soon' },
-  { id: 'turtle', availability: 'coming-soon' },
-  { id: 'octopus', availability: 'coming-soon' },
+  { id: 'lion', availability: 'informational' },
+  { id: 'fox', availability: 'informational' },
+  { id: 'panther', availability: 'informational' },
+  { id: 'elephant', availability: 'informational' },
+  { id: 'horse', availability: 'informational' },
+  { id: 'turtle', availability: 'informational' },
+  { id: 'octopus', availability: 'informational' },
 ] as const satisfies readonly ProvisionalAnimal[];
 
 export type AnimalId = (typeof provisionalAnimals)[number]['id'];

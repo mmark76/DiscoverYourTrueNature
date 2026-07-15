@@ -75,11 +75,17 @@ test('Greek and English dictionaries have identical populated leaf keys', () => 
   assertPopulated(translations.en, 'en');
 });
 
+test('neither localization exposes future-feature placeholder copy', () => {
+  const copy = stringLeaves(translations).join('\n');
+  assert.doesNotMatch(copy, /coming\s+soon/i);
+  assert.doesNotMatch(copy, /Προσεχώς/u);
+});
+
 test('all Home content resolves in both languages', () => {
   for (const language of ['el', 'en']) {
     const home = getTranslation(language).home;
     assertPopulated(home, `${language}.home`);
-    assert.equal(Object.keys(home.features).length, 6);
+    assert.equal(Object.keys(home.features).length, 3);
     for (const id of ['discovery', 'animals', 'how-it-works']) {
       assert.ok(home.features[id].actionLabel);
     }
@@ -204,12 +210,12 @@ test('question IDs, option IDs, score maps, and result archetype IDs match the r
   assert.deepEqual(archetypes.map(({ id }) => id), scoringFixture.resultArchetypeIds);
 });
 
-test('only five animals can score and seven future animals remain informational', () => {
+test('only five animals can score and seven catalog animals remain informational', () => {
   const scoringIds = new Set(archetypes.map(({ id }) => id));
   const available = provisionalAnimals.filter(({ availability }) => availability === 'prototype');
-  const future = provisionalAnimals.filter(({ availability }) => availability === 'coming-soon');
+  const informational = provisionalAnimals.filter(({ availability }) => availability === 'informational');
 
   assert.deepEqual(available.map(({ id }) => id), [...scoringIds]);
-  assert.equal(future.length, 7);
-  for (const animal of future) assert.equal(scoringIds.has(animal.id), false);
+  assert.equal(informational.length, 7);
+  for (const animal of informational) assert.equal(scoringIds.has(animal.id), false);
 });

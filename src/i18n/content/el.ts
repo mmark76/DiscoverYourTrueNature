@@ -3,7 +3,7 @@ import type { TranslationContent } from '../translationTypes';
 export const greekContent = {
   common: {
     productName: 'Animals Within',
-    comingSoon: 'Προσεχώς',
+    informationalOnly: 'Μόνο για ενημέρωση',
     availablePrototype: 'Διαθέσιμο στο πρωτότυπο',
     status: 'Κατάσταση',
     selectedLanguageName: 'Ελληνικά',
@@ -54,23 +54,6 @@ export const greekContent = {
         description:
           'Μάθε πώς οι επιλογές σου συνδέονται με τα ζωικά αρχέτυπα αυτής της ψυχαγωγικής εμπειρίας.',
         actionLabel: 'Μάθε περισσότερα',
-      },
-      compare: {
-        eyebrow: 'ΣΥΓΚΡΙΣΗ',
-        title: 'Σύγκρινε δύο αποτελέσματα',
-        description: 'Μια μελλοντική εμπειρία για φίλους, ζευγάρια και οικογένειες.',
-      },
-      share: {
-        eyebrow: 'ΚΟΙΝΟΠΟΙΗΣΗ',
-        title: 'Μοιράσου το ζώο σου',
-        description: 'Δημιούργησε μια εικόνα αποτελέσματος που θα μπορείς να μοιραστείς.',
-      },
-      feedback: {
-        eyebrow: 'ΒΟΗΘΗΣΕ ΤΟ ΠΡΩΤΟΤΥΠΟ',
-        title: 'Στείλε feedback',
-        description:
-          'Πες μας αν το αποτέλεσμα σε εξέφρασε, ποιες ερωτήσεις σε δυσκόλεψαν και αν θα το μοιραζόσουν με φίλο.',
-        actionLabel: 'Feedback',
       },
     },
   },
@@ -186,9 +169,9 @@ export const greekContent = {
     eyebrow: 'ΤΑ ΠΡΟΣΩΡΙΝΑ ΑΡΧΕΤΥΠΑ',
     title: 'Τα 12 Ζώα',
     introduction:
-      'Γνώρισε τον υπό διαμόρφωση κόσμο του Animals Within. Τα πρώτα πέντε ζώα συμμετέχουν στο σημερινό πρωτότυπο· τα υπόλοιπα επτά παρουσιάζονται μόνο ως μελλοντικές κατευθύνσεις.',
+      'Γνώρισε τον υπό διαμόρφωση κόσμο του Animals Within. Και τα δώδεκα ζώα περιλαμβάνονται σε αυτόν τον ενημερωτικό κατάλογο· πέντε συμμετέχουν στην τρέχουσα αξιολόγηση και επτά δεν μπορούν να εμφανιστούν ως αποτελέσματα.',
     catalogNote:
-      'Οι περιγραφές είναι προσωρινές και ψυχαγωγικές. Τα ζώα με ένδειξη «Προσεχώς» δεν μπορούν να προκύψουν ως αποτέλεσμα της τρέχουσας αξιολόγησης.',
+      'Οι περιγραφές είναι προσωρινές και ψυχαγωγικές. Τα ενημερωτικά ζώα δεν συμμετέχουν στη βαθμολόγηση της τρέχουσας αξιολόγησης.',
     cardAccessibility: '{name}: {availability}',
     records: {
       wolf: {
@@ -321,9 +304,6 @@ export const greekContent = {
     accessibilityLabel: 'Πληροφορίες και σύνδεσμοι του Animals Within',
     compactDisclaimer: 'Ψυχαγωγική εμπειρία αυτογνωσίας — όχι ψυχολογική διάγνωση ή επιστημονική αξιολόγηση.',
     navigationLabel: 'Σύνδεσμοι υποσέλιδου και πληροφορίες έκδοσης',
-    privacyLabel: 'Απόρρητο',
-    privacyStatus: 'Απόρρητο — Προσεχώς',
-    privacyAccessibilityLabel: 'Απόρρητο — Προσεχώς',
     feedbackLabel: 'Feedback',
     feedbackAccessibilityLabel: 'Αποστολή σχολίων μέσω email',
     ecosystemLabel: 'Markellos Ecosystem',

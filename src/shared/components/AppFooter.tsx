@@ -49,13 +49,6 @@ export function AppFooter() {
           testID="footer-row-navigation"
           style={[styles.navigationRow, compact && styles.navigationRowCompact]}
         >
-          <AppText
-            accessibilityLabel={content.footer.privacyAccessibilityLabel}
-            accessibilityState={{ disabled: true }}
-            style={[styles.placeholder, compact && styles.compactLinkLabel]}
-          >
-            {compact ? content.footer.privacyLabel : content.footer.privacyStatus}
-          </AppText>
           <ExternalTextLink
             accessibilityLabel={content.footer.feedbackAccessibilityLabel}
             label={content.footer.feedbackLabel}
@@ -106,7 +99,6 @@ function createStyles(colors: SemanticColors) {
       width: '100%',
     },
     navigationRowCompact: { columnGap: 6 },
-    placeholder: { color: colors.footerMuted, flexShrink: 1, fontSize: 10, lineHeight: 14 },
     link: { flexShrink: 1, justifyContent: 'center' },
     linkLabel: { color: colors.primary, fontSize: 10, lineHeight: 14 },
     compactLinkLabel: { fontSize: 8.5, lineHeight: 12 },
