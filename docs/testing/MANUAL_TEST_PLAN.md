@@ -45,3 +45,37 @@
 - Verify the home/footer language describes the experience as recreational.
 - Verify the footer says it is not a psychological diagnosis or scientific assessment.
 - Verify there is no invented feedback or privacy destination.
+
+## Appearance settings
+
+Test a selective matrix across desktop and mobile:
+
+- Greek and English interface labels;
+- System, Light, and Dark modes;
+- Forest, Ocean, Amber, and Plum themes;
+- System Sans, Serif, and Highly Readable fonts;
+- Normal and Extra Large text sizes.
+
+For each representative combination:
+
+- verify the header wraps without clipped navigation or horizontal scrolling;
+- verify hero, feature cards, assessment choices, results, animal descriptions, information screens,
+  and footer remain readable;
+- verify selected options show both the check indicator and selected styling;
+- verify keyboard focus is clearly visible in every color theme;
+- verify disabled and **Προσεχώς / Coming soon** states remain distinct;
+- verify the ecosystem destination remains a text link.
+
+## Persistence and state preservation
+
+1. Start the assessment and answer at least three questions.
+2. Open Settings from the assessment header.
+3. Change language, mode, theme, font, and text size, then return.
+4. Verify the same question and accumulated progress remain.
+5. Complete the assessment, change settings from the result, and verify the result remains unchanged.
+6. Refresh and verify manually selected preferences are restored.
+7. Select System mode and switch the operating-system appearance preference; verify the app follows it.
+8. Choose Extra Large with Greek labels on mobile; verify controls wrap without clipping or overflow.
+9. Select Reset, cancel the inline confirmation, and verify nothing changes.
+10. Confirm Reset and verify locale language, System mode, Forest, System Sans, and Normal size return.
+11. Simulate unavailable or invalid storage and verify the application still loads with safe defaults.

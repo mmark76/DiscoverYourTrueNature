@@ -14,11 +14,22 @@ import { AssessmentResult, ScoreMap } from './src/features/assessment/types';
 import { HomeScreen } from './src/features/home/components/HomeScreen';
 import { HowItWorksScreen } from './src/features/information/components/HowItWorksScreen';
 import { ResultScreen } from './src/features/results/components/ResultScreen';
+import { AppearanceProvider, useAppearance } from './src/settings/AppearanceProvider';
+import { SettingsScreen } from './src/settings/components/SettingsScreen';
 import { AppHeader } from './src/shared/components/AppHeader';
-import { theme } from './src/shared/styles/theme';
 
 export default function App() {
+  return (
+    <AppearanceProvider>
+      <AppContent />
+    </AppearanceProvider>
+  );
+}
+
+function AppContent() {
+  const { colors } = useAppearance();
   const [screen, setScreen] = useState<AppScreen>('home');
+  const [settingsReturnScreen, setSettingsReturnScreen] = useState<AppScreen>('home');
   const [questionIndex, setQuestionIndex] = useState(0);
   const [scores, setScores] = useState(createEmptyScores);
   const [result, setResult] = useState<AssessmentResult | null>(null);
@@ -55,6 +66,13 @@ export default function App() {
     setScreen(nextScreen);
   }
 
+  function openSettings() {
+    if (screen !== 'settings') {
+      setSettingsReturnScreen(screen);
+      setScreen('settings');
+    }
+  }
+
   function selectAnswer(answerScores: ScoreMap) {
     const nextScores = addScores(scores, answerScores);
     const isLastQuestion = questionIndex === assessmentQuestions.length - 1;
@@ -72,9 +90,9 @@ export default function App() {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.appFrame}>
-        <AppHeader currentScreen={screen} onNavigate={navigate} />
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <View style={[styles.appFrame, { backgroundColor: colors.background }]}>
+        <AppHeader currentScreen={screen} onNavigate={navigate} onOpenSettings={openSettings} />
 
         {screen === 'home' && <HomeScreen onNavigate={navigate} />}
 
@@ -94,6 +112,10 @@ export default function App() {
         {screen === 'animals' && <AnimalsScreen />}
 
         {screen === 'how-it-works' && <HowItWorksScreen onStart={openAssessment} />}
+
+        {screen === 'settings' && (
+          <SettingsScreen onBack={() => setScreen(settingsReturnScreen)} />
+        )}
       </View>
     </SafeAreaView>
   );
@@ -101,11 +123,9 @@ export default function App() {
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: theme.colors.background,
     flex: 1,
   },
   appFrame: {
-    backgroundColor: theme.colors.background,
     flex: 1,
     width: '100%',
   },

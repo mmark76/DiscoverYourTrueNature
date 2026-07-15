@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { Linking, Pressable, StyleSheet, Text } from 'react-native';
+import { Linking, Pressable, StyleSheet } from 'react-native';
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 
-import { theme } from '../styles/theme';
+import { useAppearance } from '../../settings/AppearanceProvider';
+import type { SemanticColors } from '../../settings/appearanceTypes';
+import { AppText } from './AppText';
 
 interface ExternalTextLinkProps {
   label: string;
@@ -12,9 +14,11 @@ interface ExternalTextLinkProps {
 }
 
 export function ExternalTextLink({ label, url, style, textStyle }: ExternalTextLinkProps) {
+  const { colors } = useAppearance();
   const [focused, setFocused] = useState(false);
   const [hovered, setHovered] = useState(false);
   const underlined = focused || hovered;
+  const styles = createStyles(colors);
 
   return (
     <Pressable
@@ -27,26 +31,16 @@ export function ExternalTextLink({ label, url, style, textStyle }: ExternalTextL
       onPress={() => Linking.openURL(url)}
       style={({ pressed }) => [style, focused && styles.focused, pressed && styles.pressed]}
     >
-      <Text style={[styles.label, textStyle, underlined && styles.underlined]}>{label}</Text>
+      <AppText style={[styles.label, textStyle, underlined && styles.underlined]}>{label}</AppText>
     </Pressable>
   );
 }
 
-const styles = StyleSheet.create({
-  label: {
-    color: theme.colors.accent,
-    fontSize: 13,
-    fontWeight: '700',
-  },
-  focused: {
-    outlineColor: theme.colors.accent,
-    outlineStyle: 'solid',
-    outlineWidth: 2,
-  },
-  pressed: {
-    opacity: 0.65,
-  },
-  underlined: {
-    textDecorationLine: 'underline',
-  },
-});
+function createStyles(colors: SemanticColors) {
+  return StyleSheet.create({
+    label: { color: colors.accent, fontSize: 13, fontWeight: '700' },
+    focused: { outlineColor: colors.focus, outlineStyle: 'solid', outlineWidth: 2 },
+    pressed: { opacity: 0.65 },
+    underlined: { textDecorationLine: 'underline' },
+  });
+}

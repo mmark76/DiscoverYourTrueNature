@@ -1,5 +1,8 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
+import { useAppearance } from '../../settings/AppearanceProvider';
+import type { SemanticColors } from '../../settings/appearanceTypes';
+import { AppText } from './AppText';
 import { theme } from '../styles/theme';
 
 interface StatusBadgeProps {
@@ -8,40 +11,28 @@ interface StatusBadgeProps {
 }
 
 export function StatusBadge({ label, tone = 'soon' }: StatusBadgeProps) {
+  const { colors, translate } = useAppearance();
+  const styles = createStyles(colors);
+
   return (
     <View
-      accessibilityLabel={`Κατάσταση: ${label}`}
+      accessibilityLabel={`${translate('status')}: ${label}`}
       style={[styles.badge, tone === 'available' ? styles.available : styles.soon]}
     >
-      <Text style={[styles.label, tone === 'available' ? styles.availableLabel : styles.soonLabel]}>
+      <AppText style={[styles.label, tone === 'available' ? styles.availableLabel : styles.soonLabel]}>
         {label}
-      </Text>
+      </AppText>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  badge: {
-    alignSelf: 'flex-start',
-    borderRadius: 999,
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: 6,
-  },
-  available: {
-    backgroundColor: '#E2EEE7',
-  },
-  soon: {
-    backgroundColor: theme.colors.accentMuted,
-  },
-  label: {
-    fontSize: 11,
-    fontWeight: '800',
-    letterSpacing: 0.4,
-  },
-  availableLabel: {
-    color: theme.colors.primary,
-  },
-  soonLabel: {
-    color: '#7A4528',
-  },
-});
+function createStyles(colors: SemanticColors) {
+  return StyleSheet.create({
+    badge: { alignSelf: 'flex-start', borderRadius: 999, paddingHorizontal: theme.spacing.sm, paddingVertical: 6 },
+    available: { backgroundColor: colors.successSurface },
+    soon: { backgroundColor: colors.warningSurface },
+    label: { fontSize: 11, fontWeight: '800', letterSpacing: 0.4 },
+    availableLabel: { color: colors.success },
+    soonLabel: { color: colors.warning },
+  });
+}

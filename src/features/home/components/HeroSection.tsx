@@ -1,31 +1,33 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
+import { useAppearance } from '../../../settings/AppearanceProvider';
+import type { SemanticColors } from '../../../settings/appearanceTypes';
+import { AppText } from '../../../shared/components/AppText';
 import { FocusablePressable } from '../../../shared/components/FocusablePressable';
 import { theme } from '../../../shared/styles/theme';
 
-interface HeroSectionProps {
-  onStart: () => void;
-}
+interface HeroSectionProps { onStart: () => void; }
 
 export function HeroSection({ onStart }: HeroSectionProps) {
+  const { colors } = useAppearance();
+  const styles = createStyles(colors);
+
   return (
     <View style={styles.hero}>
       <View style={styles.copy}>
-        <Text style={styles.eyebrow}>ΜΙΑ ΨΥΧΑΓΩΓΙΚΗ ΕΞΕΡΕΥΝΗΣΗ</Text>
-        <Text accessibilityRole="header" style={styles.title}>
-          Animals Within
-        </Text>
-        <Text style={styles.subtitle}>Ανακάλυψε το ζωικό σου αρχέτυπο.</Text>
-        <Text style={styles.description}>
+        <AppText style={styles.eyebrow}>ΜΙΑ ΨΥΧΑΓΩΓΙΚΗ ΕΞΕΡΕΥΝΗΣΗ</AppText>
+        <AppText accessibilityRole="header" style={styles.title}>Animals Within</AppText>
+        <AppText style={styles.subtitle}>Ανακάλυψε το ζωικό σου αρχέτυπο.</AppText>
+        <AppText style={styles.description}>
           Μια σύντομη ψυχαγωγική εμπειρία που εξερευνά τον τρόπο που αποφασίζεις,
           συνεργάζεσαι και αντιδράς.
-        </Text>
+        </AppText>
         <FocusablePressable
           accessibilityRole="button"
           onPress={onStart}
           style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
         >
-          <Text style={styles.buttonText}>Ξεκίνα την ανακάλυψη</Text>
+          <AppText style={styles.buttonText}>Ξεκίνα την ανακάλυψη</AppText>
         </FocusablePressable>
       </View>
 
@@ -33,110 +35,29 @@ export function HeroSection({ onStart }: HeroSectionProps) {
         <View style={styles.motifCircleLarge} />
         <View style={styles.motifCircleMedium} />
         <View style={styles.motifCircleSmall} />
-        <Text style={styles.motifText}>12</Text>
-        <Text style={styles.motifCaption}>ζωικά αρχέτυπα</Text>
+        <AppText style={styles.motifText}>12</AppText>
+        <AppText style={styles.motifCaption}>ζωικά αρχέτυπα</AppText>
       </View>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  hero: {
-    backgroundColor: theme.colors.primary,
-    borderRadius: theme.radius.lg,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: theme.spacing.lg,
-    overflow: 'hidden',
-    padding: theme.spacing.xl,
-  },
-  copy: {
-    flex: 1,
-    gap: theme.spacing.sm,
-    minWidth: 220,
-    zIndex: 1,
-  },
-  eyebrow: {
-    color: '#C9D9D1',
-    fontSize: 11,
-    fontWeight: '800',
-    letterSpacing: 1.3,
-  },
-  title: {
-    color: '#FFFFFF',
-    fontSize: 44,
-    fontWeight: '900',
-    letterSpacing: -1,
-    lineHeight: 49,
-  },
-  subtitle: {
-    color: '#FFFFFF',
-    fontSize: 21,
-    fontWeight: '700',
-    lineHeight: 29,
-  },
-  description: {
-    color: '#D8E2DD',
-    fontSize: 16,
-    lineHeight: 25,
-    maxWidth: 620,
-  },
-  button: {
-    alignSelf: 'flex-start',
-    backgroundColor: theme.colors.accent,
-    borderRadius: theme.radius.sm,
-    marginTop: theme.spacing.xs,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.sm,
-  },
-  buttonPressed: {
-    backgroundColor: '#914E2B',
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '800',
-  },
-  motif: {
-    alignItems: 'center',
-    alignSelf: 'center',
-    height: 190,
-    justifyContent: 'center',
-    minWidth: 220,
-    position: 'relative',
-  },
-  motifCircleLarge: {
-    borderColor: '#6F9185',
-    borderRadius: 999,
-    borderWidth: 1,
-    height: 180,
-    position: 'absolute',
-    width: 180,
-  },
-  motifCircleMedium: {
-    borderColor: '#8EA99F',
-    borderRadius: 999,
-    borderWidth: 1,
-    height: 132,
-    position: 'absolute',
-    width: 132,
-  },
-  motifCircleSmall: {
-    backgroundColor: '#3A6A59',
-    borderRadius: 999,
-    height: 94,
-    position: 'absolute',
-    width: 94,
-  },
-  motifText: {
-    color: '#FFFFFF',
-    fontSize: 34,
-    fontWeight: '900',
-  },
-  motifCaption: {
-    color: '#C9D9D1',
-    fontSize: 12,
-    fontWeight: '700',
-    marginTop: 2,
-  },
-});
+function createStyles(colors: SemanticColors) {
+  return StyleSheet.create({
+    hero: { backgroundColor: colors.primary, borderRadius: theme.radius.lg, flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.lg, overflow: 'hidden', padding: theme.spacing.xl },
+    copy: { flex: 1, gap: theme.spacing.sm, minWidth: 220, zIndex: 1 },
+    eyebrow: { color: colors.heroMuted, fontSize: 11, fontWeight: '800', letterSpacing: 1.3 },
+    title: { color: colors.onPrimary, fontSize: 44, fontWeight: '900', letterSpacing: -1, lineHeight: 49 },
+    subtitle: { color: colors.onPrimary, fontSize: 21, fontWeight: '700', lineHeight: 29 },
+    description: { color: colors.heroMuted, fontSize: 16, lineHeight: 25, maxWidth: 620 },
+    button: { alignSelf: 'flex-start', backgroundColor: colors.accent, borderRadius: theme.radius.sm, marginTop: theme.spacing.xs, minHeight: 44, paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.sm },
+    buttonPressed: { backgroundColor: colors.accentPressed },
+    buttonText: { color: colors.onAccent, fontSize: 15, fontWeight: '800' },
+    motif: { alignItems: 'center', alignSelf: 'center', height: 190, justifyContent: 'center', minWidth: 220, position: 'relative' },
+    motifCircleLarge: { borderColor: colors.heroDecoration, borderRadius: 999, borderWidth: 1, height: 180, position: 'absolute', width: 180 },
+    motifCircleMedium: { borderColor: colors.heroMuted, borderRadius: 999, borderWidth: 1, height: 132, opacity: 0.65, position: 'absolute', width: 132 },
+    motifCircleSmall: { backgroundColor: colors.heroDecorationStrong, borderRadius: 999, height: 94, position: 'absolute', width: 94 },
+    motifText: { color: colors.onPrimary, fontSize: 34, fontWeight: '900' },
+    motifCaption: { color: colors.heroMuted, fontSize: 12, fontWeight: '700', marginTop: 2 },
+  });
+}

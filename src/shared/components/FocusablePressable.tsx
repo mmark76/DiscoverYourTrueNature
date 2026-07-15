@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Pressable, PressableProps, StyleSheet } from 'react-native';
+import { Pressable, PressableProps } from 'react-native';
 
-import { theme } from '../styles/theme';
+import { useAppearance } from '../../settings/AppearanceProvider';
 
 export function FocusablePressable({ onBlur, onFocus, style, ...props }: PressableProps) {
+  const { colors } = useAppearance();
   const [focused, setFocused] = useState(false);
 
   return (
@@ -19,16 +20,12 @@ export function FocusablePressable({ onBlur, onFocus, style, ...props }: Pressab
       }}
       style={(state) => [
         typeof style === 'function' ? style(state) : style,
-        focused && styles.focused,
+        focused && {
+          outlineColor: colors.focus,
+          outlineStyle: 'solid',
+          outlineWidth: 3,
+        },
       ]}
     />
   );
 }
-
-const styles = StyleSheet.create({
-  focused: {
-    outlineColor: theme.colors.accent,
-    outlineStyle: 'solid',
-    outlineWidth: 3,
-  },
-});
