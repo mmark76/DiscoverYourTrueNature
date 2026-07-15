@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "Discover Your True Nature",
+    "slug": "discover-your-true-nature",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "android": {
+      "package": "com.markellos.discoveryourtruenature"
+    },
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}
