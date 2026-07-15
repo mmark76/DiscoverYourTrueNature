@@ -1,6 +1,7 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { AssessmentResult } from '../../assessment/types';
+import { FocusablePressable } from '../../../shared/components/FocusablePressable';
 import { theme } from '../../../shared/styles/theme';
 
 interface ResultScreenProps {
@@ -43,22 +44,25 @@ export function ResultScreen({ result, onRestart }: ResultScreenProps) {
         καθορίσουν ποιες ερωτήσεις και περιγραφές χρειάζονται αλλαγή.
       </Text>
 
-      <Pressable
+      <FocusablePressable
         accessibilityRole="button"
         onPress={onRestart}
         style={({ pressed }) => [styles.restartButton, pressed && styles.restartButtonPressed]}
       >
         <Text style={styles.restartText}>Κάνε ξανά το τεστ</Text>
-      </Pressable>
+      </FocusablePressable>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    alignSelf: 'center',
     gap: theme.spacing.md,
+    maxWidth: 720,
     padding: theme.spacing.lg,
     paddingBottom: theme.spacing.xl,
+    width: '100%',
   },
   eyebrow: {
     color: theme.colors.primary,

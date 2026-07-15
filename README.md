@@ -1,66 +1,63 @@
-# Discover Your True Nature
+# Animals Within
 
-> Working title for an animal-archetype self-discovery experience.
+**Animals Within** is a free Greek-language entertainment prototype for exploring provisional
+animal archetypes. The public prototype is available at
+**https://animalswithin.markellosecosystem.com**.
 
-## Working URL
+## Current experience
 
-**https://animalswithin.markellosecosystem.com**
+The responsive home dashboard provides:
 
-## Working promise
+- a clear path into the existing ten-question assessment;
+- deterministic local scoring across five active archetypes;
+- primary and secondary result presentation;
+- an informational catalog of all 12 provisional animals;
+- a transparent explanation of how the prototype works;
+- desktop, tablet, and mobile layouts.
 
-**Discover Your Animal Archetype.**  
-Greek: **Ανακάλυψε το ζωικό σου αρχέτυπο.**
-
-## Current prototype
-
-The repository now contains a runnable personal-validation prototype built with Expo, React Native, and TypeScript.
-
-It currently provides:
-
-- a Greek-language welcome screen,
-- ten questions shown one at a time,
-- five initial animal archetypes,
-- deterministic local scoring,
-- a primary and secondary archetype,
-- strengths, watch-outs, and restart capability.
-
-The first prototype intentionally does **not** use the OpenAI API, Google Play Billing, user accounts, a database, or analytics. This keeps personal testing free and isolates the product questions from the technical and commercial decisions.
+Comparison, result sharing, feedback, privacy content, and seven additional assessment outcomes
+are clearly marked **Προσεχώς**. They are not active features and the seven future animals do not
+participate in scoring.
 
 ## Run locally
 
-Prerequisite: a Node.js LTS version compatible with Expo SDK 57.
+Use a Node.js LTS version compatible with Expo SDK 57.
 
 ```bash
 npm install
 npm run web
 ```
 
-For Android development after the local environment is configured:
-
-```bash
-npm run android
-```
-
-Run the TypeScript validation with:
+Run the automated checks with:
 
 ```bash
 npm run typecheck
+npm test
 ```
 
-## Important documents
+Create a production-style web export with:
 
-- `docs/requirements/MVP_SCOPE.md` — exact scope and validation questions.
-- `docs/testing/MANUAL_TEST_PLAN.md` — step-by-step owner testing.
-- `docs/decisions/ADR-0001-prototype-platform.md` — platform decision and deferred choices.
-- `docs/development/GENERAL_SOFTWARE_PROJECT_GUIDE.md` — project-wide architecture and development principles.
+```bash
+npx expo export --platform web
+```
+
+## Assessment navigation
+
+Opening Home during an unfinished assessment preserves the current question and accumulated
+scores. Choosing **Ανακάλυψη** or a discovery call to action resumes that assessment. Restarting
+from a completed result intentionally begins again from question 1 with clean scores.
 
 ## Repository structure
 
+- `src/features/home/` — dashboard content and feature cards.
+- `src/features/animals/` — the provisional 12-animal informational catalog.
+- `src/features/information/` — the How It Works explanation.
+- `src/features/assessment/` — existing questions and scoring flow.
+- `src/features/results/` — existing primary and secondary result presentation.
+- `src/shared/` — shared shell components and earthy theme tokens.
 - `docs/` — requirements, architecture, decisions, development, and testing documentation.
-- `src/features/` — assessment, onboarding, and result capabilities organised by feature.
-- `src/shared/` — reusable styles and future shared components.
-- `src/infrastructure/` — reserved for later external-service integrations.
 
-## Development principle
+## Entertainment disclaimer
 
-Build the smallest coherent version first, using small modules, clear responsibilities, documented decisions, and controlled incremental changes.
+Το Animals Within είναι ψυχαγωγική εμπειρία αυτογνωσίας. Δεν αποτελεί ψυχολογική διάγνωση,
+επιστημονικά επικυρωμένο τεστ προσωπικότητας, ιατρική συμβουλή ή επαγγελματική αξιολόγηση.

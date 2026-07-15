@@ -1,55 +1,47 @@
-# Manual Test Plan — Prototype 0.1
+# Manual Test Plan — Animals Within Home Dashboard
 
 ## Setup
 
-1. Install a current Node.js LTS version compatible with Expo SDK 57.
-2. Run `npm install`.
-3. Run `npm run web`.
-4. Open the local address shown by Expo.
+1. Run `npm install`.
+2. Run `npm run typecheck` and `npm test`.
+3. Run `npm run web` and open the local Expo URL.
 
-## Core flow
+## Responsive dashboard
 
-- The welcome screen appears without errors.
-- The start button opens question 1.
-- Exactly one question is shown at a time.
-- The progress indicator advances after each answer.
-- Ten answers lead to a result.
-- A primary and a secondary archetype are displayed.
-- Restart returns to question 1 with a clean score.
+- Desktop (at least 1080 px): verify three feature-card columns and a readable header/footer.
+- Tablet (680–1079 px): verify two feature-card columns and wrapped navigation.
+- Mobile (below 680 px): verify one card per row, readable hero copy, and reachable navigation.
+- At every size, verify no horizontal scrolling or clipped text.
+- Tab through active controls and verify visible focus/pressed behavior and meaningful labels.
 
-## Content review
+## Navigation
 
-For each question, record:
+- **Αρχική** opens Home from every internal view.
+- **Ανακάλυψη**, the hero action, and both active discovery actions open the assessment.
+- **Τα 12 Ζώα** opens the informational catalog.
+- **Πώς Λειτουργεί** opens the scoring and disclaimer explanation.
+- Header and footer ecosystem links open `https://markellosecosystem.com`.
+- Feedback, Privacy, comparison, and sharing remain marked **Προσεχώς** and are not actionable.
 
-- whether the wording is clear,
-- whether at least one option feels natural,
-- whether an important response is missing,
-- whether the answer makes the target animal too obvious,
-- whether the question feels repetitive.
+## Assessment state and result
 
-## Result review
+1. Start the assessment and answer at least two questions.
+2. Open Home through the header.
+3. Choose **Ανακάλυψη** and verify the same unfinished question is restored.
+4. Complete all ten questions and verify a primary and secondary archetype appear.
+5. Open Home from the result and verify the dashboard remains available.
+6. Complete another run and choose restart; verify question 1 opens with clean scores.
 
-Complete the test at least five times:
+## Twelve-animal catalog
 
-1. Answer naturally.
-2. Deliberately favour analytical choices.
-3. Deliberately favour leadership choices.
-4. Deliberately favour social choices.
-5. Deliberately favour stability choices.
+- Verify all twelve required animals and provisional trait descriptions are present.
+- Verify Wolf, Owl, Eagle, Dolphin, and Bear show **Διαθέσιμο στο prototype**.
+- Verify the remaining seven show **Προσεχώς**.
+- Verify no coming-soon animal can be selected or produced by the assessment.
 
-Expected broad outcomes:
+## Content and safety
 
-- analytical choices should favour Owl,
-- leadership choices should favour Eagle,
-- social choices should favour Dolphin,
-- stability choices should favour Bear,
-- independence and trusted-team choices should favour Wolf.
-
-## Validation notes to capture
-
-- Actual result.
-- Expected result.
-- Questions that influenced the result incorrectly.
-- Text that felt accurate.
-- Text that felt generic or exaggerated.
-- Whether the experience remained enjoyable through question 10.
+- Verify How It Works identifies the questions as experimental and scoring as deterministic.
+- Verify the home/footer language describes the experience as recreational.
+- Verify the footer says it is not a psychological diagnosis or scientific assessment.
+- Verify there is no invented feedback or privacy destination.

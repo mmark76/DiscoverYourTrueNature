@@ -50,10 +50,13 @@ export function AssessmentScreen({
 
 const styles = StyleSheet.create({
   container: {
+    alignSelf: 'center',
     flex: 1,
     gap: theme.spacing.lg,
     justifyContent: 'space-between',
+    maxWidth: 720,
     padding: theme.spacing.lg,
+    width: '100%',
   },
   eyebrow: {
     color: theme.colors.primary,

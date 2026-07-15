@@ -1,5 +1,6 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
+import { FocusablePressable } from '../../../shared/components/FocusablePressable';
 import { theme } from '../../../shared/styles/theme';
 
 interface OptionButtonProps {
@@ -12,7 +13,7 @@ export function OptionButton({ label, onPress, selectionRank }: OptionButtonProp
   const isSelected = selectionRank !== undefined;
 
   return (
-    <Pressable
+    <FocusablePressable
       accessibilityRole="button"
       accessibilityState={{ selected: isSelected }}
       onPress={onPress}
@@ -30,7 +31,7 @@ export function OptionButton({ label, onPress, selectionRank }: OptionButtonProp
           </Text>
         )}
       </View>
-    </Pressable>
+    </FocusablePressable>
   );
 }
 
