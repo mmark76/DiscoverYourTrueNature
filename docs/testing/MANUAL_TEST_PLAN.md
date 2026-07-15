@@ -1,27 +1,30 @@
-# Manual Test Plan — Animals Within Home Dashboard
+# Manual Test Plan — Animals Within Bilingual Dashboard
 
 ## Setup
 
 1. Run `npm install`.
 2. Run `npm run typecheck` and `npm test`.
 3. Run `npm run web` and open the local Expo URL.
+4. Clear the `animals-within.appearance.v1` browser preference before locale-default scenarios.
 
 ## Responsive dashboard
 
 - Desktop (at least 1080 px): verify three feature-card columns and a readable header/footer.
 - Tablet (680–1079 px): verify two feature-card columns and wrapped navigation.
 - Mobile (below 680 px): verify one card per row, readable hero copy, and reachable navigation.
-- At every size, verify no horizontal scrolling or clipped text.
+- Repeat at wide desktop, normal laptop, tablet, and mobile widths in both languages.
+- At every size, verify no horizontal scrolling, clipped text, overlapping controls, or hidden
+  Settings/language controls.
 - Tab through active controls and verify visible focus/pressed behavior and meaningful labels.
 
 ## Navigation
 
-- **Αρχική** opens Home from every internal view.
-- **Ανακάλυψη**, the hero action, and both active discovery actions open the assessment.
-- **Τα 12 Ζώα** opens the informational catalog.
-- **Πώς Λειτουργεί** opens the scoring and disclaimer explanation.
+- **Αρχική / Home** opens Home from every internal view.
+- **Ανακάλυψη / Discover**, the hero action, and active discovery actions open the assessment.
+- **Τα 12 Ζώα / The 12 Animals** opens the informational catalog.
+- **Πώς Λειτουργεί / How It Works** opens the scoring and disclaimer explanation.
 - Header and footer ecosystem links open `https://markellosecosystem.com`.
-- Feedback, Privacy, comparison, and sharing remain marked **Προσεχώς** and are not actionable.
+- Feedback, Privacy, comparison, and sharing remain marked **Προσεχώς / Coming Soon** and are not actionable.
 
 ## Assessment state and result
 
@@ -35,8 +38,8 @@
 ## Twelve-animal catalog
 
 - Verify all twelve required animals and provisional trait descriptions are present.
-- Verify Wolf, Owl, Eagle, Dolphin, and Bear show **Διαθέσιμο στο prototype**.
-- Verify the remaining seven show **Προσεχώς**.
+- Verify Wolf, Owl, Eagle, Dolphin, and Bear show the localized available label.
+- Verify the remaining seven show **Προσεχώς / Coming Soon**.
 - Verify no coming-soon animal can be selected or produced by the assessment.
 
 ## Content and safety
@@ -65,6 +68,8 @@ For each representative combination:
 - verify keyboard focus is clearly visible in every color theme;
 - verify disabled and **Προσεχώς / Coming soon** states remain distinct;
 - verify the ecosystem destination remains a text link.
+- inspect meaningful navigation, progress, status, disabled-state, and action labels with a screen reader.
+- verify the selected language control exposes its radio state and never uses a flag.
 
 ## Persistence and state preservation
 
@@ -79,3 +84,27 @@ For each representative combination:
 9. Select Reset, cancel the inline confirmation, and verify nothing changes.
 10. Confirm Reset and verify locale language, System mode, Forest, System Sans, and Normal size return.
 11. Simulate unavailable or invalid storage and verify the application still loads with safe defaults.
+
+## Required bilingual scenarios
+
+1. Start with Greek browser locale and no saved preferences.
+2. Start with non-Greek browser locale and no saved preferences.
+3. Change from Greek to English on Home.
+4. Change from English to Greek inside Settings.
+5. Switch language after answering at least three questions.
+6. Verify the same question and progress remain.
+7. Complete the assessment in one language.
+8. Change language on the result screen.
+9. Verify the same primary and secondary result remain.
+10. Refresh and verify the manual language choice persists.
+11. Inspect all twelve animal cards in both languages.
+12. Test both languages with Extra Large text on mobile.
+13. Verify no untranslated Greek text remains in English mode except:
+    - the Greek language choice label “Ελληνικά”;
+    - the unchanged product name “Animals Within”.
+14. Verify no English content remains in Greek mode except accepted proper names or intentionally
+    shared product terminology such as “Animals Within” and “Feedback”.
+
+For scenarios 3–9, also verify that switching language does not navigate away from the current
+screen. At each responsive width, test keyboard focus, localized accessibility labels, selected and
+disabled states, complete answer-option wrapping, and the absence of horizontal overflow.

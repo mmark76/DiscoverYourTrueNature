@@ -1,5 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 
+import { useTranslation } from '../../../i18n/useTranslation';
 import { useAppearance } from '../../../settings/AppearanceProvider';
 import type { SemanticColors } from '../../../settings/appearanceTypes';
 import { AppText } from '../../../shared/components/AppText';
@@ -10,6 +11,7 @@ interface OptionButtonProps { label: string; onPress: () => void; selectionRank?
 
 export function OptionButton({ label, onPress, selectionRank }: OptionButtonProps) {
   const { colors } = useAppearance();
+  const { content } = useTranslation();
   const isSelected = selectionRank !== undefined;
   const styles = createStyles(colors);
 
@@ -23,7 +25,11 @@ export function OptionButton({ label, onPress, selectionRank }: OptionButtonProp
       <View style={styles.content}>
         <AppText style={[styles.label, isSelected && styles.labelSelected]}>{label}</AppText>
         {selectionRank && (
-          <AppText style={styles.rankLabel}>{selectionRank === 1 ? 'Κύρια επιλογή' : 'Δευτερεύουσα'}</AppText>
+          <AppText style={styles.rankLabel}>
+            {selectionRank === 1
+              ? content.assessment.primaryChoice
+              : content.assessment.secondaryChoice}
+          </AppText>
         )}
       </View>
     </FocusablePressable>

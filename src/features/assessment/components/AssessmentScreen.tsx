@@ -1,14 +1,17 @@
 import { StyleSheet, View } from 'react-native';
 
+import { formatTranslation } from '../../../i18n/translations';
+import { useTranslation } from '../../../i18n/useTranslation';
 import { useAppearance } from '../../../settings/AppearanceProvider';
 import type { SemanticColors } from '../../../settings/appearanceTypes';
 import { AppText } from '../../../shared/components/AppText';
 import { theme } from '../../../shared/styles/theme';
-import type { AssessmentQuestion, ScoreMap } from '../types';
+import type { AssessmentQuestionData } from '../data/questions';
+import type { ScoreMap } from '../types';
 import { OptionButton } from './OptionButton';
 
 interface AssessmentScreenProps {
-  question: AssessmentQuestion;
+  question: AssessmentQuestionData;
   questionNumber: number;
   totalQuestions: number;
   onSelect: (scores: ScoreMap) => void;
@@ -16,25 +19,43 @@ interface AssessmentScreenProps {
 
 export function AssessmentScreen({ question, questionNumber, totalQuestions, onSelect }: AssessmentScreenProps) {
   const { colors } = useAppearance();
+  const { content } = useTranslation();
+  const copy = content.assessment;
   const progress = questionNumber / totalQuestions;
+  const counter = formatTranslation(copy.counter, { current: questionNumber, total: totalQuestions });
+  const progressLabel = formatTranslation(copy.progressLabel, {
+    current: questionNumber,
+    total: totalQuestions,
+  });
   const styles = createStyles(colors);
 
   return (
     <View style={styles.container}>
       <View>
-        <AppText style={styles.eyebrow}>ΑΝΑΚΑΛΥΨΕ ΤΟ ΖΩΙΚΟ ΣΟΥ ΑΡΧΕΤΥΠΟ</AppText>
-        <AppText style={styles.counter}>Ερώτηση {questionNumber} από {totalQuestions}</AppText>
-        <View accessibilityRole="progressbar" style={styles.progressTrack}>
+        <AppText style={styles.eyebrow}>{copy.eyebrow}</AppText>
+        <AppText style={styles.counter}>{counter}</AppText>
+        <View
+          accessibilityLabel={progressLabel}
+          accessibilityRole="progressbar"
+          accessibilityValue={{ max: totalQuestions, min: 1, now: questionNumber }}
+          style={styles.progressTrack}
+        >
           <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
         </View>
       </View>
-      <AppText style={styles.question}>{question.prompt}</AppText>
+      <AppText accessibilityRole="header" style={styles.question}>
+        {copy.questions[question.id]}
+      </AppText>
       <View style={styles.options}>
         {question.options.map((option) => (
-          <OptionButton key={option.id} label={option.label} onPress={() => onSelect(option.scores)} />
+          <OptionButton
+            key={option.id}
+            label={copy.options[option.id]}
+            onPress={() => onSelect(option.scores)}
+          />
         ))}
       </View>
-      <AppText style={styles.note}>Διάλεξε αυτό που σε εκφράζει περισσότερο, όχι αυτό που θεωρείς ιδανικό.</AppText>
+      <AppText style={styles.note}>{copy.instruction}</AppText>
     </View>
   );
 }

@@ -1,5 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 
+import { useTranslation } from '../../../i18n/useTranslation';
 import { useAppearance } from '../../../settings/AppearanceProvider';
 import type { SemanticColors } from '../../../settings/appearanceTypes';
 import { AppText } from '../../../shared/components/AppText';
@@ -10,24 +11,24 @@ interface HeroSectionProps { onStart: () => void; }
 
 export function HeroSection({ onStart }: HeroSectionProps) {
   const { colors } = useAppearance();
+  const { content } = useTranslation();
+  const copy = content.home;
   const styles = createStyles(colors);
 
   return (
     <View style={styles.hero}>
       <View style={styles.copy}>
-        <AppText style={styles.eyebrow}>ΜΙΑ ΨΥΧΑΓΩΓΙΚΗ ΕΞΕΡΕΥΝΗΣΗ</AppText>
-        <AppText accessibilityRole="header" style={styles.title}>Animals Within</AppText>
-        <AppText style={styles.subtitle}>Ανακάλυψε το ζωικό σου αρχέτυπο.</AppText>
-        <AppText style={styles.description}>
-          Μια σύντομη ψυχαγωγική εμπειρία που εξερευνά τον τρόπο που αποφασίζεις,
-          συνεργάζεσαι και αντιδράς.
-        </AppText>
+        <AppText style={styles.eyebrow}>{copy.heroEyebrow}</AppText>
+        <AppText accessibilityRole="header" style={styles.title}>{content.common.productName}</AppText>
+        <AppText style={styles.subtitle}>{copy.heroSubtitle}</AppText>
+        <AppText style={styles.description}>{copy.heroDescription}</AppText>
         <FocusablePressable
+          accessibilityHint={copy.heroActionHint}
           accessibilityRole="button"
           onPress={onStart}
           style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
         >
-          <AppText style={styles.buttonText}>Ξεκίνα την ανακάλυψη</AppText>
+          <AppText style={styles.buttonText}>{copy.heroAction}</AppText>
         </FocusablePressable>
       </View>
 
@@ -36,7 +37,7 @@ export function HeroSection({ onStart }: HeroSectionProps) {
         <View style={styles.motifCircleMedium} />
         <View style={styles.motifCircleSmall} />
         <AppText style={styles.motifText}>12</AppText>
-        <AppText style={styles.motifCaption}>ζωικά αρχέτυπα</AppText>
+        <AppText style={styles.motifCaption}>{copy.motifCaption}</AppText>
       </View>
     </View>
   );

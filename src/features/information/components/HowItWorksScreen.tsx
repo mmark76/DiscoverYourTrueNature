@@ -1,5 +1,6 @@
 import { ScrollView, StyleSheet, View } from 'react-native';
 
+import { useTranslation } from '../../../i18n/useTranslation';
 import { useAppearance } from '../../../settings/AppearanceProvider';
 import type { SemanticColors } from '../../../settings/appearanceTypes';
 import { AppFooter } from '../../../shared/components/AppFooter';
@@ -10,42 +11,42 @@ import { theme } from '../../../shared/styles/theme';
 
 interface HowItWorksScreenProps { onStart: () => void; }
 
-const steps = [
-  { number: '01', title: 'Απαντάς σε 10 ερωτήσεις', description: 'Επιλέγεις κάθε φορά την απάντηση που σε εκφράζει περισσότερο.' },
-  { number: '02', title: 'Οι επιλογές προσθέτουν βαθμούς', description: 'Το τοπικό scoring είναι σταθερό και ντετερμινιστικό, χωρίς AI ή κρυφή ανάλυση.' },
-  { number: '03', title: 'Βλέπεις δύο αρχέτυπα', description: 'Οι δύο υψηλότερες βαθμολογίες γίνονται το κύριο και το δευτερεύον αποτέλεσμα.' },
-] as const;
-
 export function HowItWorksScreen({ onStart }: HowItWorksScreenProps) {
   const { colors } = useAppearance();
+  const { content } = useTranslation();
+  const copy = content.howItWorks;
   const styles = createStyles(colors);
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContent} style={styles.scrollView}>
       <PageContent style={styles.content}>
         <View style={styles.introduction}>
-          <AppText style={styles.eyebrow}>ΠΩΣ ΛΕΙΤΟΥΡΓΕΙ</AppText>
-          <AppText accessibilityRole="header" style={styles.title}>Ένα απλό, διαφανές prototype</AppText>
-          <AppText style={styles.description}>Το Animals Within συνδέει τις επιλογές σου με πέντε ενεργά ζωικά αρχέτυπα και παρουσιάζει τις δύο υψηλότερες βαθμολογίες.</AppText>
+          <AppText style={styles.eyebrow}>{copy.eyebrow}</AppText>
+          <AppText accessibilityRole="header" style={styles.title}>{copy.title}</AppText>
+          <AppText style={styles.description}>{copy.introduction}</AppText>
         </View>
         <View style={styles.steps}>
-          {steps.map((step) => (
-            <View key={step.number} style={styles.step}>
-              <AppText style={styles.stepNumber}>{step.number}</AppText>
+          {copy.steps.map((step, index) => (
+            <View key={step.title} style={styles.step}>
+              <AppText style={styles.stepNumber}>{String(index + 1).padStart(2, '0')}</AppText>
               <AppText accessibilityRole="header" style={styles.stepTitle}>{step.title}</AppText>
               <AppText style={styles.stepDescription}>{step.description}</AppText>
             </View>
           ))}
         </View>
         <View style={styles.disclosure}>
-          <AppText accessibilityRole="header" style={styles.disclosureTitle}>Σημαντικό να γνωρίζεις</AppText>
-          <AppText style={styles.disclosureText}>• Οι σημερινές ερωτήσεις είναι πειραματικές.</AppText>
-          <AppText style={styles.disclosureText}>• Η βαθμολόγηση είναι ντετερμινιστική.</AppText>
-          <AppText style={styles.disclosureText}>• Η εμπειρία είναι ψυχαγωγική και διερευνητική.</AppText>
-          <AppText style={styles.disclosureText}>• Δεν αποτελεί επιστημονική ή ψυχολογική αξιολόγηση και δεν παρέχει διάγνωση.</AppText>
+          <AppText accessibilityRole="header" style={styles.disclosureTitle}>{copy.disclosureTitle}</AppText>
+          {copy.disclosures.map((disclosure) => (
+            <AppText key={disclosure} style={styles.disclosureText}>• {disclosure}</AppText>
+          ))}
         </View>
-        <FocusablePressable accessibilityRole="button" onPress={onStart} style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}>
-          <AppText style={styles.buttonText}>Ξεκίνα την ανακάλυψη</AppText>
+        <FocusablePressable
+          accessibilityHint={copy.actionHint}
+          accessibilityRole="button"
+          onPress={onStart}
+          style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
+        >
+          <AppText style={styles.buttonText}>{copy.action}</AppText>
         </FocusablePressable>
       </PageContent>
       <AppFooter />

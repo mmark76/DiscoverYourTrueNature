@@ -1,5 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 
+import { useTranslation } from '../../i18n/useTranslation';
 import { useAppearance } from '../../settings/AppearanceProvider';
 import type { SemanticColors } from '../../settings/appearanceTypes';
 import { AppText } from './AppText';
@@ -11,12 +12,13 @@ interface StatusBadgeProps {
 }
 
 export function StatusBadge({ label, tone = 'soon' }: StatusBadgeProps) {
-  const { colors, translate } = useAppearance();
+  const { colors } = useAppearance();
+  const { content } = useTranslation();
   const styles = createStyles(colors);
 
   return (
     <View
-      accessibilityLabel={`${translate('status')}: ${label}`}
+      accessibilityLabel={`${content.common.status}: ${label}`}
       style={[styles.badge, tone === 'available' ? styles.available : styles.soon]}
     >
       <AppText style={[styles.label, tone === 'available' ? styles.availableLabel : styles.soonLabel]}>

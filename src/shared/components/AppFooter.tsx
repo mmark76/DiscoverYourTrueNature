@@ -1,5 +1,6 @@
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 
+import { useTranslation } from '../../i18n/useTranslation';
 import { useAppearance } from '../../settings/AppearanceProvider';
 import type { SemanticColors } from '../../settings/appearanceTypes';
 import { AppText } from './AppText';
@@ -10,29 +11,30 @@ import { theme } from '../styles/theme';
 const ecosystemUrl = 'https://markellosecosystem.com';
 
 export function AppFooter() {
-  const { colors, translate } = useAppearance();
+  const { colors } = useAppearance();
+  const { content } = useTranslation();
   const { width } = useWindowDimensions();
   const stacked = width < theme.layout.mobileBreakpoint;
   const styles = createStyles(colors);
 
   return (
-    <View style={styles.footer}>
+    <View accessibilityLabel={content.footer.accessibilityLabel} style={styles.footer}>
       <PageContent style={[styles.footerInner, stacked && styles.footerInnerStacked]}>
         <View style={[styles.copy, stacked && styles.stackedCopy]}>
-          <AppText style={styles.copyright}>{translate('copyright')}</AppText>
-          <AppText style={styles.disclaimer}>{translate('entertainment')}</AppText>
-          <AppText style={styles.disclaimer}>{translate('notDiagnosis')}</AppText>
+          <AppText style={styles.copyright}>{content.footer.copyright}</AppText>
+          <AppText style={styles.disclaimer}>{content.footer.entertainment}</AppText>
+          <AppText style={styles.disclaimer}>{content.footer.notDiagnosis}</AppText>
         </View>
 
         <View style={[styles.links, stacked && styles.stackedLinks]}>
           <AppText accessibilityState={{ disabled: true }} style={styles.placeholder}>
-            Privacy — {translate('comingSoon')}
+            {content.footer.privacyComingSoon}
           </AppText>
           <AppText accessibilityState={{ disabled: true }} style={styles.placeholder}>
-            Feedback — {translate('comingSoon')}
+            {content.footer.feedbackComingSoon}
           </AppText>
           <ExternalTextLink
-            label="Επιστροφή στο Markellos Ecosystem"
+            label={content.footer.ecosystemLink}
             url={ecosystemUrl}
             style={styles.ecosystemLink}
             textStyle={styles.ecosystemLabel}

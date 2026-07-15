@@ -1,6 +1,7 @@
 import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import type { NavigableScreen } from '../../../app/navigation';
+import { useTranslation } from '../../../i18n/useTranslation';
 import { useAppearance } from '../../../settings/AppearanceProvider';
 import type { SemanticColors } from '../../../settings/appearanceTypes';
 import { AppFooter } from '../../../shared/components/AppFooter';
@@ -15,6 +16,7 @@ interface HomeScreenProps { onNavigate: (screen: NavigableScreen) => void; }
 
 export function HomeScreen({ onNavigate }: HomeScreenProps) {
   const { colors } = useAppearance();
+  const { content } = useTranslation();
   const { width } = useWindowDimensions();
   const cardWidth: `${number}%` = width >= 1080 ? '32%' : width >= 680 ? '48.8%' : '100%';
   const styles = createStyles(colors);
@@ -24,8 +26,10 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
       <PageContent style={styles.content}>
         <HeroSection onStart={() => onNavigate('assessment')} />
         <View style={styles.sectionHeading}>
-          <AppText style={styles.sectionEyebrow}>ΕΞΕΡΕΥΝΗΣΕ ΤΗΝ ΕΜΠΕΙΡΙΑ</AppText>
-          <AppText accessibilityRole="header" style={styles.sectionTitle}>Διάλεξε πού θέλεις να ξεκινήσεις</AppText>
+          <AppText style={styles.sectionEyebrow}>{content.home.sectionEyebrow}</AppText>
+          <AppText accessibilityRole="header" style={styles.sectionTitle}>
+            {content.home.sectionTitle}
+          </AppText>
         </View>
         <View style={styles.grid}>
           {homeFeatures.map((feature) => (

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
+import { useTranslation } from '../../i18n/useTranslation';
 import { AppFooter } from '../../shared/components/AppFooter';
 import { AppText } from '../../shared/components/AppText';
 import { FocusablePressable } from '../../shared/components/FocusablePressable';
@@ -21,31 +22,33 @@ interface SettingsScreenProps {
 }
 
 export function SettingsScreen({ onBack }: SettingsScreenProps) {
-  const { colors, resetSettings, settings, translate, updateSettings } = useAppearance();
+  const { colors, resetSettings, settings, updateSettings } = useAppearance();
+  const { content } = useTranslation();
+  const copy = content.settings;
   const [confirmingReset, setConfirmingReset] = useState(false);
   const styles = createStyles(colors);
 
   const modeOptions: readonly { label: string; value: AppearanceMode }[] = [
-    { label: translate('system'), value: 'system' },
-    { label: translate('light'), value: 'light' },
-    { label: translate('dark'), value: 'dark' },
+    { label: copy.system, value: 'system' },
+    { label: copy.light, value: 'light' },
+    { label: copy.dark, value: 'dark' },
   ];
   const colorOptions: readonly { label: string; value: ColorTheme }[] = [
-    { label: translate('forest'), value: 'forest' },
-    { label: translate('ocean'), value: 'ocean' },
-    { label: translate('amber'), value: 'amber' },
-    { label: translate('plum'), value: 'plum' },
+    { label: copy.forest, value: 'forest' },
+    { label: copy.ocean, value: 'ocean' },
+    { label: copy.amber, value: 'amber' },
+    { label: copy.plum, value: 'plum' },
   ];
   const fontOptions: readonly { label: string; value: FontFamilyChoice }[] = [
-    { label: translate('systemSans'), value: 'system-sans' },
-    { label: translate('serif'), value: 'serif' },
-    { label: translate('readable'), value: 'readable' },
+    { label: copy.systemSans, value: 'system-sans' },
+    { label: copy.serif, value: 'serif' },
+    { label: copy.readable, value: 'readable' },
   ];
   const sizeOptions: readonly { label: string; value: TextSizeChoice }[] = [
-    { label: translate('small'), value: 'small' },
-    { label: translate('normal'), value: 'normal' },
-    { label: translate('large'), value: 'large' },
-    { label: translate('extraLarge'), value: 'extra-large' },
+    { label: copy.small, value: 'small' },
+    { label: copy.normal, value: 'normal' },
+    { label: copy.large, value: 'large' },
+    { label: copy.extraLarge, value: 'extra-large' },
   ];
 
   function confirmReset() {
@@ -57,43 +60,43 @@ export function SettingsScreen({ onBack }: SettingsScreenProps) {
     <ScrollView contentContainerStyle={styles.scrollContent} style={styles.scrollView}>
       <PageContent style={styles.content}>
         <View style={styles.introduction}>
-          <AppText style={styles.eyebrow}>{translate('settings').toUpperCase()}</AppText>
+          <AppText style={styles.eyebrow}>{content.header.settings.toUpperCase()}</AppText>
           <AppText accessibilityRole="header" style={styles.title}>
-            {translate('settingsTitle')}
+            {copy.title}
           </AppText>
-          <AppText style={styles.description}>{translate('settingsDescription')}</AppText>
+          <AppText style={styles.description}>{copy.description}</AppText>
         </View>
 
         <View style={styles.settingsCard}>
           <SettingsOptionGroup
-            label={translate('language')}
+            label={copy.language}
             onSelect={(language) => updateSettings({ language })}
             options={[
-              { label: translate('greek'), value: 'el' },
-              { label: translate('english'), value: 'en' },
+              { label: copy.greek, value: 'el' },
+              { label: copy.english, value: 'en' },
             ]}
             selectedValue={settings.language}
           />
           <SettingsOptionGroup
-            label={translate('appearanceMode')}
+            label={copy.appearanceMode}
             onSelect={(mode) => updateSettings({ mode })}
             options={modeOptions}
             selectedValue={settings.mode}
           />
           <SettingsOptionGroup
-            label={translate('colorTheme')}
+            label={copy.colorTheme}
             onSelect={(colorTheme) => updateSettings({ colorTheme })}
             options={colorOptions}
             selectedValue={settings.colorTheme}
           />
           <SettingsOptionGroup
-            label={translate('fontFamily')}
+            label={copy.fontFamily}
             onSelect={(fontFamily) => updateSettings({ fontFamily })}
             options={fontOptions}
             selectedValue={settings.fontFamily}
           />
           <SettingsOptionGroup
-            label={translate('textSize')}
+            label={copy.textSize}
             onSelect={(textSize) => updateSettings({ textSize })}
             options={sizeOptions}
             selectedValue={settings.textSize}
@@ -101,30 +104,30 @@ export function SettingsScreen({ onBack }: SettingsScreenProps) {
         </View>
 
         <View style={styles.preview}>
-          <AppText style={styles.previewLabel}>{translate('preview')}</AppText>
+          <AppText style={styles.previewLabel}>{copy.preview}</AppText>
           <AppText accessibilityRole="header" style={styles.previewTitle}>
-            {translate('previewTitle')}
+            {copy.previewTitle}
           </AppText>
-          <AppText style={styles.previewBody}>{translate('previewBody')}</AppText>
+          <AppText style={styles.previewBody}>{copy.previewBody}</AppText>
         </View>
 
         {confirmingReset ? (
           <View accessibilityLiveRegion="polite" style={styles.confirmation}>
-            <AppText style={styles.confirmationText}>{translate('resetPrompt')}</AppText>
+            <AppText style={styles.confirmationText}>{copy.resetPrompt}</AppText>
             <View style={styles.actions}>
               <FocusablePressable
                 accessibilityRole="button"
                 onPress={confirmReset}
                 style={({ pressed }) => [styles.dangerButton, pressed && styles.pressed]}
               >
-                <AppText style={styles.dangerButtonText}>{translate('confirmReset')}</AppText>
+                <AppText style={styles.dangerButtonText}>{copy.confirmReset}</AppText>
               </FocusablePressable>
               <FocusablePressable
                 accessibilityRole="button"
                 onPress={() => setConfirmingReset(false)}
                 style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
               >
-                <AppText style={styles.secondaryButtonText}>{translate('cancel')}</AppText>
+                <AppText style={styles.secondaryButtonText}>{copy.cancel}</AppText>
               </FocusablePressable>
             </View>
           </View>
@@ -134,7 +137,7 @@ export function SettingsScreen({ onBack }: SettingsScreenProps) {
             onPress={() => setConfirmingReset(true)}
             style={({ pressed }) => [styles.resetButton, pressed && styles.pressed]}
           >
-            <AppText style={styles.resetButtonText}>{translate('reset')}</AppText>
+            <AppText style={styles.resetButtonText}>{copy.reset}</AppText>
           </FocusablePressable>
         )}
 
@@ -143,7 +146,7 @@ export function SettingsScreen({ onBack }: SettingsScreenProps) {
           onPress={onBack}
           style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
         >
-          <AppText style={styles.backButtonText}>← {translate('back')}</AppText>
+          <AppText style={styles.backButtonText}>← {copy.back}</AppText>
         </FocusablePressable>
       </PageContent>
       <AppFooter />

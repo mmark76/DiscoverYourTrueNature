@@ -1,9 +1,9 @@
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import { AppScreen, NavigableScreen } from '../../app/navigation';
+import { useTranslation } from '../../i18n/useTranslation';
 import { useAppearance } from '../../settings/AppearanceProvider';
 import type { AppLanguage, SemanticColors } from '../../settings/appearanceTypes';
-import type { SettingsTranslationKey } from '../../settings/settingsTranslations';
 import { AppText } from './AppText';
 import { ExternalTextLink } from './ExternalTextLink';
 import { FocusablePressable } from './FocusablePressable';
@@ -17,18 +17,26 @@ interface AppHeaderProps {
 }
 
 const ecosystemUrl = 'https://markellosecosystem.com';
-const navigationItems: ReadonlyArray<{ labelKey: SettingsTranslationKey; screen: NavigableScreen }> = [
+const navigationItems = [
   { labelKey: 'home', screen: 'home' },
   { labelKey: 'discover', screen: 'assessment' },
   { labelKey: 'animals', screen: 'animals' },
   { labelKey: 'howItWorks', screen: 'how-it-works' },
-];
+] as const satisfies ReadonlyArray<{
+  labelKey: 'home' | 'discover' | 'animals' | 'howItWorks';
+  screen: NavigableScreen;
+}>;
 
 export function AppHeader({ currentScreen, onNavigate, onOpenSettings }: AppHeaderProps) {
-  const { colors, settings, translate, updateSettings } = useAppearance();
+  const { colors, settings, updateSettings } = useAppearance();
+  const { content } = useTranslation();
   const { width } = useWindowDimensions();
   const compact = width < 920;
   const styles = createStyles(colors);
+  const languageLabels: Record<AppLanguage, string> = {
+    el: content.header.greekLanguage,
+    en: content.header.englishLanguage,
+  };
 
   function setLanguage(language: AppLanguage) {
     updateSettings({ language });
@@ -38,17 +46,17 @@ export function AppHeader({ currentScreen, onNavigate, onOpenSettings }: AppHead
     <View style={styles.header}>
       <PageContent style={[styles.headerInner, compact && styles.headerInnerCompact]}>
         <FocusablePressable
-          accessibilityLabel={`Animals Within, ${translate('home')}`}
+          accessibilityLabel={content.header.brandHomeLabel}
           accessibilityRole="button"
           onPress={() => onNavigate('home')}
           style={({ pressed }) => [styles.brandButton, pressed && styles.pressed]}
         >
           <View style={styles.brandMark} />
-          <AppText style={styles.brand}>Animals Within</AppText>
+          <AppText style={styles.brand}>{content.common.productName}</AppText>
         </FocusablePressable>
 
         <View
-          accessibilityLabel={translate('navigationLabel')}
+          accessibilityLabel={content.header.navigationLabel}
           style={[styles.navigation, compact && styles.navigationCompact]}
         >
           {navigationItems.map((item) => {
@@ -66,24 +74,24 @@ export function AppHeader({ currentScreen, onNavigate, onOpenSettings }: AppHead
                 ]}
               >
                 <AppText style={[styles.navLabel, selected && styles.navLabelSelected]}>
-                  {translate(item.labelKey)}
+                  {content.header[item.labelKey]}
                 </AppText>
               </FocusablePressable>
             );
           })}
 
           <View accessibilityState={{ disabled: true }} style={styles.feedbackPlaceholder}>
-            <AppText style={styles.feedbackLabel}>{translate('feedback')}</AppText>
-            <AppText style={styles.soonLabel}>{translate('comingSoon')}</AppText>
+            <AppText style={styles.feedbackLabel}>{content.header.feedback}</AppText>
+            <AppText style={styles.soonLabel}>{content.common.comingSoon}</AppText>
           </View>
 
-          <View accessibilityLabel={translate('language')} style={styles.languageSelector}>
+          <View accessibilityLabel={content.header.languageLabel} style={styles.languageSelector}>
             {(['el', 'en'] as const).map((language) => {
               const selected = settings.language === language;
               return (
                 <FocusablePressable
                   key={language}
-                  accessibilityLabel={language === 'el' ? translate('greek') : translate('english')}
+                  accessibilityLabel={languageLabels[language]}
                   accessibilityRole="radio"
                   accessibilityState={{ checked: selected }}
                   onPress={() => setLanguage(language)}
@@ -102,7 +110,7 @@ export function AppHeader({ currentScreen, onNavigate, onOpenSettings }: AppHead
           </View>
 
           <FocusablePressable
-            accessibilityLabel={translate('settings')}
+            accessibilityLabel={content.header.settings}
             accessibilityRole="button"
             accessibilityState={{ selected: currentScreen === 'settings' }}
             onPress={onOpenSettings}
@@ -113,11 +121,11 @@ export function AppHeader({ currentScreen, onNavigate, onOpenSettings }: AppHead
             ]}
           >
             <AppText accessibilityElementsHidden style={styles.settingsIcon}>⚙</AppText>
-            <AppText style={styles.navLabel}>{translate('settings')}</AppText>
+            <AppText style={styles.navLabel}>{content.header.settings}</AppText>
           </FocusablePressable>
 
           <ExternalTextLink
-            label="Επιστροφή στο Markellos Ecosystem"
+            label={content.header.ecosystemLink}
             url={ecosystemUrl}
             style={styles.ecosystemLink}
             textStyle={styles.ecosystemLabel}

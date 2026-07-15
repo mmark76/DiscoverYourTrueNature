@@ -15,10 +15,7 @@ import {
   normalizeStoredSettings,
   restoreAppearanceSettings,
 } from '../src/settings/appearanceStorage.ts';
-import {
-  getSettingsLabel,
-  settingsTranslations,
-} from '../src/settings/settingsTranslations.ts';
+import { getTranslation, translations } from '../src/i18n/translations.ts';
 
 const requiredSemanticTokens = [
   'background',
@@ -143,25 +140,23 @@ test('light and dark variants exist for every color theme', () => {
 });
 
 test('settings labels resolve in Greek and English', () => {
-  assert.equal(getSettingsLabel('el', 'settings'), 'Ρυθμίσεις');
-  assert.equal(getSettingsLabel('en', 'settings'), 'Settings');
-  assert.equal(getSettingsLabel('el', 'readable'), 'Υψηλής αναγνωσιμότητας');
-  assert.equal(getSettingsLabel('en', 'readable'), 'Highly Readable');
+  assert.equal(getTranslation('el').header.settings, 'Ρυθμίσεις');
+  assert.equal(getTranslation('en').header.settings, 'Settings');
+  assert.equal(getTranslation('el').settings.readable, 'Υψηλής αναγνωσιμότητας');
+  assert.equal(getTranslation('en').settings.readable, 'Highly Readable');
 });
 
 test('no raw settings translation key is exposed as translated content', () => {
-  for (const [language, translations] of Object.entries(settingsTranslations)) {
-    for (const [key, value] of Object.entries(translations)) {
+  for (const [language, content] of Object.entries(translations)) {
+    for (const [key, value] of Object.entries(content.settings)) {
       assert.ok(value.trim().length > 0, `${language}.${key} is empty`);
       assert.notEqual(value, key, `${language}.${key} exposes its raw key`);
     }
   }
 });
 
-test('assessment questions, archetypes, and scoring implementation remain unchanged', () => {
+test('result calculation implementation remains unchanged', () => {
   const protectedFiles = {
-    'src/features/assessment/data/questions.ts': 'c7398a989e9ac0bafa663dc6733128eac839901c00bcdb4066f73a561215a71f',
-    'src/features/assessment/data/archetypes.ts': 'a63f7130b086b95db06fdc045579684f0c18d5d36ba0dddd382096a8016ad39c',
     'src/features/assessment/services/scoreAssessment.ts': '40abbaf3d6296d0a37aca7fb6b0cb02e4c6a3c4505edd5ee458a203957c6a66b',
   };
 

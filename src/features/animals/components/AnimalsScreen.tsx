@@ -1,5 +1,6 @@
 import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 
+import { useTranslation } from '../../../i18n/useTranslation';
 import { useAppearance } from '../../../settings/AppearanceProvider';
 import type { SemanticColors } from '../../../settings/appearanceTypes';
 import { AppFooter } from '../../../shared/components/AppFooter';
@@ -10,7 +11,9 @@ import { provisionalAnimals } from '../data/animals';
 import { AnimalCard } from './AnimalCard';
 
 export function AnimalsScreen() {
-  const { colors, translate } = useAppearance();
+  const { colors } = useAppearance();
+  const { content } = useTranslation();
+  const copy = content.animals;
   const { width } = useWindowDimensions();
   const cardWidth: `${number}%` = width >= 1050 ? '32%' : width >= 650 ? '48.7%' : '100%';
   const styles = createStyles(colors);
@@ -19,23 +22,16 @@ export function AnimalsScreen() {
     <ScrollView contentContainerStyle={styles.scrollContent} style={styles.scrollView}>
       <PageContent style={styles.content}>
         <View style={styles.introduction}>
-          <AppText style={styles.eyebrow}>ΤΑ ΠΡΟΣΩΡΙΝΑ ΑΡΧΕΤΥΠΑ</AppText>
-          <AppText accessibilityRole="header" style={styles.title}>Τα 12 Ζώα</AppText>
-          <AppText style={styles.description}>
-            Γνώρισε τον υπό διαμόρφωση κόσμο του Animals Within. Τα πρώτα πέντε ζώα
-            συμμετέχουν στο σημερινό prototype· τα υπόλοιπα επτά παρουσιάζονται μόνο ως
-            μελλοντική κατεύθυνση.
-          </AppText>
+          <AppText style={styles.eyebrow}>{copy.eyebrow}</AppText>
+          <AppText accessibilityRole="header" style={styles.title}>{copy.title}</AppText>
+          <AppText style={styles.description}>{copy.introduction}</AppText>
         </View>
         <View style={styles.grid}>
           {provisionalAnimals.map((animal, index) => (
             <AnimalCard key={animal.id} animal={animal} index={index} width={cardWidth} />
           ))}
         </View>
-        <AppText style={styles.note}>
-          Οι περιγραφές είναι προσωρινές και ψυχαγωγικές. Τα ζώα με ένδειξη «{translate('comingSoon')}» δεν
-          μπορούν να προκύψουν ως αποτέλεσμα της τρέχουσας αξιολόγησης.
-        </AppText>
+        <AppText style={styles.note}>{copy.catalogNote}</AppText>
       </PageContent>
       <AppFooter />
     </ScrollView>

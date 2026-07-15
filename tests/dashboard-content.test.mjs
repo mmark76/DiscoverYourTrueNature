@@ -3,10 +3,11 @@ import test from 'node:test';
 
 import { provisionalAnimals } from '../src/features/animals/data/animals.ts';
 import { homeFeatures } from '../src/features/home/data/features.ts';
+import { translations } from '../src/i18n/translations.ts';
 
 test('the informational catalog contains the required twelve animals', () => {
   assert.deepEqual(
-    provisionalAnimals.map(({ name }) => name),
+    provisionalAnimals.map(({ id }) => translations.el.animals.records[id].name),
     [
       'Λύκος',
       'Κουκουβάγια',

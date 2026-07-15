@@ -1,44 +1,47 @@
 import { StyleSheet, View } from 'react-native';
 
+import { useTranslation } from '../../../i18n/useTranslation';
 import type { SemanticColors } from '../../../settings/appearanceTypes';
 import { useAppearance } from '../../../settings/AppearanceProvider';
 import { AppText } from '../../../shared/components/AppText';
 import { FocusablePressable } from '../../../shared/components/FocusablePressable';
 import { StatusBadge } from '../../../shared/components/StatusBadge';
 import { theme } from '../../../shared/styles/theme';
-import type { HomeFeature } from '../data/features';
+import type { HomeFeatureData } from '../data/features';
 
 interface FeatureCardProps {
-  feature: HomeFeature;
+  feature: HomeFeatureData;
   width: `${number}%`;
   onAction: () => void;
 }
 
 export function FeatureCard({ feature, width, onAction }: FeatureCardProps) {
-  const { colors, translate } = useAppearance();
+  const { colors } = useAppearance();
+  const { content } = useTranslation();
+  const copy = content.home.features[feature.id];
   const comingSoon = feature.action === undefined;
   const styles = createStyles(colors);
 
   return (
     <View style={[styles.card, { width }, comingSoon && styles.comingSoonCard]}>
       <View style={styles.content}>
-        <AppText style={styles.eyebrow}>{feature.eyebrow}</AppText>
-        <AppText accessibilityRole="header" style={styles.title}>{feature.title}</AppText>
-        <AppText style={styles.description}>{feature.description}</AppText>
+        <AppText style={styles.eyebrow}>{copy.eyebrow}</AppText>
+        <AppText accessibilityRole="header" style={styles.title}>{copy.title}</AppText>
+        <AppText style={styles.description}>{copy.description}</AppText>
       </View>
 
       {feature.action ? (
         <FocusablePressable
-          accessibilityLabel={feature.action.label}
+          accessibilityLabel={copy.actionLabel}
           accessibilityRole="button"
           onPress={onAction}
           style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
         >
-          <AppText style={styles.buttonText}>{feature.action.label}</AppText>
+          <AppText style={styles.buttonText}>{copy.actionLabel}</AppText>
           <AppText style={styles.arrow}>→</AppText>
         </FocusablePressable>
       ) : (
-        <StatusBadge label={translate('comingSoon')} />
+        <StatusBadge label={content.common.comingSoon} />
       )}
     </View>
   );

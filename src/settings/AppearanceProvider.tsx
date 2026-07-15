@@ -18,8 +18,6 @@ import type {
   SemanticColors,
   TypographySettings,
 } from './appearanceTypes';
-import { getSettingsLabel } from './settingsTranslations';
-import type { SettingsTranslationKey } from './settingsTranslations';
 
 interface AppearanceContextValue {
   colors: SemanticColors;
@@ -27,7 +25,6 @@ interface AppearanceContextValue {
   settings: AppearanceSettings;
   typography: TypographySettings;
   resetSettings: () => void;
-  translate: (key: SettingsTranslationKey) => string;
   updateSettings: (updates: Partial<AppearanceSettings>) => void;
 }
 
@@ -69,7 +66,6 @@ export function AppearanceProvider({ children }: AppearanceProviderProps) {
       settings,
       typography,
       resetSettings: () => setSettings(createDefaultSettings(getDeviceLocale())),
-      translate: (key) => getSettingsLabel(settings.language, key),
       updateSettings: (updates) => setSettings((current) => updateAppearanceSettings(current, updates)),
     }),
     [colors, resolvedMode, settings, typography],

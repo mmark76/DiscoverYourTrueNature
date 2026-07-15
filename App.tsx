@@ -106,7 +106,11 @@ function AppContent() {
         )}
 
         {screen === 'result' && result && (
-          <ResultScreen result={result} onRestart={resetAndStartAssessment} />
+          <ResultScreen
+            result={result}
+            onHome={() => setScreen('home')}
+            onRestart={resetAndStartAssessment}
+          />
         )}
 
         {screen === 'animals' && <AnimalsScreen />}
