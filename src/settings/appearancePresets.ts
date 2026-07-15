@@ -14,14 +14,14 @@ export const appearancePresets: Record<
 > = {
   forest: {
     light: {
-      background: '#F4F1E8', backgroundMuted: '#EAE6D9', surface: '#FFFFFF', surfaceMuted: '#F8F6EF',
-      text: '#1C2A26', mutedText: '#596861', primary: '#305D4E', primaryPressed: '#24483C',
-      onPrimary: '#FFFFFF', accent: '#A6532E', accentPressed: '#843E20', onAccent: '#FFFFFF',
-      accentMuted: '#F3E4D8', border: '#D8DDD8', borderStrong: '#A9B5AE', focus: '#9A3F18',
-      disabled: '#D9DDD9', disabledText: '#69746F', success: '#276345', successSurface: '#E2EEE7',
-      warning: '#75401F', warningSurface: '#F3E4D8', progressTrack: '#DDE4DF', selection: '#E2EAE5',
-      footerBackground: '#1C2A26', footerText: '#FFFFFF', footerMuted: '#C8D1CD', heroMuted: '#D8E2DD',
-      heroDecoration: '#6F9185', heroDecorationStrong: '#3A6A59',
+      background: '#F8F6EF', backgroundMuted: '#EDF1EE', surface: '#FFFFFF', surfaceMuted: '#F0F4F1',
+      text: '#26342E', mutedText: '#65726C', primary: '#4B6F61', primaryPressed: '#3D5D51',
+      onPrimary: '#FFFFFF', accent: '#AC572D', accentPressed: '#8E431F', onAccent: '#FFFFFF',
+      accentMuted: '#F5E5DC', border: '#D7DFDA', borderStrong: '#AAB8B0', focus: '#A94F24',
+      disabled: '#A5ADA8', disabledText: '#5F6C66', success: '#276345', successSurface: '#E4EFE8',
+      warning: '#75401F', warningSurface: '#F5E6DC', progressTrack: '#DEE6E1', selection: '#E4EEE9',
+      footerBackground: '#E8EEE9', footerText: '#26342E', footerMuted: '#596760', heroMuted: '#DDE7E1',
+      heroDecoration: '#7F9D91', heroDecorationStrong: '#41695A',
     },
     dark: {
       background: '#101713', backgroundMuted: '#16201B', surface: '#1B2621', surfaceMuted: '#202C27',
