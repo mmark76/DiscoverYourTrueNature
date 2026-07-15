@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
   copy: {
     flex: 1,
     gap: theme.spacing.sm,
-    minWidth: 260,
+    minWidth: 220,
     zIndex: 1,
   },
   eyebrow: {

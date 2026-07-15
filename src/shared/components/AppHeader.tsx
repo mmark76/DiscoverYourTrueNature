@@ -2,6 +2,7 @@ import { Linking, StyleSheet, Text, useWindowDimensions, View } from 'react-nati
 
 import { AppScreen, NavigableScreen } from '../../app/navigation';
 import { FocusablePressable } from './FocusablePressable';
+import { PageContent } from './PageContent';
 import { theme } from '../styles/theme';
 
 interface AppHeaderProps {
@@ -23,71 +24,76 @@ export function AppHeader({ currentScreen, onNavigate }: AppHeaderProps) {
   const compact = width < 920;
 
   return (
-    <View style={[styles.header, compact && styles.headerCompact]}>
-      <FocusablePressable
-        accessibilityLabel="Animals Within, Αρχική"
-        accessibilityRole="button"
-        onPress={() => onNavigate('home')}
-        style={({ pressed }) => [styles.brandButton, pressed && styles.pressed]}
-      >
-        <View style={styles.brandMark} />
-        <Text style={styles.brand}>Animals Within</Text>
-      </FocusablePressable>
-
-      <View
-        accessibilityLabel="Κύρια πλοήγηση"
-        style={[styles.navigation, compact && styles.navigationCompact]}
-      >
-        {navigationItems.map((item) => {
-          const selected = currentScreen === item.screen;
-          return (
-            <FocusablePressable
-              key={item.screen}
-              accessibilityRole="button"
-              accessibilityState={{ selected }}
-              onPress={() => onNavigate(item.screen)}
-              style={({ pressed }) => [
-                styles.navButton,
-                selected && styles.navButtonSelected,
-                pressed && styles.pressed,
-              ]}
-            >
-              <Text style={[styles.navLabel, selected && styles.navLabelSelected]}>{item.label}</Text>
-            </FocusablePressable>
-          );
-        })}
-
-        <View accessibilityState={{ disabled: true }} style={styles.feedbackPlaceholder}>
-          <Text style={styles.feedbackLabel}>Feedback</Text>
-          <Text style={styles.soonLabel}>Προσεχώς</Text>
-        </View>
-
+    <View style={styles.header}>
+      <PageContent style={[styles.headerInner, compact && styles.headerInnerCompact]}>
         <FocusablePressable
-          accessibilityLabel="Επιστροφή στο Markellos Ecosystem"
-          accessibilityRole="link"
-          onPress={() => Linking.openURL(ecosystemUrl)}
-          style={({ pressed }) => [styles.ecosystemButton, pressed && styles.pressed]}
+          accessibilityLabel="Animals Within, Αρχική"
+          accessibilityRole="button"
+          onPress={() => onNavigate('home')}
+          style={({ pressed }) => [styles.brandButton, pressed && styles.pressed]}
         >
-          <Text style={styles.ecosystemLabel}>Επιστροφή στο Markellos Ecosystem</Text>
+          <View style={styles.brandMark} />
+          <Text style={styles.brand}>Animals Within</Text>
         </FocusablePressable>
-      </View>
+
+        <View
+          accessibilityLabel="Κύρια πλοήγηση"
+          style={[styles.navigation, compact && styles.navigationCompact]}
+        >
+          {navigationItems.map((item) => {
+            const selected = currentScreen === item.screen;
+            return (
+              <FocusablePressable
+                key={item.screen}
+                accessibilityRole="button"
+                accessibilityState={{ selected }}
+                onPress={() => onNavigate(item.screen)}
+                style={({ pressed }) => [
+                  styles.navButton,
+                  selected && styles.navButtonSelected,
+                  pressed && styles.pressed,
+                ]}
+              >
+                <Text style={[styles.navLabel, selected && styles.navLabelSelected]}>
+                  {item.label}
+                </Text>
+              </FocusablePressable>
+            );
+          })}
+
+          <View accessibilityState={{ disabled: true }} style={styles.feedbackPlaceholder}>
+            <Text style={styles.feedbackLabel}>Feedback</Text>
+            <Text style={styles.soonLabel}>Προσεχώς</Text>
+          </View>
+
+          <FocusablePressable
+            accessibilityLabel="Επιστροφή στο Markellos Ecosystem"
+            accessibilityRole="link"
+            onPress={() => Linking.openURL(ecosystemUrl)}
+            style={({ pressed }) => [styles.ecosystemButton, pressed && styles.pressed]}
+          >
+            <Text style={styles.ecosystemLabel}>Επιστροφή στο Markellos Ecosystem</Text>
+          </FocusablePressable>
+        </View>
+      </PageContent>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   header: {
-    alignItems: 'center',
     backgroundColor: theme.colors.surfaceMuted,
     borderBottomColor: theme.colors.border,
     borderBottomWidth: 1,
+  },
+  headerInner: {
+    alignItems: 'center',
     flexDirection: 'row',
     gap: theme.spacing.lg,
     justifyContent: 'space-between',
-    paddingHorizontal: theme.spacing.lg,
     paddingVertical: theme.spacing.sm,
   },
-  headerCompact: {
+  headerInnerCompact: {
     alignItems: 'flex-start',
     flexDirection: 'column',
     gap: theme.spacing.sm,
@@ -97,7 +103,7 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.sm,
     flexDirection: 'row',
     gap: theme.spacing.xs,
-    padding: 4,
+    paddingVertical: 4,
   },
   brandMark: {
     backgroundColor: theme.colors.accent,
@@ -158,6 +164,8 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.borderStrong,
     borderRadius: theme.radius.sm,
     borderWidth: 1,
+    marginLeft: 'auto',
+    maxWidth: '100%',
     paddingHorizontal: theme.spacing.sm,
     paddingVertical: theme.spacing.xs,
   },
@@ -165,6 +173,7 @@ const styles = StyleSheet.create({
     color: theme.colors.primary,
     fontSize: 12,
     fontWeight: '700',
+    textAlign: 'right',
   },
   pressed: {
     opacity: 0.65,

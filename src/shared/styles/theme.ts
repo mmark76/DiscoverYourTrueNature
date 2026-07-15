@@ -26,4 +26,12 @@ export const theme = {
     md: 14,
     lg: 22,
   },
+  layout: {
+    contentMaxWidth: 1320,
+    mobileBreakpoint: 680,
+    pagePaddingMobile: 16,
+    pagePaddingDesktop: 24,
+    pagePaddingWide: 32,
+    wideBreakpoint: 1200,
+  },
 } as const;

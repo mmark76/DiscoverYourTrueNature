@@ -1,6 +1,7 @@
 import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
 import { AppFooter } from '../../../shared/components/AppFooter';
+import { PageContent } from '../../../shared/components/PageContent';
 import { theme } from '../../../shared/styles/theme';
 import { provisionalAnimals } from '../data/animals';
 import { AnimalCard } from './AnimalCard';
@@ -11,7 +12,7 @@ export function AnimalsScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContent} style={styles.scrollView}>
-      <View style={styles.content}>
+      <PageContent style={styles.content}>
         <View style={styles.introduction}>
           <Text style={styles.eyebrow}>ΤΑ ΠΡΟΣΩΡΙΝΑ ΑΡΧΕΤΥΠΑ</Text>
           <Text accessibilityRole="header" style={styles.title}>
@@ -34,7 +35,7 @@ export function AnimalsScreen() {
           Οι περιγραφές είναι προσωρινές και ψυχαγωγικές. Τα ζώα με ένδειξη «Προσεχώς» δεν
           μπορούν να προκύψουν ως αποτέλεσμα της τρέχουσας αξιολόγησης.
         </Text>
-      </View>
+      </PageContent>
       <AppFooter />
     </ScrollView>
   );
@@ -48,11 +49,8 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   content: {
-    alignSelf: 'center',
     gap: theme.spacing.xl,
-    maxWidth: 1280,
-    padding: theme.spacing.lg,
-    width: '100%',
+    paddingVertical: theme.spacing.lg,
   },
   introduction: {
     gap: theme.spacing.sm,

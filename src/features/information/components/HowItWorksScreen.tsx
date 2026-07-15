@@ -2,6 +2,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { AppFooter } from '../../../shared/components/AppFooter';
 import { FocusablePressable } from '../../../shared/components/FocusablePressable';
+import { PageContent } from '../../../shared/components/PageContent';
 import { theme } from '../../../shared/styles/theme';
 
 interface HowItWorksScreenProps {
@@ -29,7 +30,7 @@ const steps = [
 export function HowItWorksScreen({ onStart }: HowItWorksScreenProps) {
   return (
     <ScrollView contentContainerStyle={styles.scrollContent} style={styles.scrollView}>
-      <View style={styles.content}>
+      <PageContent style={styles.content}>
         <View style={styles.introduction}>
           <Text style={styles.eyebrow}>ΠΩΣ ΛΕΙΤΟΥΡΓΕΙ</Text>
           <Text accessibilityRole="header" style={styles.title}>
@@ -72,7 +73,7 @@ export function HowItWorksScreen({ onStart }: HowItWorksScreenProps) {
         >
           <Text style={styles.buttonText}>Ξεκίνα την ανακάλυψη</Text>
         </FocusablePressable>
-      </View>
+      </PageContent>
       <AppFooter />
     </ScrollView>
   );
@@ -86,11 +87,8 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   content: {
-    alignSelf: 'center',
     gap: theme.spacing.xl,
-    maxWidth: 1120,
-    padding: theme.spacing.lg,
-    width: '100%',
+    paddingVertical: theme.spacing.lg,
   },
   introduction: {
     gap: theme.spacing.sm,

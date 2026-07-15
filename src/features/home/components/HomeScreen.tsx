@@ -2,6 +2,7 @@ import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-n
 
 import { NavigableScreen } from '../../../app/navigation';
 import { AppFooter } from '../../../shared/components/AppFooter';
+import { PageContent } from '../../../shared/components/PageContent';
 import { theme } from '../../../shared/styles/theme';
 import { homeFeatures } from '../data/features';
 import { FeatureCard } from './FeatureCard';
@@ -17,7 +18,7 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContent} style={styles.scrollView}>
-      <View style={styles.content}>
+      <PageContent style={styles.content}>
         <HeroSection onStart={() => onNavigate('assessment')} />
 
         <View style={styles.sectionHeading}>
@@ -37,7 +38,7 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
             />
           ))}
         </View>
-      </View>
+      </PageContent>
       <AppFooter />
     </ScrollView>
   );
@@ -51,11 +52,8 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   content: {
-    alignSelf: 'center',
     gap: theme.spacing.xl,
-    maxWidth: 1280,
-    padding: theme.spacing.lg,
-    width: '100%',
+    paddingVertical: theme.spacing.lg,
   },
   sectionHeading: {
     gap: theme.spacing.xs,
