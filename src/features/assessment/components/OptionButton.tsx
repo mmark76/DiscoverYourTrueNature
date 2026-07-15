@@ -1,20 +1,35 @@
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { theme } from '../../../shared/styles/theme';
 
 interface OptionButtonProps {
   label: string;
   onPress: () => void;
+  selectionRank?: 1 | 2;
 }
 
-export function OptionButton({ label, onPress }: OptionButtonProps) {
+export function OptionButton({ label, onPress, selectionRank }: OptionButtonProps) {
+  const isSelected = selectionRank !== undefined;
+
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityState={{ selected: isSelected }}
       onPress={onPress}
-      style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
+      style={({ pressed }) => [
+        styles.button,
+        isSelected && styles.buttonSelected,
+        pressed && styles.buttonPressed,
+      ]}
     >
-      <Text style={styles.label}>{label}</Text>
+      <View style={styles.content}>
+        <Text style={[styles.label, isSelected && styles.labelSelected]}>{label}</Text>
+        {selectionRank && (
+          <Text style={styles.rankLabel}>
+            {selectionRank === 1 ? 'Κύρια επιλογή' : 'Δευτερεύουσα'}
+          </Text>
+        )}
+      </View>
     </Pressable>
   );
 }
@@ -31,9 +46,27 @@ const styles = StyleSheet.create({
   buttonPressed: {
     opacity: 0.72,
   },
+  buttonSelected: {
+    backgroundColor: '#E4EEE9',
+    borderColor: theme.colors.primary,
+    borderWidth: 2,
+  },
+  content: {
+    gap: theme.spacing.xs,
+  },
   label: {
     color: theme.colors.text,
     fontSize: 17,
     lineHeight: 24,
+  },
+  labelSelected: {
+    fontWeight: '700',
+  },
+  rankLabel: {
+    color: theme.colors.primary,
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 0.4,
+    textTransform: 'uppercase',
   },
 });
