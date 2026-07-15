@@ -1,6 +1,6 @@
-import { Linking, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
-import { FocusablePressable } from './FocusablePressable';
+import { ExternalTextLink } from './ExternalTextLink';
 import { PageContent } from './PageContent';
 import { theme } from '../styles/theme';
 
@@ -28,14 +28,12 @@ export function AppFooter() {
           <Text accessibilityState={{ disabled: true }} style={styles.placeholder}>
             Feedback — Προσεχώς
           </Text>
-          <FocusablePressable
-            accessibilityLabel="Επιστροφή στο Markellos Ecosystem"
-            accessibilityRole="link"
-            onPress={() => Linking.openURL(ecosystemUrl)}
-            style={({ pressed }) => [styles.linkButton, pressed && styles.linkButtonPressed]}
-          >
-            <Text style={styles.link}>Επιστροφή στο Markellos Ecosystem</Text>
-          </FocusablePressable>
+          <ExternalTextLink
+            label="Επιστροφή στο Markellos Ecosystem"
+            url={ecosystemUrl}
+            style={styles.ecosystemLink}
+            textStyle={styles.ecosystemLabel}
+          />
         </View>
       </PageContent>
     </View>
@@ -91,19 +89,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: 'right',
   },
-  linkButton: {
-    borderRadius: theme.radius.sm,
-    paddingHorizontal: 4,
-    paddingVertical: 3,
+  ecosystemLink: {
+    maxWidth: '100%',
   },
-  linkButtonPressed: {
-    backgroundColor: '#35443F',
-  },
-  link: {
-    color: '#FFFFFF',
+  ecosystemLabel: {
+    color: '#F0C5A8',
     fontSize: 12,
-    fontWeight: '700',
     textAlign: 'right',
-    textDecorationLine: 'underline',
   },
 });

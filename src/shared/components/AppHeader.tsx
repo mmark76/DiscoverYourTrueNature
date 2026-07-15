@@ -1,6 +1,7 @@
-import { Linking, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
 import { AppScreen, NavigableScreen } from '../../app/navigation';
+import { ExternalTextLink } from './ExternalTextLink';
 import { FocusablePressable } from './FocusablePressable';
 import { PageContent } from './PageContent';
 import { theme } from '../styles/theme';
@@ -66,14 +67,12 @@ export function AppHeader({ currentScreen, onNavigate }: AppHeaderProps) {
             <Text style={styles.soonLabel}>Προσεχώς</Text>
           </View>
 
-          <FocusablePressable
-            accessibilityLabel="Επιστροφή στο Markellos Ecosystem"
-            accessibilityRole="link"
-            onPress={() => Linking.openURL(ecosystemUrl)}
-            style={({ pressed }) => [styles.ecosystemButton, pressed && styles.pressed]}
-          >
-            <Text style={styles.ecosystemLabel}>Επιστροφή στο Markellos Ecosystem</Text>
-          </FocusablePressable>
+          <ExternalTextLink
+            label="Επιστροφή στο Markellos Ecosystem"
+            url={ecosystemUrl}
+            style={styles.ecosystemLink}
+            textStyle={styles.ecosystemLabel}
+          />
         </View>
       </PageContent>
     </View>
@@ -160,19 +159,11 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     textTransform: 'uppercase',
   },
-  ecosystemButton: {
-    borderColor: theme.colors.borderStrong,
-    borderRadius: theme.radius.sm,
-    borderWidth: 1,
+  ecosystemLink: {
     marginLeft: 'auto',
     maxWidth: '100%',
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: theme.spacing.xs,
   },
   ecosystemLabel: {
-    color: theme.colors.primary,
-    fontSize: 12,
-    fontWeight: '700',
     textAlign: 'right',
   },
   pressed: {
