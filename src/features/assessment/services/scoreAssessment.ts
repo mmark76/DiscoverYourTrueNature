@@ -2,6 +2,7 @@ import { archetypeById } from '../data/archetypes';
 import { ArchetypeId, AssessmentResult, ScoreMap } from '../types';
 
 const archetypeIds: ArchetypeId[] = ['wolf', 'owl', 'eagle', 'dolphin', 'bear'];
+const secondaryAnswerWeight = 0.5;
 
 export function createEmptyScores(): Record<ArchetypeId, number> {
   return {
@@ -11,6 +12,25 @@ export function createEmptyScores(): Record<ArchetypeId, number> {
     dolphin: 0,
     bear: 0,
   };
+}
+
+export function combineAnswerScores(
+  primaryScores: ScoreMap,
+  secondaryScores?: ScoreMap,
+): ScoreMap {
+  const combinedScores: ScoreMap = {};
+
+  for (const archetypeId of archetypeIds) {
+    const primaryScore = primaryScores[archetypeId] ?? 0;
+    const secondaryScore = (secondaryScores?.[archetypeId] ?? 0) * secondaryAnswerWeight;
+    const total = primaryScore + secondaryScore;
+
+    if (total !== 0) {
+      combinedScores[archetypeId] = total;
+    }
+  }
+
+  return combinedScores;
 }
 
 export function addScores(
