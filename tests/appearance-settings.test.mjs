@@ -35,11 +35,11 @@ const requiredSemanticTokens = [
 ];
 
 const documentedDefaults = {
-  language: 'el',
-  mode: 'system',
-  colorTheme: 'forest',
+  language: 'en',
+  mode: 'light',
+  colorTheme: 'amber',
   fontFamily: 'system-sans',
-  textSize: 'normal',
+  textSize: 'large',
 };
 
 function createMemoryStorage(initialValue) {
@@ -248,6 +248,22 @@ test('stored valid settings are restored', () => {
   assert.deepEqual(restoreAppearanceSettings(storage, documentedDefaults), storedSettings);
 });
 
+test('new users receive defaults while saved preferences keep priority', () => {
+  assert.deepEqual(restoreAppearanceSettings(createMemoryStorage(), documentedDefaults), documentedDefaults);
+
+  const saved = {
+    language: 'el',
+    mode: 'dark',
+    colorTheme: 'plum',
+    fontFamily: 'readable',
+    textSize: 'extra-large',
+  };
+  assert.deepEqual(
+    restoreAppearanceSettings(createMemoryStorage(JSON.stringify(saved)), documentedDefaults),
+    saved,
+  );
+});
+
 test('invalid stored values fall back safely', () => {
   const invalid = {
     language: 'fr',
@@ -264,9 +280,14 @@ test('invalid stored values fall back safely', () => {
   );
 });
 
-test('reset defaults match the documented values and device locale', () => {
-  assert.deepEqual(createDefaultSettings('el-CY'), documentedDefaults);
-  assert.deepEqual(createDefaultSettings('en-US'), { ...documentedDefaults, language: 'en' });
+test('new users and Reset Appearance receive the documented defaults', () => {
+  assert.deepEqual(createDefaultSettings(), documentedDefaults);
+
+  const provider = readFileSync('src/settings/AppearanceProvider.tsx', 'utf8');
+  const presets = readFileSync('src/settings/appearancePresets.ts', 'utf8');
+  assert.match(provider, /resetSettings:\s*\(\) => setSettings\(createDefaultSettings\(\)\)/);
+  assert.doesNotMatch(provider, /Intl\.DateTimeFormat|useColorScheme\(\).*language/s);
+  assert.doesNotMatch(presets, /resolveDeviceLanguage|locale\?\s*:/);
 });
 
 test('switching appearance mode and color preserves assessment state', () => {

@@ -5,7 +5,7 @@
 1. Run `npm install`.
 2. Run `npm run typecheck` and `npm test`.
 3. Run `npm run web` and open the local Expo URL.
-4. Clear the `animals-within.appearance.v1` browser preference before locale-default scenarios.
+4. Clear the `animals-within.appearance.v1` browser preference before new-user default scenarios.
 
 ## Responsive dashboard
 
@@ -83,13 +83,13 @@ For each representative combination:
 7. Select System mode and switch the operating-system appearance preference; verify the app follows it.
 8. Choose Extra Large with Greek labels on mobile; verify controls wrap without clipping or overflow.
 9. Select Reset, cancel the inline confirmation, and verify nothing changes.
-10. Confirm Reset and verify locale language, System mode, Warm Ivory, System Sans, and Normal size return.
+10. Confirm Reset and verify English, Light mode, Amber, System Sans, and Large size return.
 11. Simulate unavailable or invalid storage and verify the application still loads with safe defaults.
 
 ## Required bilingual scenarios
 
-1. Start with Greek browser locale and no saved preferences.
-2. Start with non-Greek browser locale and no saved preferences.
+1. Start with Greek browser locale and no saved preferences; verify English remains the default.
+2. Start with non-Greek browser locale and no saved preferences; verify English remains the default.
 3. Change from Greek to English on Home.
 4. Change from English to Greek inside Settings.
 5. Switch language after answering at least three questions.

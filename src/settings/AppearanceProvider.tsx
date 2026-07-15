@@ -30,24 +30,15 @@ interface AppearanceContextValue {
 
 const AppearanceContext = createContext<AppearanceContextValue | null>(null);
 
-function getDeviceLocale(): string | undefined {
-  try {
-    return Intl.DateTimeFormat().resolvedOptions().locale;
-  } catch {
-    return undefined;
-  }
-}
-
 interface AppearanceProviderProps {
   children: ReactNode;
 }
 
 export function AppearanceProvider({ children }: AppearanceProviderProps) {
-  const deviceLocale = getDeviceLocale();
   const storage = getBrowserAppearanceStorage();
   const systemColorScheme = useColorScheme();
   const [settings, setSettings] = useState<AppearanceSettings>(() =>
-    restoreAppearanceSettings(storage, createDefaultSettings(deviceLocale)),
+    restoreAppearanceSettings(storage, createDefaultSettings()),
   );
 
   useEffect(() => {
@@ -65,7 +56,7 @@ export function AppearanceProvider({ children }: AppearanceProviderProps) {
       resolvedMode,
       settings,
       typography,
-      resetSettings: () => setSettings(createDefaultSettings(getDeviceLocale())),
+      resetSettings: () => setSettings(createDefaultSettings()),
       updateSettings: (updates) => setSettings((current) => updateAppearanceSettings(current, updates)),
     }),
     [colors, resolvedMode, settings, typography],

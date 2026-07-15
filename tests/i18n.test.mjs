@@ -19,10 +19,10 @@ const scoringFixture = JSON.parse(
 
 const defaults = {
   language: 'en',
-  mode: 'system',
-  colorTheme: 'forest',
+  mode: 'light',
+  colorTheme: 'amber',
   fontFamily: 'system-sans',
-  textSize: 'normal',
+  textSize: 'large',
 };
 
 function createMemoryStorage(initialValue) {

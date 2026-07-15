@@ -115,18 +115,13 @@ export const fontFamilyPresets: Record<FontFamilyChoice, Omit<TypographySettings
   readable: { fontFamily: 'Arial', letterSpacing: 0.2 },
 };
 
-export function resolveDeviceLanguage(locale?: string): AppearanceSettings['language'] {
-  const normalizedLocale = locale?.toLowerCase() ?? '';
-  return normalizedLocale.startsWith('el') ? 'el' : 'en';
-}
-
-export function createDefaultSettings(locale?: string): AppearanceSettings {
+export function createDefaultSettings(): AppearanceSettings {
   return {
-    language: resolveDeviceLanguage(locale),
-    mode: 'system',
-    colorTheme: 'forest',
+    language: 'en',
+    mode: 'light',
+    colorTheme: 'amber',
     fontFamily: 'system-sans',
-    textSize: 'normal',
+    textSize: 'large',
   };
 }
 

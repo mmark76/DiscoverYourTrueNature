@@ -51,10 +51,9 @@ name **Animals Within**, the proper name **Markellos Ecosystem**, and the shared
 **Feedback** remain intentionally unchanged where appropriate.
 
 Language uses the same persisted preference record as the appearance settings, with no second
-language store. With no valid manual preference, a browser/device locale beginning with `el` selects
-Greek; every other locale selects English. A manual choice in the header or Settings is applied
-immediately and restored after refresh. Invalid or unavailable storage falls back safely without
-preventing the app from loading.
+language store. With no saved preference, the interface starts in English. A manual choice in the
+header or Settings is applied immediately and restored after refresh. Invalid or unavailable storage
+falls back safely without preventing the app from loading.
 
 The typed dictionaries in `src/i18n/content/` cover the header, Home, all ten questions and answer
 options, results, all twelve animal records, How It Works, Settings, the footer, and meaningful
@@ -85,8 +84,8 @@ Supported settings:
 - text size: Small, Normal, Large, or Extra Large;
 - Greek and English content across every screen.
 
-The defaults are device-locale language, System appearance, Warm Ivory colors, System Sans, and Normal
-text size. Warm Ivory retains the internal ID `forest` so existing persisted preferences remain valid.
+The defaults are English, Light appearance, Amber colors, System Sans, and Large text size.
+Warm Ivory retains the internal ID `forest` so existing persisted preferences remain valid.
 Settings use one guarded storage abstraction and are restored after refresh when storage
 is available. Missing, invalid, or inaccessible stored values safely fall back to defaults.
 
