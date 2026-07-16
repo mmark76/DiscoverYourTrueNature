@@ -93,7 +93,7 @@ test('footer layers the build version at the far right without shifting centered
 });
 
 test('mobile footer stacks the version without horizontal overflow', () => {
-  assert.match(footerSource, /useStackedNavigation = width < layeredFooterBreakpoint/);
+  assert.match(footerSource, /useStackedNavigation = width < theme\.layout\.footerLayeredBreakpoint/);
   assert.match(footerSource, /navigationRowStacked:[^\n]*alignItems:\s*'stretch'/);
   assert.match(footerSource, /buildVersionStacked:[^\n]*alignSelf:\s*'stretch'/);
   assert.match(footerSource, /linkGroup:[^\n]*flexWrap:\s*'wrap'[^\n]*maxWidth:\s*'100%'/);

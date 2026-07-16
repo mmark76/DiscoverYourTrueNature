@@ -16,7 +16,6 @@ import { ExternalTextLink } from './ExternalTextLink';
 import { PageContent } from './PageContent';
 
 const ecosystemUrl = 'https://markellosecosystem.com';
-const layeredFooterBreakpoint = 1100;
 
 export function AppFooter() {
   const { colors } = useAppearance();
@@ -25,7 +24,7 @@ export function AppFooter() {
   const { setFooterHeight } = useFooterLayout();
   const { width } = useWindowDimensions();
   const styles = createStyles(colors);
-  const useStackedNavigation = width < layeredFooterBreakpoint;
+  const useStackedNavigation = width < theme.layout.footerLayeredBreakpoint;
   const currentYear = new Date().getFullYear();
   const copyrightNotice = `© ${currentYear} Markellos Markides. All rights reserved.`;
   const feedbackUrl = createFeedbackMailto({

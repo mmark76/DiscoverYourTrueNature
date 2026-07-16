@@ -28,6 +28,7 @@ export function PageContent({ children, style }: PageContentProps) {
 const styles = StyleSheet.create({
   container: {
     alignSelf: 'center',
+    marginHorizontal: 'auto',
     maxWidth: theme.layout.contentMaxWidth,
     width: '100%',
   },
