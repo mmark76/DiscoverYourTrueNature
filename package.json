@@ -1,0 +1,27 @@
+{
+  "name": "discover-your-true-nature",
+  "version": "0.1.0",
+  "private": true,
+  "main": "expo/AppEntry.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "web": "expo start --web",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "expo": "^57.0.0",
+    "expo-constants": "~57.0.5",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native": "0.86.0",
+    "react-native-safe-area-context": "~5.7.0",
+    "react-native-web": "0.21.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "babel-preset-expo": "^57.0.0",
+    "typescript": "^5.9.0"
+  }
+}

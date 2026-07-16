@@ -1,0 +1,143 @@
+import { useMemo, useState } from 'react';
+import { StyleSheet } from 'react-native';
+import { SafeAreaProvider, SafeAreaView as InsetSafeAreaView } from 'react-native-safe-area-context';
+
+import { AppScreen, NavigableScreen } from './src/app/navigation';
+import { AnalyticsConsentProvider } from './src/features/analytics/consent/AnalyticsConsentProvider';
+import { Ga4ConsentBridge } from './src/features/analytics/ga4/Ga4ConsentBridge';
+import { AnimalsScreen } from './src/features/animals/components/AnimalsScreen';
+import { AssessmentScreen } from './src/features/assessment/components/AssessmentScreen';
+import { assessmentQuestions } from './src/features/assessment/data/questions';
+import {
+  addDimensionScore,
+  calculateAssessmentResult,
+  createEmptyDimensionScores,
+} from './src/features/assessment/services/scoreAssessment';
+import type { AnswerValue, DimensionId, DimensionScoreMap } from './src/features/archetypes/types';
+import type { AssessmentResult } from './src/features/assessment/types';
+import { HomeScreen } from './src/features/home/components/HomeScreen';
+import { HowItWorksScreen } from './src/features/information/components/HowItWorksScreen';
+import { ResultScreen } from './src/features/results/components/ResultScreen';
+import { AppearanceProvider, useAppearance } from './src/settings/AppearanceProvider';
+import { SettingsScreen } from './src/settings/components/SettingsScreen';
+import { AppHeader } from './src/shared/components/AppHeader';
+import { AppShell } from './src/shared/layout/AppShell';
+
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <AppearanceProvider>
+        <AnalyticsConsentProvider>
+          <Ga4ConsentBridge />
+          <AppContent />
+        </AnalyticsConsentProvider>
+      </AppearanceProvider>
+    </SafeAreaProvider>
+  );
+}
+
+function AppContent() {
+  const { colors } = useAppearance();
+  const [screen, setScreen] = useState<AppScreen>('home');
+  const [settingsReturnScreen, setSettingsReturnScreen] = useState<AppScreen>('home');
+  const [questionIndex, setQuestionIndex] = useState(0);
+  const [scores, setScores] = useState<DimensionScoreMap>(createEmptyDimensionScores);
+  const [result, setResult] = useState<AssessmentResult | null>(null);
+  const [assessmentStarted, setAssessmentStarted] = useState(false);
+
+  const currentQuestion = useMemo(
+    () => assessmentQuestions[questionIndex],
+    [questionIndex],
+  );
+
+  function resetAndStartAssessment() {
+    setQuestionIndex(0);
+    setScores(createEmptyDimensionScores());
+    setResult(null);
+    setAssessmentStarted(true);
+    setScreen('assessment');
+  }
+
+  function openAssessment() {
+    if (!assessmentStarted || result) {
+      resetAndStartAssessment();
+      return;
+    }
+
+    setScreen('assessment');
+  }
+
+  function navigate(nextScreen: NavigableScreen) {
+    if (nextScreen === 'assessment') {
+      openAssessment();
+      return;
+    }
+
+    setScreen(nextScreen);
+  }
+
+  function openSettings() {
+    if (screen !== 'settings') {
+      setSettingsReturnScreen(screen);
+      setScreen('settings');
+    }
+  }
+
+  function selectAnswer(dimension: DimensionId, value: AnswerValue) {
+    const nextScores = addDimensionScore(scores, dimension, value);
+    const isLastQuestion = questionIndex === assessmentQuestions.length - 1;
+
+    setScores(nextScores);
+
+    if (isLastQuestion) {
+      setResult(calculateAssessmentResult(nextScores));
+      setAssessmentStarted(false);
+      setScreen('result');
+      return;
+    }
+
+    setQuestionIndex((currentIndex) => currentIndex + 1);
+  }
+
+  return (
+    <InsetSafeAreaView edges={['top', 'left', 'right']} style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <AppShell
+        header={<AppHeader currentScreen={screen} onNavigate={navigate} onOpenSettings={openSettings} />}
+      >
+
+        {screen === 'home' && <HomeScreen onNavigate={navigate} />}
+
+        {screen === 'assessment' && currentQuestion && (
+          <AssessmentScreen
+            question={currentQuestion}
+            questionNumber={questionIndex + 1}
+            totalQuestions={assessmentQuestions.length}
+            onSelect={selectAnswer}
+          />
+        )}
+
+        {screen === 'result' && result && (
+          <ResultScreen
+            result={result}
+            onHome={() => setScreen('home')}
+            onRestart={resetAndStartAssessment}
+          />
+        )}
+
+        {screen === 'animals' && <AnimalsScreen />}
+
+        {screen === 'how-it-works' && <HowItWorksScreen onStart={openAssessment} />}
+
+        {screen === 'settings' && (
+          <SettingsScreen onBack={() => setScreen(settingsReturnScreen)} />
+        )}
+      </AppShell>
+    </InsetSafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
+});
