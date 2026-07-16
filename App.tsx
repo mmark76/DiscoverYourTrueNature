@@ -4,6 +4,7 @@ import { SafeAreaProvider, SafeAreaView as InsetSafeAreaView } from 'react-nativ
 
 import { AppScreen, NavigableScreen } from './src/app/navigation';
 import { AnalyticsConsentProvider } from './src/features/analytics/consent/AnalyticsConsentProvider';
+import { Ga4ConsentBridge } from './src/features/analytics/ga4/Ga4ConsentBridge';
 import { AnimalsScreen } from './src/features/animals/components/AnimalsScreen';
 import { AssessmentScreen } from './src/features/assessment/components/AssessmentScreen';
 import { assessmentQuestions } from './src/features/assessment/data/questions';
@@ -27,6 +28,7 @@ export default function App() {
     <SafeAreaProvider>
       <AppearanceProvider>
         <AnalyticsConsentProvider>
+          <Ga4ConsentBridge />
           <AppContent />
         </AnalyticsConsentProvider>
       </AppearanceProvider>

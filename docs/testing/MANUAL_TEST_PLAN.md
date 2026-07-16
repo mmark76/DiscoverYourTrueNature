@@ -6,6 +6,8 @@
 2. Run `npm run typecheck` and `npm test`.
 3. Run `npm run web` and open the local Expo URL.
 4. Clear the `animals-within.appearance.v1` browser preference before new-user default scenarios.
+5. Clear the `animals-within.analytics-consent.v1` preference and `_ga`-prefixed cookies before
+   first-visit analytics scenarios.
 
 ## Responsive dashboard
 
@@ -50,6 +52,48 @@
 - Verify How It Works and result disclosures describe the experience as recreational and non-diagnostic.
 - Verify the footer copyright uses the current year without changing between Greek and English.
 - Verify there is no Privacy placeholder or invented Privacy destination.
+
+## Analytics consent and GA4 bootstrap
+
+Use browser Developer Tools with **Preserve log** enabled. Filter the Network panel for
+`googletagmanager`, `google-analytics`, `gtag/js`, and `collect`. The configured Measurement ID is
+`G-QBR3YHHMWS`.
+
+### Unknown and reject flows
+
+1. Clear `animals-within.analytics-consent.v1`, all `_ga`-prefixed cookies for the application
+   domain, and the Network log, then reload.
+2. Before making a choice, confirm the consent banner is visible and there is no request to
+   `googletagmanager.com` or `google-analytics.com`, no `gtag/js` resource, no `collect` request, and
+   no `_ga` cookie.
+3. Choose **Reject analytics / Απόρριψη analytics** and confirm the same zero-request and
+   zero-cookie state remains.
+4. Reload and confirm the stored rejection keeps the banner hidden and the Google tag unloaded.
+
+### Accept flow
+
+1. Reopen **Analytics choices / Επιλογές analytics** from the footer and choose Accept.
+2. Confirm one request loads
+   `https://www.googletagmanager.com/gtag/js?id=G-QBR3YHHMWS` without requiring a reload.
+3. Confirm exactly one explicit initial `page_view` reaches GA4 and that automatic page-view
+   duplication is absent.
+4. Inspect the request payload and confirm it contains only the current page location and document
+   title from the application. Confirm it contains no answers, question or archetype IDs, dimension
+   scores, animals, rankings, percentages, email or Feedback content, language/theme preferences, or
+   build version.
+5. Navigate among Home, assessment, catalog, information, Settings, and result screens. Confirm no
+   additional SPA page views, screen views, or custom application analytics events are sent; those
+   features are not implemented yet.
+
+### Revoke and reaccept flows
+
+1. After the accepted flow, reopen Analytics choices and choose Reject.
+2. Confirm no further application analytics dispatch occurs, the GA disable flag for
+   `G-QBR3YHHMWS` is enabled, and only cookies beginning with `_ga` are removed. Confirm unrelated
+   cookies and local-storage preferences remain.
+3. Reload and confirm the stored rejection prevents the Google tag from loading.
+4. Accept again and confirm GA4 can initialize without a reload and does not duplicate its script,
+   configuration, or initial page view within the current page lifetime.
 
 ## Appearance settings
 
