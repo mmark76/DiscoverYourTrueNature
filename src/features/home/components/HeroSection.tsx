@@ -33,11 +33,15 @@ export function HeroSection({ onStart }: HeroSectionProps) {
       </View>
 
       <View accessibilityElementsHidden style={styles.motif}>
-        <View style={styles.motifCircleLarge} />
-        <View style={styles.motifCircleMedium} />
-        <View style={styles.motifCircleSmall} />
-        <AppText style={styles.motifText}>12</AppText>
-        <AppText style={styles.motifCaption}>{copy.motifCaption}</AppText>
+        <View style={styles.motifOuterCircle} />
+        <View style={styles.motifContent}>
+          <View style={styles.motifNumberArea}>
+            <AppText style={styles.motifText}>12</AppText>
+          </View>
+          <View style={styles.motifCaptionArea}>
+            <AppText style={styles.motifCaption}>{copy.motifCaption}</AppText>
+          </View>
+        </View>
       </View>
     </View>
   );
@@ -54,11 +58,12 @@ function createStyles(colors: SemanticColors) {
     button: { alignSelf: 'flex-start', backgroundColor: colors.primary, borderRadius: theme.radius.sm, marginTop: theme.spacing.xs, minHeight: 44, paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.sm },
     buttonPressed: { backgroundColor: colors.primaryPressed },
     buttonText: { color: colors.onPrimary, fontSize: 15, fontWeight: '800' },
-    motif: { alignItems: 'center', alignSelf: 'center', height: 190, justifyContent: 'center', minWidth: 220, position: 'relative' },
-    motifCircleLarge: { borderColor: colors.heroDecoration, borderRadius: 999, borderWidth: 1, height: 180, position: 'absolute', width: 180 },
-    motifCircleMedium: { borderColor: colors.heroMuted, borderRadius: 999, borderWidth: 1, height: 132, opacity: 0.65, position: 'absolute', width: 132 },
-    motifCircleSmall: { backgroundColor: colors.heroDecorationStrong, borderRadius: 999, height: 94, position: 'absolute', width: 94 },
+    motif: { alignItems: 'center', alignSelf: 'center', aspectRatio: 1, flexBasis: 180, flexGrow: 0, flexShrink: 1, justifyContent: 'center', maxWidth: 180, minWidth: 0, position: 'relative', width: '100%' },
+    motifOuterCircle: { borderColor: colors.heroDecoration, borderRadius: 999, borderWidth: 1, height: '100%', opacity: 0.55, position: 'absolute', width: '100%' },
+    motifContent: { alignItems: 'center', gap: theme.spacing.sm, justifyContent: 'center', paddingHorizontal: theme.spacing.md, width: '100%' },
+    motifNumberArea: { alignItems: 'center', backgroundColor: colors.surfaceMuted, borderColor: colors.heroDecoration, borderRadius: 999, borderWidth: 1, height: 72, justifyContent: 'center', width: 72 },
     motifText: { color: colors.heading, fontSize: 34, fontWeight: '900' },
-    motifCaption: { color: colors.mutedText, fontSize: 12, fontWeight: '700', marginTop: 2 },
+    motifCaptionArea: { alignItems: 'center', justifyContent: 'flex-start', maxWidth: 142, minHeight: 38, width: '100%' },
+    motifCaption: { color: colors.text, fontSize: 14, fontWeight: '700', lineHeight: 19, textAlign: 'center' },
   });
 }

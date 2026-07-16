@@ -157,11 +157,12 @@ its bottom safe-area inset) and reserves exactly that live height beneath the ac
 offset therefore updates when language, text scale, viewport width, zoom, or wrapping changes,
 without feature screens carrying hard-coded footer margins.
 
-The footer has exactly two semantic rows: a localized compact entertainment disclaimer, then
+The footer has exactly two semantic rows: a dynamic current-year copyright notice, then
 Feedback, Markellos Ecosystem, and the build identifier. It remains fixed to the
 viewport, aligned to the same shared page-width container as the header and main content. Warm Ivory
-uses a quiet cream footer, blue-grey top border and text, restrained burnt-orange links, and a muted
-version string without changing the measured-height or safe-area architecture.
+uses a quiet cream footer, blue-grey top border and text, restrained underlined links, and a muted
+version string without changing the measured-height or safe-area architecture. Other light themes
+use their corresponding quiet near-white footer surfaces, while dark modes retain dark surfaces.
 
 Build configuration prepares this public identifier during Expo configuration/export:
 

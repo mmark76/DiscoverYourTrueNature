@@ -141,12 +141,10 @@ export interface TranslationContent {
   };
   footer: {
     accessibilityLabel: string;
-    compactDisclaimer: string;
     navigationLabel: string;
     feedbackLabel: string;
     feedbackAccessibilityLabel: string;
     ecosystemLabel: string;
-    ecosystemCompactLabel: string;
     ecosystemAccessibilityLabel: string;
     buildAccessibilityLabel: string;
   };

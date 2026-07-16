@@ -308,12 +308,10 @@ export const englishContent = {
   },
   footer: {
     accessibilityLabel: 'Animals Within information and links',
-    compactDisclaimer: 'Entertainment self-discovery — not a psychological diagnosis or scientifically validated assessment.',
     navigationLabel: 'Footer links and build information',
     feedbackLabel: 'Feedback',
     feedbackAccessibilityLabel: 'Send feedback by email',
     ecosystemLabel: 'Markellos Ecosystem',
-    ecosystemCompactLabel: 'Ecosystem',
     ecosystemAccessibilityLabel: 'Return to Markellos Ecosystem',
     buildAccessibilityLabel: 'Application build version',
   },

@@ -47,8 +47,8 @@
 
 - Verify How It Works describes 24 questions, eight editorial dimensions, twelve provisional vectors,
   local deterministic scoring, and the entertainment-only purpose.
-- Verify the home/footer language describes the experience as recreational.
-- Verify the footer says it is not a psychological diagnosis or scientific assessment.
+- Verify How It Works and result disclosures describe the experience as recreational and non-diagnostic.
+- Verify the footer copyright uses the current year without changing between Greek and English.
 - Verify there is no Privacy placeholder or invented Privacy destination.
 
 ## Appearance settings
@@ -170,7 +170,7 @@ no content is covered by the footer, and no horizontal scrolling appears.
 For the Header and Footer Feedback entry points, verify the email client opens a draft without sending it. Confirm the
 recipient is `markellos.markides@gmail.com`, the subject is `Animals Within Feedback`, and the body
 contains the selected localized language name, current build identifier, and a blank Feedback area.
-Inspect the footer with a screen reader in both languages and verify this order: disclaimer,
+Inspect the footer with a screen reader in both languages and verify this order: copyright,
 Feedback, Markellos Ecosystem, build version. Verify calm visible keyboard focus and usable touch
 targets.
 
