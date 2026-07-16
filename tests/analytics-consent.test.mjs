@@ -105,16 +105,16 @@ test('analytics consent copy resolves exactly in Greek and English', () => {
     dialogAccessibilityLabel: 'Change analytics consent choices',
   });
   assert.deepEqual(translations.el.analyticsConsent, {
-    title: 'Επιλογές analytics',
-    description: 'Βοήθησέ μας να κατανοήσουμε πώς χρησιμοποιείται η εφαρμογή. Τα analytics θα ενεργοποιηθούν μόνο με την άδειά σου. Οι απαντήσεις και τα αποτελέσματα του τεστ δεν θα αποστέλλονται ποτέ.',
-    accept: 'Αποδοχή analytics',
-    reject: 'Απόρριψη analytics',
-    close: 'Κλείσιμο επιλογών analytics',
-    bannerAccessibilityLabel: 'Επιλογές συγκατάθεσης analytics',
-    dialogAccessibilityLabel: 'Αλλαγή επιλογών συγκατάθεσης analytics',
+    title: 'Επιλογές στατιστικών χρήσης',
+    description: 'Βοήθησέ μας να κατανοήσουμε πώς χρησιμοποιείται η εφαρμογή. Η συλλογή στατιστικών χρήσης θα ενεργοποιηθεί μόνο με την άδειά σου. Οι απαντήσεις σου και τα αποτελέσματα για τα ζώα δεν θα αποστέλλονται ποτέ.',
+    accept: 'Αποδοχή στατιστικών χρήσης',
+    reject: 'Απόρριψη στατιστικών χρήσης',
+    close: 'Κλείσιμο επιλογών στατιστικών χρήσης',
+    bannerAccessibilityLabel: 'Επιλογές συγκατάθεσης για στατιστικά χρήσης',
+    dialogAccessibilityLabel: 'Αλλαγή συγκατάθεσης για στατιστικά χρήσης',
   });
   assert.equal(translations.en.footer.analyticsChoicesLabel, 'Analytics choices');
-  assert.equal(translations.el.footer.analyticsChoicesLabel, 'Επιλογές analytics');
+  assert.equal(translations.el.footer.analyticsChoicesLabel, 'Επιλογές στατιστικών χρήσης');
 });
 
 test('consent controls support safe areas, focus, screen readers, and non-overlay banner flow', () => {
@@ -132,5 +132,8 @@ test('consent UI and storage remain isolated from analytics transport and assess
     .join('\n');
 
   assert.doesNotMatch(consentFeatureSource, /googletagmanager|google-analytics|\bgtag\b|fetch\s*\(|XMLHttpRequest|sendBeacon|document\.cookie|<script|https?:\/\//i);
-  assert.doesNotMatch(consentFeatureSource, /assessmentQuestions|AssessmentAnswer|TraitScoreMap|AssessmentResult|adaptiveQuestion|primaryId|secondaryId|feedbackRecipient/i);
+  assert.doesNotMatch(
+    consentFeatureSource,
+    /assessmentQuestions|AssessmentAnswer|AssessmentResult|DimensionProfile|PoleScoreMap|RankingDraft|adaptiveQuestion|primaryTypeId|secondaryTypeId|balancedDimension|animalId|feedbackRecipient/i,
+  );
 });

@@ -21,8 +21,8 @@ export interface AnimalCopy {
   name: string;
   tagline: string;
   description: string;
-  strengths: readonly string[];
-  blindSpots: readonly string[];
+  strengths: readonly [string, ...string[]];
+  blindSpots: readonly [string, ...string[]];
   interaction: string;
   information: string;
   decisions: string;

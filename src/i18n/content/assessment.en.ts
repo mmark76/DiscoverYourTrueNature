@@ -168,7 +168,7 @@ export const englishAssessmentOptions = {
   'decisions-adaptive-02-team-tension-strong-first': 'I name the issue directly and separate facts from reactions.',
   'decisions-adaptive-02-team-tension-moderate-first': 'I clarify expectations and look for a fair practical compromise.',
   'decisions-adaptive-02-team-tension-moderate-second': 'I hear each person’s concerns and help them find common ground.',
-  'decisions-adaptive-02-team-tension-strong-second': 'I focus first on restoring trust and making everyone feel heard.',
+  'decisions-adaptive-02-team-tension-strong-second': 'I focus first on restoring trust and helping each person feel heard.',
   'decisions-adaptive-03-unpopular-call-strong-first': 'I choose the option best supported by evidence, even if it is disliked.',
   'decisions-adaptive-03-unpopular-call-moderate-first': 'I make a consistent decision and explain its trade-offs clearly.',
   'decisions-adaptive-03-unpopular-call-moderate-second': 'I adapt the decision where possible to reduce its effect on people.',

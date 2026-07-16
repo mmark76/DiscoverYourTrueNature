@@ -98,11 +98,11 @@ export function submitCurrentAssessmentAnswer(
 
     if (fixedAnswers.length === fixedAssessmentQuestionCount) {
       adaptiveQuestionIds = [...selectAdaptiveQuestionIds(fixedAnswers)];
-      const compatibleAdaptiveIds = new Set(adaptiveQuestionIds);
-      answers = answers.filter((candidate) =>
-        isFixedAssessmentQuestionId(candidate.questionId)
-        || compatibleAdaptiveIds.has(candidate.questionId),
-      );
+      // Adaptive answers depend on the complete fixed profile. Even when an adaptive ID happens
+      // to exist in both routes, its position may have changed and retaining it can create a
+      // non-contiguous persisted history. A changed fixed answer therefore invalidates the whole
+      // dependent adaptive phase and lets the user answer the recalculated route from its start.
+      answers = answers.filter((candidate) => isFixedAssessmentQuestionId(candidate.questionId));
     } else {
       adaptiveQuestionIds = [];
       answers = answers.filter((candidate) => isFixedAssessmentQuestionId(candidate.questionId));

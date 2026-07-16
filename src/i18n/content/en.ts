@@ -1,5 +1,5 @@
 import type { TranslationContent } from '../translationTypes';
-import { englishAssessmentOptions, englishAssessmentQuestions } from './assessment.en';
+import { englishAssessmentOptions, englishAssessmentQuestions } from './assessment.en.ts';
 
 const entertainmentDisclaimer = 'An entertainment self-discovery experience. The animals are used symbolically. This is not a psychological diagnosis or a scientifically validated assessment.';
 
@@ -110,7 +110,7 @@ export const englishContent = {
     animalMetaphor: 'Why this animal metaphor fits',
     relationship: 'How your two animal patterns relate',
     relationshipDescription:
-      'Alongside {primary}, {secondary} reflects another side of how you may respond. {secondaryDescription} Together, the two patterns suggest that different situations can bring different qualities forward.',
+      'You may lead with {primaryStrength}, represented here by {primary}. {secondary} adds {secondaryStrength}. Together, the secondary quality can broaden or soften how the leading quality appears, while the primary quality can give it direction. Which side is more noticeable may change with the situation.',
     closePatterns: 'Your profile sits very close between two related patterns.',
     catalogue: 'Explore all 16 animals',
     catalogueHint: 'Opens the animal catalogue and marks your primary and secondary animals',
@@ -279,7 +279,7 @@ export const englishContent = {
           'This pattern often reflects a sociable, caring person who remembers practical details and helps people feel included and supported.',
         strengths: ['Inclusive hospitality', 'Practical awareness of people’s needs', 'Reliable support for shared traditions'],
         blindSpots: ['May worry too much about social approval', 'Can find open conflict or abrupt change especially uncomfortable'],
-        interaction: 'You may connect openly, remember personal details, and help everyone find a place in the group.',
+        interaction: 'You may connect openly, remember personal details, and help each person find a place in the group.',
         information: 'You tend to notice concrete needs, established expectations, and what has helped people before.',
         decisions: 'You may prioritize cooperation, personal impact, and a solution people can support together.',
         organization: 'You often coordinate details early and use familiar structure to make shared experiences run smoothly.',
@@ -290,7 +290,7 @@ export const englishContent = {
         tagline: 'You may stay calm under pressure, read the immediate situation, and act with precise independence.',
         description:
           'This pattern often reflects a practical, self-directed person who learns by doing and responds skilfully to real-time problems.',
-        strengths: ['Calm practical diagnosis', 'Independent technical skill', 'Fast adaptation to immediate conditions'],
+        strengths: ['Calm practical assessment', 'Independent technical skill', 'Fast adaptation to immediate conditions'],
         blindSpots: ['May disengage from long explanations or rigid procedures', 'Can keep personal reactions so private that others misread the silence'],
         interaction: 'You may prefer straightforward contact, shared activity, and plenty of personal space.',
         information: 'You tend to observe what is actually happening and test how the parts work in practice.',
@@ -307,7 +307,7 @@ export const englishContent = {
         blindSpots: ['May avoid direct confrontation until pressure builds', 'Can find long-range structure restrictive when the present calls for change'],
         interaction: 'You may show warmth through attentive presence and prefer relationships that respect individuality.',
         information: 'You tend to notice sensory detail, mood, and what feels significant in the immediate setting.',
-        decisions: 'You may follow personal values while trying to preserve dignity and freedom for everyone involved.',
+        decisions: 'You may follow personal values while trying to preserve dignity and freedom for each person involved.',
         organization: 'You often adapt fluidly and use enough structure to protect what matters without feeling confined.',
         metaphor: 'The swan symbolizes grace, sensitivity, and individual expression as a poetic metaphor only.',
       },

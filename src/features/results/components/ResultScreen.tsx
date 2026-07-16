@@ -39,7 +39,8 @@ export function ResultScreen({
   const relationshipDescription = formatTranslation(copy.relationshipDescription, {
     primary: primaryCopy.name,
     secondary: secondaryCopy.name,
-    secondaryDescription: secondaryCopy.description,
+    primaryStrength: primaryCopy.strengths[0],
+    secondaryStrength: secondaryCopy.strengths[0],
   });
   const styles = createStyles(colors);
 

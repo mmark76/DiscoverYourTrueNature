@@ -161,9 +161,8 @@ test('footer centers copyright and links independently from its secondary build 
   assert.equal((footerSource.match(/style=\{styles\.linkPair\}/g) ?? []).length, 2);
 });
 
-test('result hides normal app chrome while keeping the consent layer in the shell', () => {
-  assert.equal(shouldShowAppChrome('result'), false);
-  for (const screen of ['home', 'assessment', 'animals', 'how-it-works', 'settings']) {
+test('animal-first result keeps normal app chrome and the consent layer in the shell', () => {
+  for (const screen of ['home', 'assessment', 'result', 'animals', 'how-it-works', 'settings']) {
     assert.equal(shouldShowAppChrome(screen), true);
   }
 

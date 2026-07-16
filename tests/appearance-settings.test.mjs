@@ -194,7 +194,7 @@ test('page and card headings use heading while body copy uses text', () => {
   for (const path of [
     'src/features/home/components/HeroSection.tsx',
     'src/features/home/components/FeatureCard.tsx',
-    'src/features/assessment/components/OptionButton.tsx',
+    'src/features/assessment/components/RankingOptionCard.tsx',
     'src/features/animals/components/AnimalCard.tsx',
     'src/features/animals/components/AnimalsScreen.tsx',
     'src/features/information/components/HowItWorksScreen.tsx',
@@ -286,9 +286,19 @@ test('new users and Reset Appearance receive the documented defaults', () => {
 
 test('switching appearance mode and color preserves assessment state', () => {
   const assessmentState = {
+    schemaVersion: 2,
+    modelVersion: '16-personality-ranking-v1-25q',
+    currentQuestionIndex: 2,
     answers: [
-      { questionId: 'b01-new-group', optionId: 'b01-b' },
-      { questionId: 'b02-sudden-change', optionId: 'b02-a' },
+      {
+        questionId: 'energy-fixed-01-demanding-week',
+        rankings: [
+          { optionId: 'energy-fixed-01-demanding-week-strong-first', rank: 4 },
+          { optionId: 'energy-fixed-01-demanding-week-moderate-first', rank: 3 },
+          { optionId: 'energy-fixed-01-demanding-week-moderate-second', rank: 1 },
+          { optionId: 'energy-fixed-01-demanding-week-strong-second', rank: 2 },
+        ],
+      },
     ],
     adaptiveQuestionIds: [],
     result: null,
@@ -305,7 +315,18 @@ test('switching appearance mode and color preserves assessment state', () => {
 
 test('switching font and text size preserves language-neutral assessment answers', () => {
   const assessment = {
-    answers: [{ questionId: 'b01-new-group', optionId: 'b01-d' }],
+    schemaVersion: 2,
+    modelVersion: '16-personality-ranking-v1-25q',
+    currentQuestionIndex: 1,
+    answers: [{
+      questionId: 'energy-fixed-01-demanding-week',
+      rankings: [
+        { optionId: 'energy-fixed-01-demanding-week-strong-first', rank: 2 },
+        { optionId: 'energy-fixed-01-demanding-week-moderate-first', rank: 1 },
+        { optionId: 'energy-fixed-01-demanding-week-moderate-second', rank: 3 },
+        { optionId: 'energy-fixed-01-demanding-week-strong-second', rank: 4 },
+      ],
+    }],
     adaptiveQuestionIds: [],
     result: null,
   };

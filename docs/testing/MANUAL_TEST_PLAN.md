@@ -1,241 +1,399 @@
-# Manual Test Plan — Animals Within Bilingual Dashboard
+# Manual Test Plan — Animals Within Ranked Assessment
+
+This plan verifies the bilingual animal-first experience for model
+`16-personality-ranking-v1-25q`. Manual observations are product and engineering checks, not
+scientific validation.
 
 ## Setup
 
 1. Run `npm install`.
-2. Run `npm run typecheck` and `npm test`.
-3. Run `npm run web` and open the local Expo URL.
-4. Clear the `animals-within.appearance.v1` browser preference before new-user default scenarios.
-5. Clear the `animals-within.analytics-consent.v1` preference and `_ga`-prefixed cookies before
-   first-visit analytics scenarios.
+2. Run `npm run typecheck`.
+3. Run `npm test`.
+4. Run `node scripts/analyzeAssessmentBalance.mjs`.
+5. Run `npm run web` and open the local Expo URL.
+6. For a production-style check, run `npx expo export --platform web` and serve the exported build.
+7. Open browser Developer Tools with Console, Application/Storage, Accessibility, and Network panels
+   available.
 
-## Responsive dashboard
+For a clean first-visit scenario, clear:
 
-- Desktop (at least 1080 px): verify three feature-card columns and a readable header/footer.
-- Tablet (680–1079 px): verify two cards share the first row and the third forms a balanced full-width row.
-- Mobile (below 680 px): verify one card per row, readable hero copy, and reachable navigation.
-- Repeat at wide desktop, normal laptop, tablet, and mobile widths in both languages.
-- At every size, verify no horizontal scrolling, clipped text, overlapping controls, or hidden
-  Settings/language controls.
-- Tab through active controls and verify visible focus/pressed behavior and meaningful labels.
+- `animals-within.assessment.v2`;
+- legacy `animals-within.assessment.v1`;
+- `animals-within.appearance.v1`;
+- `animals-within.analytics-consent.v1`;
+- first-party cookies beginning with `_ga`.
 
-## Navigation
+Do not clear unrelated browser storage when testing assessment restart or legacy migration.
 
-- **Αρχική / Home** opens Home from every internal view.
-- **Ανακάλυψη / Discover**, the hero action, and active discovery actions open the assessment.
-- **Τα 12 Ζώα / The 12 Animals** opens the twelve-archetype catalog.
-- **Πώς Λειτουργεί / How It Works** opens the scoring and disclaimer explanation.
-- Header and footer ecosystem links open `https://markellosecosystem.com`.
-- Verify Home contains only the active Discover, 12 Animals, and How It Works cards.
-- Header and footer Feedback links open an email draft.
+## Home and navigation
 
-## Assessment state and result
+Verify in English and Greek:
 
-1. Start the assessment and answer at least two questions.
-2. Open Home through the header.
-3. Choose **Ανακάλυψη** and verify the same unfinished question is restored.
-4. Complete all 25 questions and verify only a primary animal, secondary animal, and restart action
-   appear in the result content.
-5. Open Home from the result and verify the dashboard remains available.
-6. Complete another run and choose **Take it again / Κάνε το ξανά**; verify question 1 opens with
-   no answers, adaptive choices, or previous result while language, appearance, and analytics consent
-   remain unchanged.
+- the public title is **Animals Within** and the ecosystem link is **Markellos Ecosystem**;
+- Home describes exactly 25 ranked questions, 20 fixed questions, five adaptive differentiators,
+  four statements ranked 4 through 1, four internal dimensions, 16 patterns, 16 symbolic animals,
+  primary and secondary animals, local deterministic scoring, and entertainment purpose;
+- Home remains concise and does not expose formulas, percentages, codes, or classification titles;
+- Discover opens a new or resumable assessment;
+- The 16 Animals opens the catalogue without requiring assessment completion;
+- How It Works opens the plain-language explanation;
+- Settings, Feedback, Analytics choices, and ecosystem links remain active;
+- every internal screen can return to Home without losing an unfinished assessment.
 
-## Twelve-animal catalog
+Confirm the URL and browser document title remain generic while navigating. They must not contain
+question IDs, option IDs, ranks, adaptive IDs, animal results, or internal personality identifiers.
 
-- Verify all twelve required animals and provisional trait descriptions are present.
-- Verify every card uses a consistent presentation with its canonical animal symbol.
-- Verify no availability or status badge separates the twelve animals.
-- Verify every animal can appear as a primary and a secondary assessment result.
+## Starting a new assessment
 
-## Content and safety
+1. Clear only `animals-within.assessment.v2` and reload.
+2. Start discovery.
+3. Verify progress announces **Question 1 of 25** / **Ερώτηση 1 από 25** without scoring detail.
+4. Verify the question prompt and four distinct behavioral statements are visible.
+5. Verify the ranking guide shows all four meanings:
+   - 4 — Describes me most;
+   - 3 — Describes me quite well;
+   - 2 — Describes me somewhat;
+   - 1 — Describes me least;
+   - and the natural Greek equivalents.
+6. Confirm no question or answer names an animal, a four-letter code, a dimension, or a scoring rule.
 
-- Verify How It Works describes 25 quick local choices, deterministic comparison with twelve
-  profiles, and the entertainment-only purpose without revealing which questions are adaptive.
-- Verify How It Works describes the experience as recreational and non-diagnostic without adding a
-  long disclaimer to the result.
-- Verify the footer copyright uses the current year without changing between Greek and English.
-- Verify there is no Privacy placeholder or invented Privacy destination.
+## Ranking controls and collision policy
 
-## Analytics consent and GA4 bootstrap
+Repeat these checks with mouse, touch emulation, and keyboard:
 
-Use browser Developer Tools with **Preserve log** enabled. Filter the Network panel for
-`googletagmanager`, `google-analytics`, `gtag/js`, and `collect`. The configured Measurement ID is
-`G-QBR3YHHMWS`.
+1. Assign rank 4 to the first statement and verify visible number, label, border/indicator, and
+   selected accessibility state.
+2. Assign ranks 3 and 2 to two other statements, leaving the fourth unranked.
+3. Attempt to continue. Verify advancement is blocked and a clear visible and announced incomplete
+   message explains that 1, 2, 3, and 4 must each be used once.
+4. Assign rank 1 to the fourth statement. Verify the question is announced as complete and Continue
+   becomes available.
+5. Before continuing, choose rank 4 on the statement currently holding rank 3. Verify those two
+   statements swap ranks: the previous rank-4 statement now has 3 and the target has 4.
+6. Clear or begin with an unranked target, then choose a rank already held elsewhere. Verify the rank
+   moves to the target and its previous owner becomes unranked.
+7. Choose the rank already assigned to the same statement. Verify state remains unchanged.
+8. Verify selected state never depends on color alone and no duplicate rank remains after a swap.
+9. Complete the exact 1-through-4 permutation and continue. Verify progress advances only once.
 
-### Unknown and reject flows
+Confirm drag-and-drop is not required and all rank targets remain at least 44 by 44 logical pixels.
 
-1. Clear `animals-within.analytics-consent.v1`, all `_ga`-prefixed cookies for the application
-   domain, and the Network log, then reload.
-2. Before making a choice, confirm the consent banner is visible and there is no request to
-   `googletagmanager.com` or `google-analytics.com`, no `gtag/js` resource, no `collect` request, and
-   no `_ga` cookie.
-3. Choose **Reject analytics / Απόρριψη analytics** and confirm the same zero-request and
-   zero-cookie state remains.
-4. Reload and confirm the stored rejection keeps the banner hidden and the Google tag unloaded.
+## Backward, forward, and internal navigation
 
-### Accept flow
+1. Complete at least three questions with recognizable ranking patterns.
+2. Move back one question and confirm all four rankings are preserved.
+3. Move forward and confirm the next question's rankings remain preserved.
+4. Edit a previous ranking, continue again, and verify the updated answer is retained.
+5. Open Home, Catalogue, How It Works, and Settings at different points, then return through Discover.
+6. Verify the same current position, completed rankings, and forward/back history remain.
+7. Switch language and appearance while away from the assessment, then resume and verify no
+   assessment state changed.
 
-1. Reopen **Analytics choices / Επιλογές analytics** from the footer and choose Accept.
-2. Confirm one request loads
-   `https://www.googletagmanager.com/gtag/js?id=G-QBR3YHHMWS` without requiring a reload.
-3. Confirm exactly one explicit initial `page_view` reaches GA4 and that automatic page-view
-   duplication is absent.
-4. Inspect the request payload and confirm it contains only the current page location and document
-   title from the application. Confirm it contains no answers, question or option IDs, trait values,
-   adaptive candidates, animal IDs or names, rankings, email or Feedback content, language/theme
-   preferences, or build version.
-5. Navigate among Home, assessment, catalog, information, Settings, and result screens. Confirm no
-   additional SPA page views, screen views, or custom application analytics events are sent; those
-   features are not implemented yet.
+## Fixed-to-adaptive transition
 
-### Revoke and reaccept flows
+1. Complete questions 1 through 19 and verify no adaptive IDs exist in the persisted record.
+2. Complete question 20.
+3. Inspect `animals-within.assessment.v2` and verify exactly five unique adaptive question IDs are
+   selected for the current route.
+4. Verify progress moves to question 21 of 25 without a scoring report or internal dimension label.
+5. Complete questions 21 through 25 and verify none repeats another selected adaptive question.
+6. Repeat the same 20 fixed ranking answers in a clean session and verify the same five adaptive IDs
+   appear in the same order.
+7. Change language and appearance after question 20 and again after question 23. Verify the selected
+   adaptive sequence and eventual result do not change.
+8. After answering at least three adaptive questions, navigate back to any fixed question and change
+   its ranking. Verify all dependent adaptive answers are cleared, the five-question route is
+   recalculated, and continuing resumes from the first adaptive question without losing fixed
+   answers. Refresh at that point and verify the recalculated state restores instead of resetting.
 
-1. After the accepted flow, reopen Analytics choices and choose Reject.
-2. Confirm no further application analytics dispatch occurs, the GA disable flag for
-   `G-QBR3YHHMWS` is enabled, and only cookies beginning with `_ga` are removed. Confirm unrelated
-   cookies and local-storage preferences remain.
-3. Reload and confirm the stored rejection prevents the Google tag from loading.
-4. Accept again and confirm GA4 can initialize without a reload and does not duplicate its script,
-   configuration, or initial page view within the current page lifetime.
+The developer storage panel may show stable internal IDs. The visible application and accessibility
+tree must not expose them.
 
-## Appearance settings
+## Completion and result
 
-Test a selective matrix across desktop and mobile:
+After question 25, verify the result hierarchy is:
 
-- Greek and English interface labels;
-- System, Light, and Dark modes;
-- Warm Ivory, Ocean, Amber, and Plum themes;
-- System Sans, Serif, and Highly Readable fonts;
-- Normal and Extra Large text sizes.
+1. primary animal name and symbol;
+2. strong identifying sentence and natural-language primary description;
+3. typical strengths;
+4. possible blind spots;
+5. interaction tendency;
+6. information-processing tendency;
+7. decision tendency;
+8. organization/adaptation tendency;
+9. secondary animal and concise description;
+10. explanation of how the secondary pattern complements, softens, or differs from the primary;
+11. retake and catalogue actions;
+12. entertainment disclaimer.
 
-For each representative combination:
+Verify the secondary animal is distinct and is not described as inferior or less valid. If the
+fixture is balanced, verify the result can explain that the profile sits close between related
+patterns without showing technical tie data.
 
-- verify the header wraps without clipped navigation or horizontal scrolling;
-- verify hero, feature cards, assessment choices, results, animal descriptions, information screens,
-  and footer remain readable;
-- verify every question offers exactly one selectable answer and advances once selected;
-- verify keyboard focus is clearly visible in every color theme;
-- verify catalog cards do not resemble unavailable or disabled controls;
-- verify the ecosystem destination remains a text link.
-- inspect meaningful navigation, progress, status, disabled-state, and action labels with a screen reader.
-- verify the selected language control exposes its radio state and never uses a flag.
+The visible result and accessibility tree must not contain:
 
-## Persistence and state preservation
+- any four-letter personality code;
+- personality classification titles such as Architect, Advocate, Commander, or equivalents;
+- MBTI, Myers-Briggs, or language implying an official MBTI assessment;
+- scores, percentages, pole totals, progress bars for dimensions, confidence, compatibility values,
+  weights, distances, formulas, or rankings of all 16 patterns;
+- raw answers, question IDs, adaptive rationale, debug values, or share text.
 
-1. Start the assessment and answer at least three questions.
-2. Open Settings from the assessment header.
-3. Change language, mode, theme, font, and text size, then return.
-4. Verify the same question and accumulated progress remain.
-5. Complete the assessment, change settings from the result, and verify the result remains unchanged.
-6. Refresh and verify manually selected preferences are restored.
-7. Select System mode and switch the operating-system appearance preference; verify the app follows it.
-8. Choose Extra Large with Greek labels on mobile; verify controls wrap without clipping or overflow.
-9. Select Reset, cancel the inline confirmation, and verify nothing changes.
-10. Confirm Reset and verify English, Light mode, Amber, System Sans, and Large size return.
-11. Simulate unavailable or invalid storage and verify the application still loads with safe defaults.
+Switch between Greek and English on a completed result. Verify the same two animals remain while all
+descriptions, headings, tendencies, relationship copy, actions, accessibility text, and disclaimer
+change language naturally. Change appearance and verify the result remains identical.
 
-## Required bilingual scenarios
+Refresh the completed result and, where supported, close and reopen the application. Verify the same
+result restores without briefly rendering a code or technical value.
 
-1. Start with Greek browser locale and no saved preferences; verify English remains the default.
-2. Start with non-Greek browser locale and no saved preferences; verify English remains the default.
-3. Change from Greek to English on Home.
-4. Change from English to Greek inside Settings.
-5. Switch language after answering at least three questions.
-6. Verify the same question and progress remain.
-7. Complete the assessment in one language.
-8. Change language on the result screen.
-9. Verify the same primary and secondary result remain.
-10. Refresh and verify the manual language choice persists.
-11. Inspect all twelve animal cards in both languages.
-12. Test both languages with Extra Large text on mobile.
-13. Verify no untranslated Greek text remains in English mode except:
-    - the Greek language choice label “Ελληνικά”;
-    - the unchanged product name “Animals Within”.
-14. Verify no English content remains in Greek mode except accepted proper names or intentionally
-    shared product terminology such as “Animals Within” and “Feedback”.
+## Sixteen-animal catalogue
 
-For scenarios 3–9, also verify that switching language does not navigate away from the current
-screen. At each responsive width, test keyboard focus, localized accessibility labels, selected and
-disabled states, complete answer-option wrapping, and the absence of horizontal overflow.
+Verify the catalogue is available before assessment completion and contains exactly these unique
+animals in both languages:
 
-## Twenty-five-question and result review
+1. Raven / Κοράκι
+2. Octopus / Χταπόδι
+3. Lion / Λιοντάρι
+4. Fox / Αλεπού
+5. Elephant / Ελέφαντας
+6. Deer / Ελάφι
+7. Dolphin / Δελφίνι
+8. Otter / Βίδρα
+9. Beaver / Κάστορας
+10. Dog / Σκύλος
+11. Wolf / Λύκος
+12. Penguin / Πιγκουίνος
+13. Falcon / Γεράκι
+14. Swan / Κύκνος
+15. Cheetah / Τσίτα
+16. Peacock / Παγώνι
 
-- Review the 23 fixed questions and all 10 adaptive-bank questions in English and Greek. Confirm a
-  completed run contains exactly 25 answers: the 23 fixed questions followed by two distinct
-  adaptive-bank questions.
-- Confirm each question has four options, no animal is named, and no answer is framed as the best choice.
-- Open Settings at question 12, switch language and appearance, return, and verify question 12 remains.
-- Switch language after question 23 and after question 24; verify answers, current position, selected
-  adaptive IDs, and eventual result do not change.
-- Complete representative legal 25-answer fixtures for all twelve primary and all twelve secondary
-  animals.
-- Verify the result body shows only the primary label/name, secondary label/name, and restart action.
-  Confirm there are no percentages, confidence, ranking, analysis, strengths, weaknesses, charts,
-  trait labels, recommendations, share prompts, or extra result cards.
-- Confirm restart clears all 25 answers, both adaptive IDs, and the result.
-- Confirm the fixed footer covers no question, option, result text, or focused control.
+For every card, verify the animal name leads, descriptive copy is balanced, and no code,
+classification title, score, or percentage appears visually or in its accessibility label.
 
-Run the visual matrix at approximately 1440 px desktop, 1280 px laptop, 768 px tablet, and 390 px
-mobile in English and Greek, Small and Extra Large text, Light and Dark modes, and 200% browser zoom.
-For representative combinations, verify the progress counter moves from 1 through 25, questions feel
-quick and non-repetitive, options remain neutral and wrap fully, focus order is logical, the question
-change is announced, and no horizontal scrolling or footer overlap appears.
+After completing an assessment, revisit the catalogue. Verify separate text/icon indicators identify
+the primary and secondary animals without relying only on color. Confirm there is exactly one of each
+and all cards remain responsive and keyboard-readable.
 
-## Warm Ivory and fixed-footer review
+## How It Works and disclaimer
 
-Run and record all 22 scenarios below:
+Verify How It Works explains in plain language:
 
-1. Warm Ivory Light on desktop.
-2. Warm Ivory Dark on desktop.
-3. Warm Ivory Light on mobile.
-4. Warm Ivory Dark on mobile.
-5. Greek interface.
-6. English interface.
-7. Normal text.
-8. Extra Large text.
-9. Browser zoom at both 125% and 200%.
-10. Home screen with the fixed footer.
-11. Assessment screen, including the final answer options.
-12. Result screen actions.
-13. Animals screen final cards.
-14. How It Works final call to action.
-15. Settings final controls.
-16. Mobile safe area.
-17. Keyboard navigation through footer links.
-18. Feedback mailto from the header.
-19. Feedback mailto from the footer.
-20. Build version visible at the bottom-right.
-21. Refresh after deployment and verify the version remains stable for that build.
-22. Deploy a later commit and verify the version changes automatically.
+- every question has four statements;
+- all four statements are ranked;
+- 4 means most like the user and 1 means least like the user;
+- the first 20 questions establish the broad pattern;
+- the final five focus on the closest or most balanced areas;
+- the application returns primary and secondary symbolic animals;
+- calculation runs locally and percentages are not shown;
+- animals are metaphors;
+- this is not scientific or clinical assessment.
 
-For every applicable scenario, confirm the footer remains fixed and visually quiet, contains only
-the two semantic rows, and never covers content or keyboard focus. Verify the measured content
-offset responds to wrapping, language, Extra Large text, zoom, and safe-area changes. Confirm there
-is no horizontal scrolling and that Feedback, Ecosystem, and the build identifier share the
-second semantic row at supported mobile widths.
+It must not reveal formulas, weights, pole totals, internal codes, classification titles, or distance
+tables, and it must not call the product MBTI or official MBTI.
 
-Verify Warm Ivory uses sand backgrounds, near-white cream cards, warm-brown headings, ink-blue body
-text, blue-grey borders, pale amber selected states, and calm focus indicators. Primary actions must
-use a controlled burnt-orange semantic `primary` fill with `onPrimary` text in Warm Ivory, Ocean,
-Amber, and Plum; secondary actions must remain quieter and catalog cards consistent and readable.
-Confirm no sage or grey-green identity remains. Check that the visible theme labels are **Warm Ivory**
-and **Ζεστό Κρεμ**, while an existing stored `forest` preference still selects this theme.
+Verify the exact disclaimers appear where required:
 
-Review Home, assessment, result, 12 Animals, How It Works, and Settings at desktop and mobile widths,
-in Light and Dark mode, in Greek and English, with Normal and Extra Large text. Repeat at 125% and
-200% browser zoom. Confirm cards remain distinct, enabled actions do not resemble disabled controls,
-no content is covered by the footer, and no horizontal scrolling appears.
+English:
 
-For the Header and Footer Feedback entry points, verify the email client opens a draft without sending it. Confirm the
-recipient is `markellos.markides@gmail.com`, the subject is `Animals Within Feedback`, and the body
-contains the selected localized language name, current build identifier, and a blank Feedback area.
-Inspect the footer with a screen reader in both languages and verify this order: copyright,
-Feedback, Analytics choices, Markellos Ecosystem, build version. Verify calm visible keyboard focus and usable touch
-targets.
+> An entertainment self-discovery experience. The animals are used symbolically. This is not a psychological diagnosis or a scientifically validated assessment.
 
-For exported/deployed builds, confirm the format is `version_YYYYMMDD_HHmm_abcdefg`, the timestamp
-uses Cyprus local time from the IANA `Europe/Nicosia` timezone, and only seven commit characters are
-visible. Check a winter build against UTC+2 and a summer build against UTC+3 to confirm daylight-saving
-time is applied without using the browser or device timezone. For a local checkout, confirm Git HEAD is used;
-without deployment or Git metadata, confirm `version_dev_local` appears.
+Greek:
+
+> Ψυχαγωγική εμπειρία αυτογνωσίας. Τα ζώα χρησιμοποιούνται συμβολικά. Δεν αποτελεί ψυχολογική διάγνωση ή επιστημονικά σταθμισμένη αξιολόγηση.
+
+## Persistence and refresh
+
+### Partial assessment
+
+1. Complete at least seven questions and partially rank the next if partial in-question state is
+   supported by the session contract.
+2. Note the current position and completed ranking assignments.
+3. Refresh the web application.
+4. Verify the same valid persisted position and completed rankings restore.
+5. Navigate away and back, then close and reopen where supported. Verify the session remains.
+
+### Appearance and language isolation
+
+1. During an unfinished assessment, switch language, mode, theme, font, and text size.
+2. Verify question position, rankings, adaptive IDs, and any completed result remain unchanged.
+3. Reload and verify both appearance preferences and assessment state restore independently.
+
+### Completed result
+
+1. Complete question 25 and record both animals.
+2. Refresh and reopen where supported.
+3. Verify the same primary, secondary, and balanced message restore in the selected language.
+4. Confirm no unnecessary totals, distances, or complete type ranking are stored.
+
+### Unavailable or corrupt storage
+
+1. Simulate blocked storage and verify the application remains usable in memory.
+2. Store malformed JSON under `animals-within.assessment.v2` and reload.
+3. Verify a clean assessment starts without crashing.
+4. Confirm appearance and analytics-consent records remain unchanged.
+
+## Legacy-state migration
+
+1. Clear only the current assessment key.
+2. Place a representative old `12-archetype-v2-25q` record under
+   `animals-within.assessment.v1` with old answers, two adaptive IDs, and an old result.
+3. Preserve non-default language, appearance, and analytics-consent values in their separate stores.
+4. Reload.
+5. Verify the old assessment answers, adaptive IDs, and result are discarded.
+6. Verify a clean schema 2/model `16-personality-ranking-v1-25q` assessment is initialized.
+7. Verify language, mode, theme, font, text size, analytics consent, and unrelated storage are
+   unchanged.
+8. Confirm the implementation inspects only the known legacy assessment key and does not broadly
+   clear local storage.
+
+Repeat with an unknown schema version, wrong model version, invalid question/option ID, duplicate
+rank, illegal adaptive ID, and result inconsistent with the answers. Each must fail safely to a clean
+assessment while preserving unrelated preferences.
+
+## Restart behavior
+
+1. Set a non-default language and appearance and make an analytics choice.
+2. Complete an assessment.
+3. Choose Take it again / Κάνε το ξανά.
+4. Verify question 1 opens with no answers, adaptive IDs, previous result, or balanced metadata.
+5. Verify language, appearance, analytics consent, and unrelated preferences remain unchanged.
+6. Refresh and verify the clean restarted assessment is what persists.
+
+## Keyboard-only completion
+
+Using no pointer:
+
+1. Start from Home and enter the assessment.
+2. Tab through ranking controls in a logical option-and-rank order.
+3. Assign all four ranks, trigger a swap, correct an incomplete answer, and continue.
+4. Navigate backward and forward without losing focus context.
+5. Complete a representative run through question 25.
+6. Use the result actions and open the catalogue.
+
+Verify focus is always visible, never trapped, and moves to or announces each new question. Confirm
+disabled Continue cannot be activated and no focusable control is covered by the fixed footer.
+
+## Screen-reader verification
+
+In English and Greek, inspect or operate with a screen reader:
+
+- question heading and **Question n of 25** progress;
+- the four-statement group label;
+- every rank's number and meaning;
+- assigned rank and selected state;
+- the announcement after a swap or move;
+- incomplete-ranking error and all-ranks-complete status;
+- Back and Continue purpose and state;
+- primary/secondary animal result hierarchy and relationship text;
+- catalogue primary/secondary indicators;
+- disclaimer, Settings, Feedback, Analytics choices, ecosystem, and build version.
+
+No accessibility label or hint may contain an internal personality code, classification title,
+score, percentage, distance, hidden dimension result, or adaptive ID.
+
+## Responsive, zoom, language, and appearance matrix
+
+Exercise representative combinations across:
+
+| Surface | Suggested width |
+| --- | ---: |
+| narrow mobile | 390 px |
+| wide mobile | 600 px |
+| tablet | 768 px |
+| laptop | 1280 px |
+| desktop | 1440 px |
+
+At minimum combine:
+
+- English and Greek;
+- Normal and Extra Large text;
+- Light and Dark mode;
+- Warm Ivory plus representative Ocean, Amber, and Plum checks;
+- 100%, 125%, and 200% browser zoom where applicable.
+
+On Home, every assessment question, result, catalogue, How It Works, Settings, analytics controls,
+header, and footer, verify:
+
+- no horizontal page scrolling;
+- no clipped Greek or English text;
+- no overlapping header groups or footer content;
+- ranking controls wrap and remain usable without forcing four cards into one row;
+- visible focus and non-color selected states remain distinct;
+- the shared page edges align across header, main content, and footer;
+- content and focused controls are not covered by the fixed footer;
+- safe-area insets remain correct;
+- all 16 catalogue cards retain consistent readable layouts.
+
+## Analytics consent and network privacy
+
+The configured public GA4 Measurement ID is `G-QBR3YHHMWS`. In Developer Tools, preserve the Network
+log and filter for `googletagmanager`, `google-analytics`, `gtag/js`, and `collect`.
+
+### Unknown and rejected
+
+1. Clear analytics consent and `_ga` cookies, then reload.
+2. Before choosing, verify the consent banner is visible and no Google tag, `collect` request, or
+   `_ga` cookie exists.
+3. Reject analytics and verify the zero-request state remains.
+4. Reload and verify stored rejection keeps the tag unloaded.
+
+### Accepted
+
+1. Reopen Analytics choices and accept.
+2. Verify the exact Google tag loads once and one explicit initial `page_view` is sent.
+3. Inspect the payload. It may contain only the generic current page location and generic
+   **Animals Within** page title.
+4. Complete and restart an assessment, switch language/appearance, visit every screen, and restore a
+   result. Verify there are no custom assessment or screen events and no payload containing answers,
+   question/option IDs, ranks, dimensions, adaptive IDs, internal codes, animal names/results,
+   primary/secondary types, confidence, distances, preferences, Feedback, or build version.
+
+### Revoke and reaccept
+
+1. Reject after acceptance.
+2. Verify further dispatch stops, the GA disable flag is enabled, and only `_ga`-prefixed cookies are
+   expired.
+3. Confirm assessment, appearance, and unrelated storage remain.
+4. Reload and verify rejection prevents tag loading.
+5. Accept again and verify initialization occurs once without duplicated script, configuration, or
+   initial page view.
+
+## Feedback, URLs, page titles, and sharing
+
+From header and footer, verify Feedback opens but never sends an email automatically. The draft must
+contain only:
+
+- recipient `markellos.markides@gmail.com`;
+- subject `Animals Within Feedback`;
+- selected localized language name;
+- current public build identifier;
+- a blank Feedback area.
+
+Complete results for several animals and open Feedback each time. Confirm the draft never contains an
+animal, code, classification title, answer, rank, adaptive ID, score, or result.
+
+Inspect browser URL, query parameters, hash, document title, and any available share control on Home,
+assessment, result, and catalogue. No assessment or personality result may be encoded. If no sharing
+feature exists, confirm no share prompt or generated result text is present.
+
+## Header, footer, themes, and build information
+
+Verify the responsive header retains complete grouped navigation, Feedback/Ecosystem links, language
+selection, and Settings without clipping. The Animals Within brand has no decorative dot.
+
+Verify the footer remains fixed, measured, safe-area aware, and visually quiet. It must not cover
+content or focus, and its centered copyright/link content must not be shifted by the secondary build
+version. Check Feedback, Analytics choices, Markellos Ecosystem, and build version in accessibility
+order.
+
+For exported builds, confirm the public version format is `version_YYYYMMDD_HHmm_abcdefg`, uses
+Cyprus local time through `Europe/Nicosia`, and exposes only seven source-revision characters. For a
+development environment without deployment or Git metadata, confirm `version_dev_local` appears.
+
+## Completion record
+
+Record the tested build identifier, browser/device, viewport or device class, language, text size,
+appearance mode, zoom, storage scenario, analytics decision, and observed result for each
+representative run. Record failures as reproducible product issues. Do not describe result frequency
+or manual impressions as scientific validation.
