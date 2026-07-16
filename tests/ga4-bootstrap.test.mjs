@@ -67,6 +67,65 @@ function sourceFiles(directory) {
   });
 }
 
+test('browser adapter queues arguments-like dataLayer entries in command order', () => {
+  const originalWindow = Object.getOwnPropertyDescriptor(globalThis, 'window');
+  const originalDocument = Object.getOwnPropertyDescriptor(globalThis, 'document');
+  const browserWindow = {};
+  const browserDocument = {};
+  const commandDate = new Date('2026-07-16T12:00:00.000Z');
+  const commands = [
+    ['consent', 'default', ga4DisabledConsentConfig],
+    ['consent', 'update', ga4EnabledConsentConfig],
+    ['js', commandDate],
+    ['config', ga4MeasurementId, ga4Configuration],
+    ['event', 'page_view', {
+      page_location: 'https://animalswithin.markellosecosystem.com/',
+      page_title: 'Animals Within',
+    }],
+  ];
+
+  Object.defineProperty(globalThis, 'window', {
+    configurable: true,
+    value: browserWindow,
+  });
+  Object.defineProperty(globalThis, 'document', {
+    configurable: true,
+    value: browserDocument,
+  });
+
+  try {
+    const adapter = createBrowserGa4Adapter();
+    assert.ok(adapter);
+    for (const command of commands) assert.equal(adapter.queue(command), true);
+
+    assert.equal(browserWindow.dataLayer.length, commands.length);
+    assert.ok(browserWindow.dataLayer.every((entry) => !Array.isArray(entry)));
+    assert.deepEqual(browserWindow.dataLayer.map((entry) => Array.from(entry)), commands);
+    assert.deepEqual(
+      browserWindow.dataLayer.map((entry) => Array.from(entry)[0]),
+      ['consent', 'consent', 'js', 'config', 'event'],
+    );
+
+    const adapterSource = readFileSync(
+      'src/features/analytics/ga4/ga4BrowserAdapter.ts',
+      'utf8',
+    );
+    assert.match(adapterSource, /function gtag\(\)[\s\S]*dataLayer\?\.push\(arguments/);
+    assert.doesNotMatch(adapterSource, /dataLayer\?\.push\(command\)/);
+  } finally {
+    if (originalWindow) {
+      Object.defineProperty(globalThis, 'window', originalWindow);
+    } else {
+      delete globalThis.window;
+    }
+    if (originalDocument) {
+      Object.defineProperty(globalThis, 'document', originalDocument);
+    } else {
+      delete globalThis.document;
+    }
+  }
+});
+
 test('GA4 Measurement ID and exact script URL are centralized once in application source', () => {
   assert.equal(ga4MeasurementId, 'G-QBR3YHHMWS');
   assert.equal(ga4ScriptUrl, 'https://www.googletagmanager.com/gtag/js?id=G-QBR3YHHMWS');

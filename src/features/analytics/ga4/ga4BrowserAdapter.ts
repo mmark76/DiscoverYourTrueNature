@@ -1,6 +1,6 @@
 import type {
   Ga4BrowserAdapter,
-  Ga4Command,
+  Ga4DataLayerEntry,
   GtagQueueFunction,
 } from './ga4Types.ts';
 
@@ -11,8 +11,8 @@ function getBrowserObjects(): { browserWindow: Window; browserDocument: Document
 
 function ensureGtagQueue(browserWindow: Window): GtagQueueFunction {
   browserWindow.dataLayer ??= [];
-  browserWindow.gtag ??= (...command: Ga4Command) => {
-    browserWindow.dataLayer?.push(command);
+  browserWindow.gtag ??= function gtag() {
+    browserWindow.dataLayer?.push(arguments as unknown as Ga4DataLayerEntry);
   };
   return browserWindow.gtag;
 }

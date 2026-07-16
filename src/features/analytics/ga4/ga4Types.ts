@@ -29,6 +29,11 @@ export type Ga4Command =
 
 export type GtagQueueFunction = (...command: Ga4Command) => void;
 
+export interface Ga4DataLayerEntry {
+  readonly length: number;
+  readonly [index: number]: Ga4Command[number];
+}
+
 export interface Ga4BrowserAdapter {
   queue: (command: Ga4Command) => boolean;
   loadScript: (
@@ -45,7 +50,7 @@ export interface Ga4BrowserAdapter {
 
 declare global {
   interface Window {
-    dataLayer?: Ga4Command[];
+    dataLayer?: Ga4DataLayerEntry[];
     gtag?: GtagQueueFunction;
     [key: `ga-disable-${string}`]: boolean | undefined;
   }
