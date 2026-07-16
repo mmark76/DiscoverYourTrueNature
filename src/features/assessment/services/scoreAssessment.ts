@@ -1,74 +1,94 @@
-import { archetypeById } from '../data/archetypes';
-import { ArchetypeId, AssessmentResult, ScoreMap } from '../types';
+import {
+  canonicalArchetypes,
+  type ArchetypeProfile,
+} from '../../archetypes/data/archetypes.ts';
+import {
+  dimensionIds,
+  type AnswerValue,
+  type DimensionId,
+  type DimensionScoreMap,
+} from '../../archetypes/types.ts';
+import type { ArchetypeMatch, AssessmentResult } from '../types.ts';
 
-const archetypeIds: ArchetypeId[] = ['wolf', 'owl', 'eagle', 'dolphin', 'bear'];
-const secondaryAnswerWeight = 0.5;
+const questionsPerDimension = 3;
+const maximumRawDimensionTotal = questionsPerDimension * 2;
+const maximumNormalizedDistance = 2;
 
-export function createEmptyScores(): Record<ArchetypeId, number> {
-  return {
-    wolf: 0,
-    owl: 0,
-    eagle: 0,
-    dolphin: 0,
-    bear: 0,
-  };
+export function createEmptyDimensionScores(): DimensionScoreMap {
+  return Object.fromEntries(dimensionIds.map((id) => [id, 0])) as DimensionScoreMap;
 }
 
-export function combineAnswerScores(
-  primaryScores: ScoreMap,
-  secondaryScores?: ScoreMap,
-): ScoreMap {
-  const combinedScores: ScoreMap = {};
-
-  for (const archetypeId of archetypeIds) {
-    const primaryScore = primaryScores[archetypeId] ?? 0;
-    const secondaryScore = (secondaryScores?.[archetypeId] ?? 0) * secondaryAnswerWeight;
-    const total = primaryScore + secondaryScore;
-
-    if (total !== 0) {
-      combinedScores[archetypeId] = total;
-    }
-  }
-
-  return combinedScores;
+export function addDimensionScore(
+  currentScores: DimensionScoreMap,
+  dimension: DimensionId,
+  value: AnswerValue,
+): DimensionScoreMap {
+  return { ...currentScores, [dimension]: currentScores[dimension] + value };
 }
 
-export function addScores(
-  currentScores: Record<ArchetypeId, number>,
-  answerScores: ScoreMap,
-): Record<ArchetypeId, number> {
-  const nextScores = { ...currentScores };
-
-  for (const archetypeId of archetypeIds) {
-    nextScores[archetypeId] += answerScores[archetypeId] ?? 0;
-  }
-
-  return nextScores;
+export function normalizeDimensionScores(rawScores: DimensionScoreMap): DimensionScoreMap {
+  return Object.fromEntries(
+    dimensionIds.map((id) => {
+      const rawValue = rawScores[id];
+      if (!Number.isFinite(rawValue)) throw new Error(`Invalid dimension score: ${id}`);
+      return [id, clamp(rawValue / maximumRawDimensionTotal, -1, 1)];
+    }),
+  ) as DimensionScoreMap;
 }
 
-export function calculateAssessmentResult(
-  scores: Record<ArchetypeId, number>,
-): AssessmentResult {
-  const rankedScores = archetypeIds
-    .map((archetypeId) => [archetypeId, scores[archetypeId]] as const)
-    .sort((left, right) => right[1] - left[1]);
+export function normalizeArchetypeVector(archetype: ArchetypeProfile): DimensionScoreMap {
+  return Object.fromEntries(
+    dimensionIds.map((id) => [id, archetype.vector[id] / 2]),
+  ) as DimensionScoreMap;
+}
 
-  const primaryEntry = rankedScores[0];
-  const secondaryEntry = rankedScores[1];
+export function calculateNormalizedDistance(
+  userDimensions: DimensionScoreMap,
+  archetype: ArchetypeProfile,
+): number {
+  const archetypeDimensions = normalizeArchetypeVector(archetype);
+  const meanSquaredDistance = dimensionIds.reduce((total, id) => {
+    const difference = userDimensions[id] - archetypeDimensions[id];
+    return total + (difference * difference);
+  }, 0) / dimensionIds.length;
 
-  if (!primaryEntry || !secondaryEntry) {
-    throw new Error('At least two archetypes are required to calculate a result.');
+  return Math.sqrt(meanSquaredDistance);
+}
+
+export function calculateExactMatchScore(
+  userDimensions: DimensionScoreMap,
+  archetype: ArchetypeProfile,
+): number {
+  const distance = calculateNormalizedDistance(userDimensions, archetype);
+  return clamp(1 - (distance / maximumNormalizedDistance), 0, 1) * 100;
+}
+
+export function calculateAssessmentResult(rawScores: DimensionScoreMap): AssessmentResult {
+  const dimensions = normalizeDimensionScores(rawScores);
+  const matches: ArchetypeMatch[] = canonicalArchetypes
+    .map((archetype, canonicalIndex) => ({
+      archetype,
+      canonicalIndex,
+      exactScore: calculateExactMatchScore(dimensions, archetype),
+    }))
+    .sort((left, right) =>
+      (right.exactScore - left.exactScore) || (left.canonicalIndex - right.canonicalIndex),
+    )
+    .map(({ archetype, exactScore }) => ({
+      archetype,
+      exactScore,
+      score: Math.round(exactScore),
+    }));
+
+  const primary = matches[0];
+  const secondary = matches[1];
+  if (!primary || !secondary || matches.length !== canonicalArchetypes.length) {
+    throw new Error('The assessment result requires a complete twelve-archetype ranking.');
   }
 
-  const totalScore = Math.max(
-    1,
-    rankedScores.reduce((total, entry) => total + entry[1], 0),
-  );
+  return { primary, secondary, matches, dimensions };
+}
 
-  return {
-    primary: archetypeById[primaryEntry[0]],
-    secondary: archetypeById[secondaryEntry[0]],
-    confidence: Math.round((primaryEntry[1] / totalScore) * 100),
-    scores,
-  };
+function clamp(value: number, minimum: number, maximum: number): number {
+  return Math.min(maximum, Math.max(minimum, value));
 }

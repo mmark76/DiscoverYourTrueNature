@@ -6,7 +6,7 @@ import type { SemanticColors } from '../../../settings/appearanceTypes';
 import { AppText } from '../../../shared/components/AppText';
 import { PageContent } from '../../../shared/components/PageContent';
 import { theme } from '../../../shared/styles/theme';
-import { provisionalAnimals } from '../data/animals';
+import { animals } from '../data/animals';
 import { AnimalCard } from './AnimalCard';
 
 export function AnimalsScreen() {
@@ -26,7 +26,7 @@ export function AnimalsScreen() {
           <AppText style={styles.description}>{copy.introduction}</AppText>
         </View>
         <View style={styles.grid}>
-          {provisionalAnimals.map((animal, index) => (
+          {animals.map((animal, index) => (
             <AnimalCard key={animal.id} animal={animal} index={index} width={cardWidth} />
           ))}
         </View>

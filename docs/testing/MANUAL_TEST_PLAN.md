@@ -21,7 +21,7 @@
 
 - **Αρχική / Home** opens Home from every internal view.
 - **Ανακάλυψη / Discover**, the hero action, and active discovery actions open the assessment.
-- **Τα 12 Ζώα / The 12 Animals** opens the informational catalog.
+- **Τα 12 Ζώα / The 12 Animals** opens the twelve-archetype catalog.
 - **Πώς Λειτουργεί / How It Works** opens the scoring and disclaimer explanation.
 - Header and footer ecosystem links open `https://markellosecosystem.com`.
 - Verify Home contains only the active Discover, 12 Animals, and How It Works cards.
@@ -32,20 +32,21 @@
 1. Start the assessment and answer at least two questions.
 2. Open Home through the header.
 3. Choose **Ανακάλυψη** and verify the same unfinished question is restored.
-4. Complete all ten questions and verify a primary and secondary archetype appear.
+4. Complete all 24 questions and verify a primary, secondary influence, and twelve-row ranking appear.
 5. Open Home from the result and verify the dashboard remains available.
 6. Complete another run and choose restart; verify question 1 opens with clean scores.
 
 ## Twelve-animal catalog
 
 - Verify all twelve required animals and provisional trait descriptions are present.
-- Verify Wolf, Owl, Eagle, Dolphin, and Bear show the localized available label.
-- Verify the remaining seven show the localized informational-only label.
-- Verify no informational-only animal can be selected or produced by the assessment.
+- Verify every card uses a consistent presentation with its canonical animal symbol.
+- Verify no availability or status badge separates the twelve animals.
+- Verify every animal can appear in the full result ranking.
 
 ## Content and safety
 
-- Verify How It Works identifies the questions as experimental and scoring as deterministic.
+- Verify How It Works describes 24 questions, eight editorial dimensions, twelve provisional vectors,
+  local deterministic scoring, and the entertainment-only purpose.
 - Verify the home/footer language describes the experience as recreational.
 - Verify the footer says it is not a psychological diagnosis or scientific assessment.
 - Verify there is no Privacy placeholder or invented Privacy destination.
@@ -65,9 +66,9 @@ For each representative combination:
 - verify the header wraps without clipped navigation or horizontal scrolling;
 - verify hero, feature cards, assessment choices, results, animal descriptions, information screens,
   and footer remain readable;
-- verify selected options show both the check indicator and selected styling;
+- verify every question offers exactly one selectable answer and advances once selected;
 - verify keyboard focus is clearly visible in every color theme;
-- verify informational catalog states remain distinct from interactive controls;
+- verify catalog cards do not resemble unavailable or disabled controls;
 - verify the ecosystem destination remains a text link.
 - inspect meaningful navigation, progress, status, disabled-state, and action labels with a screen reader.
 - verify the selected language control exposes its radio state and never uses a flag.
@@ -110,6 +111,17 @@ For scenarios 3–9, also verify that switching language does not navigate away 
 screen. At each responsive width, test keyboard focus, localized accessibility labels, selected and
 disabled states, complete answer-option wrapping, and the absence of horizontal overflow.
 
+## Twenty-four-question and result review
+
+- Review all 24 questions and 96 options in English and Greek at mobile width.
+- Confirm each question has four options, no animal is named, and no answer is framed as the best choice.
+- Open Settings at question 12, switch language and appearance, return, and verify question 12 remains.
+- Complete canonical fixtures for all twelve primary animals and the twelve secondary fixtures.
+- Verify the primary match strength, secondary influence, and all twelve compact ranking rows.
+- Verify whole-number percentages are described as entertainment-model match strength, never confidence.
+- Review Extra Large text, Warm Ivory Light/Dark, Amber Light, keyboard order, and 125%/200% zoom.
+- Confirm the fixed footer covers no question, option, result row, or focused control.
+
 ## Warm Ivory and fixed-footer review
 
 Run and record all 22 scenarios below:
@@ -146,7 +158,7 @@ second semantic row at supported mobile widths.
 Verify Warm Ivory uses sand backgrounds, near-white cream cards, warm-brown headings, ink-blue body
 text, blue-grey borders, pale amber selected states, and calm focus indicators. Primary actions must
 use a controlled burnt-orange semantic `primary` fill with `onPrimary` text in Warm Ivory, Ocean,
-Amber, and Plum; secondary actions must remain quieter and informational badges muted and readable.
+Amber, and Plum; secondary actions must remain quieter and catalog cards consistent and readable.
 Confirm no sage or grey-green identity remains. Check that the visible theme labels are **Warm Ivory**
 and **Ζεστό Κρεμ**, while an existing stored `forest` preference still selects this theme.
 

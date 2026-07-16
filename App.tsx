@@ -7,11 +7,12 @@ import { AnimalsScreen } from './src/features/animals/components/AnimalsScreen';
 import { AssessmentScreen } from './src/features/assessment/components/AssessmentScreen';
 import { assessmentQuestions } from './src/features/assessment/data/questions';
 import {
-  addScores,
+  addDimensionScore,
   calculateAssessmentResult,
-  createEmptyScores,
+  createEmptyDimensionScores,
 } from './src/features/assessment/services/scoreAssessment';
-import { AssessmentResult, ScoreMap } from './src/features/assessment/types';
+import type { AnswerValue, DimensionId, DimensionScoreMap } from './src/features/archetypes/types';
+import type { AssessmentResult } from './src/features/assessment/types';
 import { HomeScreen } from './src/features/home/components/HomeScreen';
 import { HowItWorksScreen } from './src/features/information/components/HowItWorksScreen';
 import { ResultScreen } from './src/features/results/components/ResultScreen';
@@ -35,7 +36,7 @@ function AppContent() {
   const [screen, setScreen] = useState<AppScreen>('home');
   const [settingsReturnScreen, setSettingsReturnScreen] = useState<AppScreen>('home');
   const [questionIndex, setQuestionIndex] = useState(0);
-  const [scores, setScores] = useState(createEmptyScores);
+  const [scores, setScores] = useState<DimensionScoreMap>(createEmptyDimensionScores);
   const [result, setResult] = useState<AssessmentResult | null>(null);
   const [assessmentStarted, setAssessmentStarted] = useState(false);
 
@@ -46,7 +47,7 @@ function AppContent() {
 
   function resetAndStartAssessment() {
     setQuestionIndex(0);
-    setScores(createEmptyScores());
+    setScores(createEmptyDimensionScores());
     setResult(null);
     setAssessmentStarted(true);
     setScreen('assessment');
@@ -77,8 +78,8 @@ function AppContent() {
     }
   }
 
-  function selectAnswer(answerScores: ScoreMap) {
-    const nextScores = addScores(scores, answerScores);
+  function selectAnswer(dimension: DimensionId, value: AnswerValue) {
+    const nextScores = addDimensionScore(scores, dimension, value);
     const isLastQuestion = questionIndex === assessmentQuestions.length - 1;
 
     setScores(nextScores);

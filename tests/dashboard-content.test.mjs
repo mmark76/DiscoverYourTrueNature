@@ -2,32 +2,24 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { provisionalAnimals } from '../src/features/animals/data/animals.ts';
+import { animals } from '../src/features/animals/data/animals.ts';
+import { canonicalArchetypes } from '../src/features/archetypes/data/archetypes.ts';
 import { homeFeatures } from '../src/features/home/data/features.ts';
 import { getHomeFeatureCardWidth } from '../src/features/home/layout.ts';
 import { translations } from '../src/i18n/translations.ts';
 
-test('the informational catalog retains all twelve animals', () => {
-  assert.equal(provisionalAnimals.length, 12);
-  assert.deepEqual(
-    provisionalAnimals.map(({ id }) => id),
-    Object.keys(translations.en.animals.records),
-  );
-  assert.deepEqual(
-    provisionalAnimals.map(({ id }) => id),
-    Object.keys(translations.el.animals.records),
-  );
+test('catalog and scoring consume the same twelve canonical archetypes', () => {
+  assert.strictEqual(animals, canonicalArchetypes);
+  assert.equal(animals.length, 12);
+  assert.deepEqual(animals.map(({ id }) => id), Object.keys(translations.en.animals.records));
+  assert.deepEqual(animals.map(({ id }) => id), Object.keys(translations.el.animals.records));
+  assert.ok(animals.every(({ symbol }) => symbol.length > 0));
 });
-
-test('only the five existing archetypes are marked available', () => {
-  const available = provisionalAnimals.filter(({ availability }) => availability === 'prototype');
-  const informational = provisionalAnimals.filter(({ availability }) => availability === 'informational');
-
-  assert.deepEqual(
-    available.map(({ id }) => id),
-    ['wolf', 'owl', 'eagle', 'dolphin', 'bear'],
-  );
-  assert.equal(informational.length, 7);
+test('catalog has no availability split or status badges', () => {
+  const animalCard = readFileSync('src/features/animals/components/AnimalCard.tsx', 'utf8');
+  const animalData = readFileSync('src/features/animals/data/animals.ts', 'utf8');
+  assert.doesNotMatch(animalCard, /availability|StatusBadge|informational|prototype/i);
+  assert.doesNotMatch(animalData, /availability|informational|prototype/i);
 });
 
 test('Home exposes only its three functional feature cards', () => {
@@ -44,7 +36,6 @@ test('Home exposes only its three functional feature cards', () => {
 test('Home feature cards contain no disabled or future actions', () => {
   const featureCardSource = readFileSync('src/features/home/components/FeatureCard.tsx', 'utf8');
   const homeSource = readFileSync('src/features/home/components/HomeScreen.tsx', 'utf8');
-
   assert.doesNotMatch(featureCardSource, /disabled|StatusBadge|comingSoon/i);
   assert.doesNotMatch(homeSource, /disabled|comingSoon/i);
 });

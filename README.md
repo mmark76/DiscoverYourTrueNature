@@ -8,10 +8,10 @@ provisional animal archetypes. The public prototype is available at
 
 The responsive home dashboard provides:
 
-- a clear path into the existing ten-question assessment;
-- deterministic local scoring across five active archetypes;
-- primary and secondary result presentation;
-- an informational catalog of all 12 provisional animals;
+- a clear path into the 24-question assessment;
+- deterministic local scoring across eight editorial dimensions and twelve archetypes;
+- primary, secondary, and complete twelve-match result presentation;
+- a consistent catalog of all 12 provisional animals;
 - a transparent explanation of how the prototype works;
 - desktop, tablet, and mobile layouts;
 - persistent appearance controls available from every screen;
@@ -20,7 +20,7 @@ The responsive home dashboard provides:
   accessibility labels, and disclaimers.
 
 The Home dashboard presents only its three working destinations: the assessment, the 12-animal
-catalog, and How It Works. Seven catalog animals are informational and do not participate in scoring.
+catalog, and How It Works. Every catalog animal participates in the assessment model.
 
 ## Run locally
 
@@ -36,6 +36,7 @@ Run the automated checks with:
 ```bash
 npm run typecheck
 npm test
+node scripts/analyzeAssessmentBalance.mjs
 ```
 
 Create a production-style web export with:
@@ -55,7 +56,7 @@ language store. With no saved preference, the interface starts in English. A man
 header or Settings is applied immediately and restored after refresh. Invalid or unavailable storage
 falls back safely without preventing the app from loading.
 
-The typed dictionaries in `src/i18n/content/` cover the header, Home, all ten questions and answer
+The typed dictionaries in `src/i18n/content/` cover the header, Home, all 24 questions and 96 answer
 options, results, all twelve animal records, How It Works, Settings, the footer, and meaningful
 accessibility text. Language-neutral domain data retains question, option, animal, and archetype IDs
 plus scoring metadata. Dictionary completeness and scoring fixtures are enforced by automated tests.
@@ -63,6 +64,14 @@ plus scoring metadata. Dictionary completeness and scoring fixtures are enforced
 Changing language does not navigate away, restart the assessment, change the current question,
 clear accumulated scores, or recalculate a completed primary/secondary result. The visible result
 copy is resolved from stable archetype IDs in the newly selected language.
+
+## Assessment model
+
+Model `12-archetype-v1` measures eight editorial dimensions with three questions each. Every answer
+contributes one value (`-2`, `-1`, `+1`, or `+2`) to one dimension. The local deterministic scorer
+normalizes the resulting profile, compares it with twelve provisional vectors, and ranks exact match
+scores before rounding display percentages. The percentages are independent alignment values, not
+shares of a total. See [the technical model document](docs/assessment/TWELVE_ARCHETYPE_MODEL.md).
 
 ## Assessment navigation
 
@@ -139,7 +148,7 @@ footerMuted #9EA8B5; heroMuted #4A321F; heroDecoration #8C5A2D; heroDecorationSt
 Primary actions use the burnt-orange `primary` fill with `onPrimary` text and `primaryPressed` when
 pressed. Secondary actions remain cream or transparent with blue-grey borders. Warning and destructive
 actions retain their own semantic roles. Active navigation and selected controls use the pale amber
-selection surface with an orange border; informational catalog badges use warm muted status surfaces.
+selection surface with an orange border; catalog cards use one consistent active-archetype treatment.
 
 ## Fixed footer, build information, and Feedback
 
@@ -173,10 +182,11 @@ mail automatically and requires no backend.
 ## Repository structure
 
 - `src/features/home/` — dashboard content and feature cards.
-- `src/features/animals/` — the provisional 12-animal informational catalog.
+- `src/features/archetypes/` — canonical IDs, symbols, ordering, dimensions, and vectors.
+- `src/features/animals/` — the provisional 12-animal catalog.
+- `src/features/assessment/` — questions, fixtures, dimension scoring, and balance analysis.
 - `src/features/information/` — the How It Works explanation.
-- `src/features/assessment/` — existing questions and scoring flow.
-- `src/features/results/` — existing primary and secondary result presentation.
+- `src/features/results/` — primary, secondary, and complete ranked result presentation.
 - `src/i18n/` — typed Greek and English dictionaries plus the translation hook.
 - `src/config/` — prepared build information and centralized Feedback mailto construction.
 - `src/shared/` — shared shell components and earthy theme tokens.

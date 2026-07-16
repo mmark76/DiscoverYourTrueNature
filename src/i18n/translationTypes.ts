@@ -35,9 +35,6 @@ export interface ProcessStepCopy {
 export interface TranslationContent {
   common: {
     productName: string;
-    informationalOnly: string;
-    availablePrototype: string;
-    status: string;
     selectedLanguageName: string;
   };
   header: {
@@ -71,17 +68,20 @@ export interface TranslationContent {
     counter: string;
     progressLabel: string;
     instruction: string;
-    primaryChoice: string;
-    secondaryChoice: string;
     questions: Record<AssessmentQuestionId, string>;
     options: Record<AssessmentOptionId, string>;
   };
   results: {
     primaryEyebrow: string;
+    matchStrength: string;
+    matchStrengthAccessibility: string;
     strengths: string;
     watchOuts: string;
-    secondaryArchetype: string;
-    prototypeNote: string;
+    secondaryInfluence: string;
+    fullProfile: string;
+    entertainmentModel: string;
+    modelExplanation: string;
+    rankingAccessibility: string;
     restart: string;
     restartHint: string;
     returnHome: string;

@@ -7,14 +7,14 @@ import type { SemanticColors } from '../../../settings/appearanceTypes';
 import { AppText } from '../../../shared/components/AppText';
 import { theme } from '../../../shared/styles/theme';
 import type { AssessmentQuestionData } from '../data/questions';
-import type { ScoreMap } from '../types';
+import type { AnswerValue, DimensionId } from '../../archetypes/types';
 import { OptionButton } from './OptionButton';
 
 interface AssessmentScreenProps {
   question: AssessmentQuestionData;
   questionNumber: number;
   totalQuestions: number;
-  onSelect: (scores: ScoreMap) => void;
+  onSelect: (dimension: DimensionId, value: AnswerValue) => void;
 }
 
 export function AssessmentScreen({ question, questionNumber, totalQuestions, onSelect }: AssessmentScreenProps) {
@@ -51,7 +51,7 @@ export function AssessmentScreen({ question, questionNumber, totalQuestions, onS
           <OptionButton
             key={option.id}
             label={copy.options[option.id]}
-            onPress={() => onSelect(option.scores)}
+            onPress={() => onSelect(question.dimension, option.value)}
           />
         ))}
       </View>

@@ -1,11 +1,9 @@
 import type { TranslationContent } from '../translationTypes';
+import { englishAssessmentOptions, englishAssessmentQuestions } from './assessment.en.ts';
 
 export const englishContent = {
   common: {
     productName: 'Animals Within',
-    informationalOnly: 'Informational only',
-    availablePrototype: 'Available in the prototype',
-    status: 'Status',
     selectedLanguageName: 'English',
   },
   header: {
@@ -29,7 +27,7 @@ export const englishContent = {
     heroDescription:
       'A short entertainment experience that explores how you decide, collaborate, and respond.',
     heroAction: 'Start discovery',
-    heroActionHint: 'Starts the ten-question Animals Within assessment',
+    heroActionHint: 'Starts the twenty-four-question Animals Within assessment',
     motifCaption: 'animal archetypes',
     sectionEyebrow: 'EXPLORE THE EXPERIENCE',
     sectionTitle: 'Choose where you want to begin',
@@ -38,7 +36,7 @@ export const englishContent = {
         eyebrow: 'THE EXPERIENCE',
         title: 'Discover the animal within you',
         description:
-          'Answer ten short questions to reveal your primary and secondary animal archetypes.',
+          'Answer twenty-four short questions to reveal your primary animal, secondary influence, and full profile.',
         actionLabel: 'Start now',
       },
       animals: {
@@ -62,62 +60,21 @@ export const englishContent = {
     counter: 'Question {current} of {total}',
     progressLabel: 'Assessment progress: question {current} of {total}',
     instruction: 'Choose what reflects you most, not what you consider ideal.',
-    primaryChoice: 'Primary choice',
-    secondaryChoice: 'Secondary choice',
-    questions: {
-      'crisis-response': 'A sudden crisis catches your team unprepared. What is your first response?',
-      'decision-style': 'When you need to make an important decision, what do you trust most?',
-      'trust-circle': 'How do you usually build trusting relationships?',
-      conflict: 'When a serious conflict arises, how do you respond?',
-      motivation: 'What kind of goal motivates you most?',
-      change: 'How do you handle a major, unexpected change?',
-      pressure: 'When pressure rises, which side of you becomes strongest?',
-      'working-style': 'In which environment do you do your best work?',
-      risk: 'How do you relate to risk?',
-      'core-value': 'Which value feels closest to your core?',
-    },
-    options: {
-      'take-command': 'I immediately set a direction and assign roles.',
-      'observe-first': 'I observe carefully and identify the real cause.',
-      'steady-people': 'I calm people and create cooperation.',
-      evidence: 'Data, details, and logical analysis.',
-      instinct: 'My instincts and my ability to move quickly.',
-      perspectives: 'The perspectives of the people affected.',
-      'small-circle': 'With a few people, but with deep loyalty.',
-      'wide-network': 'I connect easily with many different people.',
-      'earned-respect': 'Trust is earned through consistency and competence.',
-      direct: 'I address the issue immediately and clearly.',
-      'common-ground': 'I look for common ground and a solution that protects relationships.',
-      analyze: 'I step back to understand every side.',
-      'ambitious-goal': 'A difficult goal that demands courage and growth.',
-      mastery: 'Deep understanding and mastery of a complex skill.',
-      'protect-contribute': 'Creating safety and making a meaningful contribution to others.',
-      explore: 'I see it as an opportunity and quickly try new directions.',
-      plan: 'I make a plan, assess risks, and move forward with control.',
-      stabilize: 'I preserve what works and protect stability.',
-      'adapt-with-people': 'I adapt through communication and collaboration.',
-      command: 'I become more decisive and take control.',
-      'calm-analysis': 'I shut out the noise and analyze the problem calmly.',
-      'protect-team': 'I focus on people and try to keep them united.',
-      'deep-focus': 'On my own, with time for deep focus.',
-      'trusted-team': 'In a small team of people I trust.',
-      'dynamic-group': 'In a dynamic environment with shared ideas and human connection.',
-      'calculated-risk': 'I accept it when the potential reward is worthwhile.',
-      'evidence-first': 'I move only when I have enough evidence and a backup plan.',
-      'human-impact': 'It depends mainly on how it will affect the people around me.',
-      freedom: 'Freedom and independence.',
-      truth: 'Truth and deep understanding.',
-      connection: 'Connection and meaningful contribution.',
-      security: 'Safety and stability.',
-    },
+    questions: englishAssessmentQuestions,
+    options: englishAssessmentOptions,
   },
   results: {
     primaryEyebrow: 'YOUR PRIMARY ANIMAL ARCHETYPE',
+    matchStrength: 'Match strength',
+    matchStrengthAccessibility: '{name}, match strength {score} percent',
     strengths: 'Strengths',
     watchOuts: 'Watch-outs',
-    secondaryArchetype: 'Secondary archetype',
-    prototypeNote:
-      'This is a provisional result from the first scoring model. Your feedback will help refine the questions and descriptions.',
+    secondaryInfluence: 'Secondary influence',
+    fullProfile: 'Your full profile',
+    entertainmentModel: 'Entertainment model',
+    modelExplanation:
+      'Match strength belongs to this provisional entertainment model. It is not a scientific measurement or diagnosis.',
+    rankingAccessibility: 'Full profile ranking of twelve animal archetypes',
     restart: 'Take the assessment again',
     restartHint: 'Clears this result and starts again from question one',
     returnHome: 'Return to Home',
@@ -129,7 +86,7 @@ export const englishContent = {
         description:
           'You protect the people you trust and work best when your purpose and boundaries are clear.',
         strengths: ['Strategic thinking', 'Loyalty', 'Persistence'],
-        watchOuts: ['Distrust', 'Holding too much control'],
+        watchOuts: ['Closing the trusted circle too quickly', 'Holding too much control under pressure'],
       },
       owl: {
         name: 'Owl',
@@ -137,7 +94,7 @@ export const englishContent = {
         description:
           'You look for deeper meaning and reliable evidence before reaching a decision.',
         strengths: ['Analysis', 'Observation', 'Self-awareness'],
-        watchOuts: ['Overthinking', 'Delaying decisions'],
+        watchOuts: ['Staying in analysis too long', 'Waiting for more certainty than needed'],
       },
       eagle: {
         name: 'Eagle',
@@ -145,7 +102,7 @@ export const englishContent = {
         description:
           'You see the bigger picture, set an ambitious direction, and readily take initiative.',
         strengths: ['Vision', 'Leadership', 'Decisiveness'],
-        watchOuts: ['Impatience', 'Missing important details'],
+        watchOuts: ['Moving faster than others can follow', 'Passing over useful details under pressure'],
       },
       dolphin: {
         name: 'Dolphin',
@@ -153,7 +110,7 @@ export const englishContent = {
         description:
           'You create connection, read the room, and help groups work together effectively.',
         strengths: ['Communication', 'Empathy', 'Adaptability'],
-        watchOuts: ['Avoiding conflict', 'Seeking reassurance'],
+        watchOuts: ['Smoothing tension before the issue is clear', 'Looking outward for reassurance under pressure'],
       },
       bear: {
         name: 'Bear',
@@ -161,18 +118,67 @@ export const englishContent = {
         description:
           'You create safety for others and stay grounded when circumstances become difficult.',
         strengths: ['Resilience', 'Protection', 'Stability'],
-        watchOuts: ['Rigidity', 'Difficulty with change'],
+        watchOuts: ['Holding familiar ground too firmly', 'Taking longer to trust necessary change'],
+      },
+      lion: {
+        name: 'Lion',
+        summary: 'Visible, energetic, and ready to lead.',
+        description: 'You bring assurance and momentum to shared situations, especially when a clear direction is needed.',
+        strengths: ['Visible leadership', 'Courage to act', 'Expressive energy'],
+        watchOuts: ['Moving before quieter views emerge', 'Carrying too much responsibility under pressure'],
+      },
+      fox: {
+        name: 'Fox',
+        summary: 'Adaptable, resourceful, and experimentally minded.',
+        description: 'You notice practical openings, change tactics quickly, and enjoy finding an unexpected route forward.',
+        strengths: ['Tactical intelligence', 'Adaptability', 'Resourcefulness'],
+        watchOuts: ['Changing direction too often', 'Leaving useful structure behind'],
+      },
+      panther: {
+        name: 'Panther',
+        summary: 'Independent, focused, and quietly intense.',
+        description: 'You prefer self-directed movement, protect your concentration, and act with measured personal conviction.',
+        strengths: ['Focused action', 'Self-direction', 'Composure'],
+        watchOuts: ['Sharing intentions too late', 'Withdrawing when collaboration could help'],
+      },
+      elephant: {
+        name: 'Elephant',
+        summary: 'Patient, community-minded, and responsible.',
+        description: 'You remember what matters to people, value continuity, and help shared commitments endure over time.',
+        strengths: ['Collective care', 'Long memory', 'Dependable planning'],
+        watchOuts: ['Holding on to familiar patterns', 'Taking on the concerns of too many people'],
+      },
+      horse: {
+        name: 'Horse',
+        summary: 'Open, energetic, and drawn to freedom.',
+        description: 'You create momentum through movement, exploration, and an optimistic willingness to try a new path.',
+        strengths: ['Momentum', 'Openness', 'Exploratory energy'],
+        watchOuts: ['Outpacing practical preparation', 'Feeling constrained by necessary routines'],
+      },
+      turtle: {
+        name: 'Turtle',
+        summary: 'Patient, consistent, and careful with boundaries.',
+        description: 'You protect a sustainable pace, prepare thoroughly, and build trust through steady progress.',
+        strengths: ['Patience', 'Consistency', 'Long-term steadiness'],
+        watchOuts: ['Waiting after enough is known', 'Protecting boundaries so firmly that options narrow'],
+      },
+      octopus: {
+        name: 'Octopus',
+        summary: 'Inventive, analytical, and highly flexible.',
+        description: 'You connect patterns across complex situations and can reshape your approach without losing the larger idea.',
+        strengths: ['Complex problem-solving', 'Pattern recognition', 'Creative flexibility'],
+        watchOuts: ['Exploring too many paths at once', 'Making a simple answer more complex than needed'],
       },
     },
   },
   animals: {
-    eyebrow: 'THE PROVISIONAL ARCHETYPES',
+    eyebrow: 'THE TWELVE ARCHETYPES',
     title: 'The 12 Animals',
     introduction:
-      'Meet the evolving Animals Within world. All twelve animals are included in this informational catalog; five participate in the current assessment and seven cannot appear as results.',
+      'Explore the twelve animal archetypes used by the Animals Within assessment.',
     catalogNote:
-      'These descriptions are provisional and intended for entertainment. Informational animals do not participate in current assessment scoring.',
-    cardAccessibility: '{name}: {availability}',
+      'These descriptions and archetype profiles are provisional, entertainment-only, and not diagnostic.',
+    cardAccessibility: '{name}, animal archetype',
     records: {
       wolf: {
         name: 'Wolf',
@@ -201,7 +207,7 @@ export const englishContent = {
       },
       lion: {
         name: 'Lion',
-        traits: 'leadership and confidence',
+        traits: 'leadership and assurance',
         description: 'Represents visible courage, presence, and responsibility for the group.',
       },
       fox: {
@@ -212,7 +218,7 @@ export const englishContent = {
       panther: {
         name: 'Panther',
         traits: 'independence and inner strength',
-        description: 'Represents quiet confidence, self-reliance, and deliberate action.',
+        description: 'Represents quiet assurance, self-reliance, and deliberate action.',
       },
       elephant: {
         name: 'Elephant',
@@ -238,34 +244,34 @@ export const englishContent = {
   },
   howItWorks: {
     eyebrow: 'HOW IT WORKS',
-    title: 'A simple, transparent prototype',
+    title: 'A local, transparent entertainment model',
     introduction:
-      'Animals Within connects your choices to five active animal archetypes and presents the two highest scores.',
+      'Animals Within compares your answers with twelve provisional animal archetypes using a deterministic model that runs on your device.',
     steps: [
       {
-        title: 'Answer 10 questions',
-        description: 'Each time, choose the answer that feels most like you.',
+        title: 'Answer 24 questions',
+        description: 'Choose one response in each situation. Three questions contribute to each of eight editorial dimensions.',
       },
       {
-        title: 'Your choices add points',
+        title: 'Build an eight-dimension profile',
         description:
-          'The local scoring is fixed and deterministic, with no AI or hidden analysis.',
+          'Your local profile is compared equally with twelve provisional animal vectors, with no AI or external scoring service.',
       },
       {
-        title: 'See two archetypes',
+        title: 'See your complete ranking',
         description:
-          'The two highest totals become your primary and secondary archetypes.',
+          'The closest match becomes your primary animal, followed by a secondary influence and the full twelve-animal ranking.',
       },
     ],
     disclosureTitle: 'Important to know',
     disclosures: [
-      'The current questions are experimental.',
-      'The scoring is deterministic.',
-      'The experience is designed for entertainment and self-discovery.',
-      'It is not a psychological diagnosis or a scientifically validated assessment.',
+      'The questions and archetype vectors are editorial and provisional.',
+      'The scoring is deterministic and runs locally on your device.',
+      'The experience is an entertainment self-discovery framework.',
+      'It is not diagnostic, scientific, or validated testing.',
     ],
     action: 'Start discovery',
-    actionHint: 'Starts the ten-question Animals Within assessment',
+    actionHint: 'Starts the twenty-four-question Animals Within assessment',
   },
   settings: {
     title: 'Appearance settings',

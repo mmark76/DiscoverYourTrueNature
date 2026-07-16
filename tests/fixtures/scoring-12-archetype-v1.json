@@ -1,0 +1,41 @@
+{
+  "modelVersion": "12-archetype-v1",
+  "canonicalProfiles": [
+    "wolf", "owl", "eagle", "dolphin", "bear", "lion",
+    "fox", "panther", "elephant", "horse", "turtle", "octopus"
+  ],
+  "balanced": {
+    "raw": { "affiliation": 0, "reasoning": 0, "tempo": 0, "structure": 0, "influence": 0, "exploration": 0, "expression": 0, "perspective": 0 },
+    "primary": "wolf",
+    "secondary": "bear"
+  },
+  "exactTie": {
+    "raw": { "affiliation": -3, "reasoning": 0, "tempo": 1, "structure": 2, "influence": -4, "exploration": 3, "expression": -1, "perspective": 1 },
+    "primary": "wolf",
+    "secondary": "owl"
+  },
+  "allNegative": {
+    "raw": { "affiliation": -6, "reasoning": -6, "tempo": -6, "structure": -6, "influence": -6, "exploration": -6, "expression": -6, "perspective": -6 },
+    "primary": "turtle",
+    "secondary": "owl"
+  },
+  "allPositive": {
+    "raw": { "affiliation": 6, "reasoning": 6, "tempo": 6, "structure": 6, "influence": 6, "exploration": 6, "expression": 6, "perspective": 6 },
+    "primary": "lion",
+    "secondary": "eagle"
+  },
+  "secondaryProfiles": {
+    "wolf": { "affiliation": -4, "reasoning": 5, "tempo": -1, "structure": 5, "influence": 5, "exploration": 4, "expression": -1, "perspective": -6 },
+    "owl": { "affiliation": -4, "reasoning": 4, "tempo": -5, "structure": -5, "influence": 4, "exploration": -5, "expression": -6, "perspective": -6 },
+    "eagle": { "affiliation": -6, "reasoning": 2, "tempo": -2, "structure": -2, "influence": 6, "exploration": 2, "expression": 3, "perspective": 1 },
+    "dolphin": { "affiliation": 5, "reasoning": -5, "tempo": -6, "structure": -2, "influence": 4, "exploration": -2, "expression": 6, "perspective": -5 },
+    "bear": { "affiliation": -2, "reasoning": 2, "tempo": -5, "structure": 6, "influence": 3, "exploration": -3, "expression": 6, "perspective": 4 },
+    "lion": { "affiliation": 3, "reasoning": -3, "tempo": 5, "structure": -2, "influence": 5, "exploration": 1, "expression": -1, "perspective": -5 },
+    "fox": { "affiliation": 4, "reasoning": 6, "tempo": 3, "structure": -4, "influence": 6, "exploration": 2, "expression": -3, "perspective": 1 },
+    "panther": { "affiliation": -4, "reasoning": -3, "tempo": 0, "structure": -3, "influence": 2, "exploration": 4, "expression": -1, "perspective": -3 },
+    "elephant": { "affiliation": 2, "reasoning": 3, "tempo": 3, "structure": 1, "influence": 0, "exploration": -1, "expression": 1, "perspective": 2 },
+    "horse": { "affiliation": 2, "reasoning": -3, "tempo": -5, "structure": -6, "influence": 0, "exploration": 6, "expression": 6, "perspective": -1 },
+    "turtle": { "affiliation": -1, "reasoning": 0, "tempo": -5, "structure": -5, "influence": -5, "exploration": -6, "expression": 0, "perspective": 3 },
+    "octopus": { "affiliation": -6, "reasoning": 4, "tempo": 1, "structure": -4, "influence": 3, "exploration": 0, "expression": 3, "perspective": -2 }
+  }
+}
