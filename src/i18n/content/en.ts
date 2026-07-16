@@ -27,7 +27,7 @@ export const englishContent = {
     heroDescription:
       'A short entertainment experience that explores how you decide, collaborate, and respond.',
     heroAction: 'Start discovery',
-    heroActionHint: 'Starts the twenty-four-question Animals Within assessment',
+    heroActionHint: 'Starts the twenty-five-question Animals Within assessment',
     motifCaption: 'animal archetypes',
     sectionEyebrow: 'EXPLORE THE EXPERIENCE',
     sectionTitle: 'Choose where you want to begin',
@@ -36,7 +36,7 @@ export const englishContent = {
         eyebrow: 'THE EXPERIENCE',
         title: 'Discover the animal within you',
         description:
-          'Answer twenty-four short questions to reveal your primary animal, secondary influence, and full profile.',
+          'Answer twenty-five short questions to discover your primary and secondary animals.',
         actionLabel: 'Start now',
       },
       animals: {
@@ -59,117 +59,15 @@ export const englishContent = {
     eyebrow: 'DISCOVER YOUR ANIMAL ARCHETYPE',
     counter: 'Question {current} of {total}',
     progressLabel: 'Assessment progress: question {current} of {total}',
-    instruction: 'Choose what reflects you most, not what you consider ideal.',
+    introduction: 'Answer instinctively. Choose what fits you best without thinking about it too much.',
     questions: englishAssessmentQuestions,
     options: englishAssessmentOptions,
   },
   results: {
-    primaryEyebrow: 'YOUR PRIMARY ANIMAL ARCHETYPE',
-    matchStrength: 'Match strength',
-    matchStrengthAccessibility: '{name}, match strength {score} percent',
-    strengths: 'Strengths',
-    watchOuts: 'Watch-outs',
-    secondaryInfluence: 'Secondary influence',
-    fullProfile: 'Your full profile',
-    entertainmentModel: 'Entertainment model',
-    modelExplanation:
-      'Match strength belongs to this provisional entertainment model. It is not a scientific measurement or diagnosis.',
-    rankingAccessibility: 'Full profile ranking of twelve animal archetypes',
-    restart: 'Take the assessment again',
-    restartHint: 'Clears this result and starts again from question one',
-    returnHome: 'Return to Home',
-    returnHomeHint: 'Returns to the Animals Within home dashboard',
-    archetypes: {
-      wolf: {
-        name: 'Wolf',
-        summary: 'Strategic, loyal, and independent.',
-        description:
-          'You protect the people you trust and work best when your purpose and boundaries are clear.',
-        strengths: ['Strategic thinking', 'Loyalty', 'Persistence'],
-        watchOuts: ['Closing the trusted circle too quickly', 'Holding too much control under pressure'],
-      },
-      owl: {
-        name: 'Owl',
-        summary: 'Observant, analytical, and thoughtful.',
-        description:
-          'You look for deeper meaning and reliable evidence before reaching a decision.',
-        strengths: ['Analysis', 'Observation', 'Self-awareness'],
-        watchOuts: ['Staying in analysis too long', 'Waiting for more certainty than needed'],
-      },
-      eagle: {
-        name: 'Eagle',
-        summary: 'Visionary, decisive, and goal-oriented.',
-        description:
-          'You see the bigger picture, set an ambitious direction, and readily take initiative.',
-        strengths: ['Vision', 'Leadership', 'Decisiveness'],
-        watchOuts: ['Moving faster than others can follow', 'Passing over useful details under pressure'],
-      },
-      dolphin: {
-        name: 'Dolphin',
-        summary: 'Social, adaptable, and emotionally aware.',
-        description:
-          'You create connection, read the room, and help groups work together effectively.',
-        strengths: ['Communication', 'Empathy', 'Adaptability'],
-        watchOuts: ['Smoothing tension before the issue is clear', 'Looking outward for reassurance under pressure'],
-      },
-      bear: {
-        name: 'Bear',
-        summary: 'Steady, protective, and practical.',
-        description:
-          'You create safety for others and stay grounded when circumstances become difficult.',
-        strengths: ['Resilience', 'Protection', 'Stability'],
-        watchOuts: ['Holding familiar ground too firmly', 'Taking longer to trust necessary change'],
-      },
-      lion: {
-        name: 'Lion',
-        summary: 'Visible, energetic, and ready to lead.',
-        description: 'You bring assurance and momentum to shared situations, especially when a clear direction is needed.',
-        strengths: ['Visible leadership', 'Courage to act', 'Expressive energy'],
-        watchOuts: ['Moving before quieter views emerge', 'Carrying too much responsibility under pressure'],
-      },
-      fox: {
-        name: 'Fox',
-        summary: 'Adaptable, resourceful, and experimentally minded.',
-        description: 'You notice practical openings, change tactics quickly, and enjoy finding an unexpected route forward.',
-        strengths: ['Tactical intelligence', 'Adaptability', 'Resourcefulness'],
-        watchOuts: ['Changing direction too often', 'Leaving useful structure behind'],
-      },
-      panther: {
-        name: 'Panther',
-        summary: 'Independent, focused, and quietly intense.',
-        description: 'You prefer self-directed movement, protect your concentration, and act with measured personal conviction.',
-        strengths: ['Focused action', 'Self-direction', 'Composure'],
-        watchOuts: ['Sharing intentions too late', 'Withdrawing when collaboration could help'],
-      },
-      elephant: {
-        name: 'Elephant',
-        summary: 'Patient, community-minded, and responsible.',
-        description: 'You remember what matters to people, value continuity, and help shared commitments endure over time.',
-        strengths: ['Collective care', 'Long memory', 'Dependable planning'],
-        watchOuts: ['Holding on to familiar patterns', 'Taking on the concerns of too many people'],
-      },
-      horse: {
-        name: 'Horse',
-        summary: 'Open, energetic, and drawn to freedom.',
-        description: 'You create momentum through movement, exploration, and an optimistic willingness to try a new path.',
-        strengths: ['Momentum', 'Openness', 'Exploratory energy'],
-        watchOuts: ['Outpacing practical preparation', 'Feeling constrained by necessary routines'],
-      },
-      turtle: {
-        name: 'Turtle',
-        summary: 'Patient, consistent, and careful with boundaries.',
-        description: 'You protect a sustainable pace, prepare thoroughly, and build trust through steady progress.',
-        strengths: ['Patience', 'Consistency', 'Long-term steadiness'],
-        watchOuts: ['Waiting after enough is known', 'Protecting boundaries so firmly that options narrow'],
-      },
-      octopus: {
-        name: 'Octopus',
-        summary: 'Inventive, analytical, and highly flexible.',
-        description: 'You connect patterns across complex situations and can reshape your approach without losing the larger idea.',
-        strengths: ['Complex problem-solving', 'Pattern recognition', 'Creative flexibility'],
-        watchOuts: ['Exploring too many paths at once', 'Making a simple answer more complex than needed'],
-      },
-    },
+    primaryAnimal: 'Primary animal',
+    secondaryAnimal: 'Secondary animal',
+    restart: 'Take it again',
+    restartHint: 'Clears this assessment and starts again from question one',
   },
   animals: {
     eyebrow: 'THE TWELVE ARCHETYPES',
@@ -249,29 +147,29 @@ export const englishContent = {
       'Animals Within compares your answers with twelve provisional animal archetypes using a deterministic model that runs on your device.',
     steps: [
       {
-        title: 'Answer 24 questions',
-        description: 'Choose one response in each situation. Three questions contribute to each of eight editorial dimensions.',
+        title: 'Answer quick questions',
+        description: 'Choose one instinctive response to varied everyday situations and lighter preferences.',
       },
       {
-        title: 'Build an eight-dimension profile',
+        title: 'Complete all 25 choices',
         description:
-          'Your local profile is compared equally with twelve provisional animal vectors, with no AI or external scoring service.',
+          'Your choices stay on your device while the local model combines them into one consistent matching pattern.',
       },
       {
-        title: 'See your complete ranking',
+        title: 'See your two animals',
         description:
-          'The closest match becomes your primary animal, followed by a secondary influence and the full twelve-animal ranking.',
+          'The closest match becomes your primary animal and the next distinct match becomes your secondary animal.',
       },
     ],
     disclosureTitle: 'Important to know',
     disclosures: [
-      'The questions and archetype vectors are editorial and provisional.',
+      'The questions and animal profiles are original, editorial, and provisional.',
       'The scoring is deterministic and runs locally on your device.',
       'The experience is an entertainment self-discovery framework.',
       'It is not diagnostic, scientific, or validated testing.',
     ],
     action: 'Start discovery',
-    actionHint: 'Starts the twenty-four-question Animals Within assessment',
+    actionHint: 'Starts the twenty-five-question Animals Within assessment',
   },
   settings: {
     title: 'Appearance settings',
