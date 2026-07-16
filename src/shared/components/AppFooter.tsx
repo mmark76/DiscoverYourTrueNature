@@ -58,11 +58,11 @@ export function AppFooter() {
         >
           <View style={styles.linkGroup}>
             <ExternalTextLink
-              accessibilityLabel={content.footer.feedbackAccessibilityLabel}
-              label={content.footer.feedbackLabel}
+              accessibilityLabel="Feedback μέσω email"
+              label="Feedback"
               url={feedbackUrl}
               style={styles.link}
-              textStyle={styles.linkLabel}
+              textStyle={styles.feedbackLinkLabel}
             />
             <View style={styles.linkPair}>
               <AppText accessibilityElementsHidden style={styles.separator}>·</AppText>
@@ -130,6 +130,7 @@ function createStyles(colors: SemanticColors) {
     linkPair: { alignItems: 'center', flexDirection: 'row', flexShrink: 1, gap: 6, minWidth: 0 },
     link: { flexShrink: 1, justifyContent: 'center' },
     linkLabel: { color: colors.footerText, fontSize: 10, lineHeight: 14, textDecorationLine: 'underline' },
+    feedbackLinkLabel: { color: colors.accent, fontSize: 10, fontWeight: '800', lineHeight: 14, textDecorationLine: 'underline' },
     separator: { color: colors.footerMuted, fontSize: 10, lineHeight: 14 },
     buildVersion: {
       color: colors.footerMuted,
