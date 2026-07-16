@@ -22,6 +22,14 @@ export function HeroSection({ onStart }: HeroSectionProps) {
         <AppText accessibilityRole="header" style={styles.title}>{content.common.productName}</AppText>
         <AppText style={styles.subtitle}>{copy.heroSubtitle}</AppText>
         <AppText style={styles.description}>{copy.heroDescription}</AppText>
+        <View style={styles.highlights}>
+          {copy.highlights.map((highlight) => (
+            <View key={highlight} style={styles.highlight}>
+              <AppText accessibilityElementsHidden style={styles.highlightMark}>✓</AppText>
+              <AppText style={styles.highlightText}>{highlight}</AppText>
+            </View>
+          ))}
+        </View>
         <FocusablePressable
           accessibilityHint={copy.heroActionHint}
           accessibilityRole="button"
@@ -36,7 +44,7 @@ export function HeroSection({ onStart }: HeroSectionProps) {
         <View style={styles.motifOuterCircle} />
         <View style={styles.motifContent}>
           <View style={styles.motifNumberArea}>
-            <AppText style={styles.motifText}>12</AppText>
+            <AppText style={styles.motifText}>16</AppText>
           </View>
           <View style={styles.motifCaptionArea}>
             <AppText style={styles.motifCaption}>{copy.motifCaption}</AppText>
@@ -55,7 +63,11 @@ function createStyles(colors: SemanticColors) {
     title: { color: colors.heading, fontSize: 44, fontWeight: '900', letterSpacing: -1, lineHeight: 49 },
     subtitle: { color: colors.heading, fontSize: 21, fontWeight: '700', lineHeight: 29 },
     description: { color: colors.text, fontSize: 16, lineHeight: 25, maxWidth: 620 },
-    button: { alignSelf: 'flex-start', backgroundColor: colors.primary, borderRadius: theme.radius.sm, marginTop: theme.spacing.xs, minHeight: 44, paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.sm },
+    highlights: { gap: theme.spacing.xs, marginTop: theme.spacing.xs },
+    highlight: { alignItems: 'flex-start', flexDirection: 'row', gap: theme.spacing.xs, minWidth: 0 },
+    highlightMark: { color: colors.primary, fontSize: 14, fontWeight: '900', lineHeight: 21 },
+    highlightText: { color: colors.text, flex: 1, fontSize: 14, lineHeight: 21 },
+    button: { alignItems: 'center', alignSelf: 'flex-start', backgroundColor: colors.primary, borderRadius: theme.radius.sm, marginTop: theme.spacing.xs, minHeight: 44, paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.sm },
     buttonPressed: { backgroundColor: colors.primaryPressed },
     buttonText: { color: colors.onPrimary, fontSize: 15, fontWeight: '800' },
     motif: { alignItems: 'center', alignSelf: 'center', aspectRatio: 1, flexBasis: 180, flexGrow: 0, flexShrink: 1, justifyContent: 'center', maxWidth: 180, minWidth: 0, position: 'relative', width: '100%' },

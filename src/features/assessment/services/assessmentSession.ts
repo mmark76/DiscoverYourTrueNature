@@ -200,7 +200,7 @@ function orderAnswers(
   answers: readonly AssessmentAnswer[],
   sequence: readonly AssessmentQuestionData[],
 ): AssessmentAnswer[] {
-  const order = new Map(sequence.map(({ id }, index) => [id, index]));
+  const order = new Map<string, number>(sequence.map(({ id }, index) => [id, index]));
   return [...answers]
     .filter(({ questionId }) => order.has(questionId))
     .sort((left, right) =>

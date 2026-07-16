@@ -85,13 +85,21 @@ function createAssessmentQuestion(
   const poles = dimensionDefinitions[definition.dimension];
   return {
     ...definition,
+    id: definition.id as AssessmentQuestionId,
     options: [
-      { id: `${definition.id}-strong-first`, pole: poles.firstPole, intensity: 2 },
-      { id: `${definition.id}-moderate-first`, pole: poles.firstPole, intensity: 1 },
-      { id: `${definition.id}-moderate-second`, pole: poles.secondPole, intensity: 1 },
-      { id: `${definition.id}-strong-second`, pole: poles.secondPole, intensity: 2 },
+      { id: createOptionId(definition.id, 'strong-first'), pole: poles.firstPole, intensity: 2 },
+      { id: createOptionId(definition.id, 'moderate-first'), pole: poles.firstPole, intensity: 1 },
+      { id: createOptionId(definition.id, 'moderate-second'), pole: poles.secondPole, intensity: 1 },
+      { id: createOptionId(definition.id, 'strong-second'), pole: poles.secondPole, intensity: 2 },
     ],
-  } as AssessmentQuestionData;
+  };
+}
+
+function createOptionId(
+  questionId: string,
+  suffix: AssessmentOptionSuffix,
+): AssessmentOptionId {
+  return `${questionId}-${suffix}` as AssessmentOptionId;
 }
 
 export const fixedAssessmentQuestions = fixedQuestionDefinitions.map(createAssessmentQuestion);

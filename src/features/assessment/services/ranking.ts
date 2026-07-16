@@ -67,7 +67,7 @@ export function isCompleteRanking(
   question: AssessmentQuestionData,
   rankings: RankingDraft,
 ): boolean {
-  const optionIds = question.options.map(({ id }) => id);
+  const optionIds: readonly string[] = question.options.map(({ id }) => id);
   const assignedOptionIds = Object.keys(rankings).filter(
     (optionId) => rankings[optionId] !== undefined,
   );

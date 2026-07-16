@@ -2,6 +2,6 @@ export type AppScreen = 'home' | 'assessment' | 'result' | 'animals' | 'how-it-w
 
 export type NavigableScreen = 'home' | 'assessment' | 'animals' | 'how-it-works';
 
-export function shouldShowAppChrome(screen: AppScreen) {
-  return screen !== 'result';
+export function shouldShowAppChrome(_screen: AppScreen) {
+  return true;
 }

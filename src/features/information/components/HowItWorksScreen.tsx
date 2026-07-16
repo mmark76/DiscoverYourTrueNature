@@ -39,6 +39,7 @@ export function HowItWorksScreen({ onStart }: HowItWorksScreenProps) {
             <AppText key={disclosure} style={styles.disclosureText}>• {disclosure}</AppText>
           ))}
         </View>
+        <AppText style={styles.disclaimer}>{copy.disclaimer}</AppText>
         <FocusablePressable
           accessibilityHint={copy.actionHint}
           accessibilityRole="button"
@@ -62,13 +63,14 @@ function createStyles(colors: SemanticColors) {
     title: { color: colors.heading, fontSize: 40, fontWeight: '900', lineHeight: 47 },
     description: { color: colors.text, fontSize: 17, lineHeight: 26 },
     steps: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md },
-    step: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: theme.radius.md, borderWidth: 1, flex: 1, gap: theme.spacing.sm, minWidth: 250, padding: theme.spacing.lg },
+    step: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: theme.radius.md, borderWidth: 1, flexBasis: 250, flexGrow: 1, gap: theme.spacing.sm, minWidth: 0, padding: theme.spacing.lg },
     stepNumber: { color: colors.primary, fontSize: 13, fontWeight: '900' },
     stepTitle: { color: colors.heading, fontSize: 20, fontWeight: '800' },
     stepDescription: { color: colors.text, fontSize: 15, lineHeight: 23 },
     disclosure: { backgroundColor: colors.warningSurface, borderRadius: theme.radius.md, gap: theme.spacing.xs, padding: theme.spacing.lg },
     disclosureTitle: { color: colors.heading, fontSize: 20, fontWeight: '800', marginBottom: theme.spacing.xs },
     disclosureText: { color: colors.text, fontSize: 15, lineHeight: 23 },
+    disclaimer: { backgroundColor: colors.warningSurface, borderColor: colors.warning, borderRadius: theme.radius.md, borderWidth: 1, color: colors.text, fontSize: 14, lineHeight: 22, padding: theme.spacing.md },
     button: { alignItems: 'center', alignSelf: 'flex-start', backgroundColor: colors.primary, borderRadius: theme.radius.sm, minHeight: 44, paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.sm },
     buttonPressed: { backgroundColor: colors.primaryPressed },
     buttonText: { color: colors.onPrimary, fontSize: 15, fontWeight: '800' },

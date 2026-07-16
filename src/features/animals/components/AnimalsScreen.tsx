@@ -6,15 +6,25 @@ import type { SemanticColors } from '../../../settings/appearanceTypes';
 import { AppText } from '../../../shared/components/AppText';
 import { PageContent } from '../../../shared/components/PageContent';
 import { theme } from '../../../shared/styles/theme';
-import { animals } from '../data/animals';
+import { animals, type AnimalId } from '../data/animals';
 import { AnimalCard } from './AnimalCard';
 
-export function AnimalsScreen() {
-  const { colors } = useAppearance();
+interface AnimalsScreenProps {
+  primaryAnimalId?: AnimalId | null;
+  secondaryAnimalId?: AnimalId | null;
+}
+
+export function AnimalsScreen({
+  primaryAnimalId = null,
+  secondaryAnimalId = null,
+}: AnimalsScreenProps) {
+  const { colors, settings } = useAppearance();
   const { content } = useTranslation();
   const copy = content.animals;
   const { width } = useWindowDimensions();
-  const cardWidth: `${number}%` = width >= 1050 ? '32%' : width >= 650 ? '48.7%' : '100%';
+  const cardWidth: `${number}%` = settings.textSize === 'extra-large'
+    ? '100%'
+    : width >= 1050 ? '32%' : width >= 650 ? '48.7%' : '100%';
   const styles = createStyles(colors);
 
   return (
@@ -26,8 +36,14 @@ export function AnimalsScreen() {
           <AppText style={styles.description}>{copy.introduction}</AppText>
         </View>
         <View style={styles.grid}>
-          {animals.map((animal, index) => (
-            <AnimalCard key={animal.id} animal={animal} index={index} width={cardWidth} />
+          {animals.map((animal) => (
+            <AnimalCard
+              key={animal.id}
+              animal={animal}
+              isPrimary={animal.id === primaryAnimalId}
+              isSecondary={animal.id === secondaryAnimalId}
+              width={cardWidth}
+            />
           ))}
         </View>
         <AppText style={styles.note}>{copy.catalogNote}</AppText>
@@ -41,11 +57,20 @@ function createStyles(colors: SemanticColors) {
     scrollView: { backgroundColor: colors.background, flex: 1 },
     scrollContent: { flexGrow: 1 },
     content: { gap: theme.layout.sectionGap, paddingVertical: theme.spacing.lg },
-    introduction: { gap: theme.spacing.sm, maxWidth: 760 },
+    introduction: { gap: theme.spacing.sm, maxWidth: 800, minWidth: 0 },
     eyebrow: { color: colors.primary, fontSize: 11, fontWeight: '900', letterSpacing: 1.2 },
     title: { color: colors.heading, fontSize: 40, fontWeight: '900', lineHeight: 47 },
     description: { color: colors.text, fontSize: 17, lineHeight: 26 },
-    grid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md },
-    note: { backgroundColor: colors.warningSurface, borderRadius: theme.radius.md, color: colors.warning, fontSize: 13, lineHeight: 20, padding: theme.spacing.md },
+    grid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md, minWidth: 0 },
+    note: {
+      backgroundColor: colors.warningSurface,
+      borderColor: colors.warning,
+      borderRadius: theme.radius.md,
+      borderWidth: 1,
+      color: colors.text,
+      fontSize: 13,
+      lineHeight: 21,
+      padding: theme.spacing.md,
+    },
   });
 }

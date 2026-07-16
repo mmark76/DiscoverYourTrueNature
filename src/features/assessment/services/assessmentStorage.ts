@@ -111,7 +111,7 @@ export function normalizeStoredAssessmentSession(value: unknown): AssessmentSess
     result: null,
   };
   const sequence = getAssessmentQuestionSequence(candidateSession);
-  const sequenceIds = new Set(sequence.map(({ id }) => id));
+  const sequenceIds = new Set<string>(sequence.map(({ id }) => id));
   if (answers.some(({ questionId }) => !sequenceIds.has(questionId))) return null;
   if (new Set(answers.map(({ questionId }) => questionId)).size !== answers.length) return null;
   const orderedAnswers = orderAnswers(answers, sequence.map(({ id }) => id));
