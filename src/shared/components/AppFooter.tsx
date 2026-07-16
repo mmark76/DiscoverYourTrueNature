@@ -17,6 +17,7 @@ import { ExternalTextLink } from './ExternalTextLink';
 import { PageContent } from './PageContent';
 
 const ecosystemUrl = 'https://markellosecosystem.com';
+const feedbackLabel = 'Feedback';
 
 export function AppFooter() {
   const { colors, settings } = useAppearance();
@@ -58,11 +59,11 @@ export function AppFooter() {
         >
           <View style={styles.linkGroup}>
             <ExternalTextLink
-              accessibilityLabel={content.footer.feedbackAccessibilityLabel}
-              label={content.footer.feedbackLabel}
+              accessibilityLabel={`${feedbackLabel} email`}
+              label={feedbackLabel}
               url={feedbackUrl}
               style={styles.link}
-              textStyle={styles.linkLabel}
+              textStyle={[styles.linkLabel, styles.feedbackLinkLabel]}
             />
             <View style={styles.linkPair}>
               <AppText accessibilityElementsHidden style={styles.separator}>·</AppText>
@@ -130,6 +131,7 @@ function createStyles(colors: SemanticColors) {
     linkPair: { alignItems: 'center', flexDirection: 'row', flexShrink: 1, gap: 6, minWidth: 0 },
     link: { flexShrink: 1, justifyContent: 'center' },
     linkLabel: { color: colors.footerText, fontSize: 10, lineHeight: 14, textDecorationLine: 'underline' },
+    feedbackLinkLabel: { color: colors.accent, fontWeight: '800' },
     separator: { color: colors.footerMuted, fontSize: 10, lineHeight: 14 },
     buildVersion: {
       color: colors.footerMuted,
