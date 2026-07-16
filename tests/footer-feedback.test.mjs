@@ -79,9 +79,24 @@ test('footer renders no inactive legal placeholders', () => {
   assert.equal('privacyLabel' in translations.el.footer, false);
 });
 
-test('footer keeps links and build in one responsive row without horizontal scrolling', () => {
-  assert.match(footerSource, /navigationRow:[\s\S]*flexWrap:\s*'wrap'/);
-  assert.match(footerSource, /buildVersion:[\s\S]*marginLeft:\s*'auto'/);
+test('footer centers the copyright and link group across the full content width', () => {
+  assert.match(footerSource, /copyrightRow:[^\n]*alignItems:\s*'center'/);
+  assert.match(footerSource, /copyright:[^\n]*textAlign:\s*'center'/);
+  assert.match(footerSource, /navigationRow:[\s\S]*justifyContent:\s*'center'[\s\S]*position:\s*'relative'/);
+  assert.match(footerSource, /linkGroup:[^\n]*alignSelf:\s*'center'[^\n]*justifyContent:\s*'center'/);
+});
+
+test('footer layers the build version at the far right without shifting centered links', () => {
+  assert.match(footerSource, /buildVersion:[\s\S]*textAlign:\s*'right'/);
+  assert.match(footerSource, /buildVersionLayered:[^\n]*position:\s*'absolute'[^\n]*right:\s*0/);
+  assert.doesNotMatch(footerSource, /linkGroup:[^\n]*margin(?:Left|Right)/);
+});
+
+test('mobile footer stacks the version without horizontal overflow', () => {
+  assert.match(footerSource, /useStackedNavigation = width < layeredFooterBreakpoint/);
+  assert.match(footerSource, /navigationRowStacked:[^\n]*alignItems:\s*'stretch'/);
+  assert.match(footerSource, /buildVersionStacked:[^\n]*alignSelf:\s*'stretch'/);
+  assert.match(footerSource, /linkGroup:[^\n]*flexWrap:\s*'wrap'[^\n]*maxWidth:\s*'100%'/);
   assert.match(footerSource, /flexShrink:\s*1/);
   assert.doesNotMatch(footerSource, /overflowX|horizontal=\{true\}/);
 });
