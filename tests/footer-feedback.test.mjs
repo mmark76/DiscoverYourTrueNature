@@ -64,6 +64,7 @@ test('footer has exactly two semantic rows in accessible content order', () => {
   const order = [
     'testID="footer-row-copyright"',
     'content.footer.feedbackAccessibilityLabel',
+    'content.footer.analyticsChoicesAccessibilityLabel',
     'content.footer.ecosystemAccessibilityLabel',
     'content.footer.buildAccessibilityLabel',
   ].map((needle) => footerSource.indexOf(needle));
@@ -71,8 +72,9 @@ test('footer has exactly two semantic rows in accessible content order', () => {
   assert.deepEqual(order, [...order].sort((a, b) => a - b));
 });
 
-test('footer renders no inactive legal or analytics items', () => {
-  assert.doesNotMatch(footerSource, /privacy|license|analytics choices|copyright protected|coming soon|accessibilityState=\{\{ disabled: true \}\}/i);
+test('footer renders no inactive legal placeholders', () => {
+  assert.match(footerSource, /content\.footer\.analyticsChoicesLabel/);
+  assert.doesNotMatch(footerSource, /privacy|license|copyright protected|coming soon|accessibilityState=\{\{ disabled: true \}\}/i);
   assert.equal('privacyLabel' in translations.en.footer, false);
   assert.equal('privacyLabel' in translations.el.footer, false);
 });

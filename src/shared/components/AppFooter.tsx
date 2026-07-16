@@ -4,11 +4,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { buildVersion } from '../../config/buildInfo';
 import { createFeedbackMailto } from '../../config/feedback';
+import { useAnalyticsConsent } from '../../features/analytics/consent/AnalyticsConsentProvider';
 import { useTranslation } from '../../i18n/useTranslation';
 import { useAppearance } from '../../settings/AppearanceProvider';
 import type { SemanticColors } from '../../settings/appearanceTypes';
 import { useFooterLayout } from '../layout/FooterLayoutProvider';
 import { theme } from '../styles/theme';
+import { ActionTextLink } from './ActionTextLink';
 import { AppText } from './AppText';
 import { ExternalTextLink } from './ExternalTextLink';
 import { PageContent } from './PageContent';
@@ -18,6 +20,7 @@ const ecosystemUrl = 'https://markellosecosystem.com';
 export function AppFooter() {
   const { colors } = useAppearance();
   const { content } = useTranslation();
+  const { openChoices } = useAnalyticsConsent();
   const { setFooterHeight } = useFooterLayout();
   const styles = createStyles(colors);
   const currentYear = new Date().getFullYear();
@@ -53,6 +56,14 @@ export function AppFooter() {
               accessibilityLabel={content.footer.feedbackAccessibilityLabel}
               label={content.footer.feedbackLabel}
               url={feedbackUrl}
+              style={styles.link}
+              textStyle={styles.linkLabel}
+            />
+            <AppText accessibilityElementsHidden style={styles.separator}>·</AppText>
+            <ActionTextLink
+              accessibilityLabel={content.footer.analyticsChoicesAccessibilityLabel}
+              label={content.footer.analyticsChoicesLabel}
+              onPress={openChoices}
               style={styles.link}
               textStyle={styles.linkLabel}
             />

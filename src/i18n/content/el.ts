@@ -306,11 +306,23 @@ export const greekContent = {
     cancel: 'Ακύρωση',
     back: 'Επιστροφή',
   },
+  analyticsConsent: {
+    title: 'Επιλογές analytics',
+    description:
+      'Βοήθησέ μας να κατανοήσουμε πώς χρησιμοποιείται η εφαρμογή. Τα analytics θα ενεργοποιηθούν μόνο με την άδειά σου. Οι απαντήσεις και τα αποτελέσματα του τεστ δεν θα αποστέλλονται ποτέ.',
+    accept: 'Αποδοχή analytics',
+    reject: 'Απόρριψη analytics',
+    close: 'Κλείσιμο επιλογών analytics',
+    bannerAccessibilityLabel: 'Επιλογές συγκατάθεσης analytics',
+    dialogAccessibilityLabel: 'Αλλαγή επιλογών συγκατάθεσης analytics',
+  },
   footer: {
     accessibilityLabel: 'Πληροφορίες και σύνδεσμοι του Animals Within',
     navigationLabel: 'Σύνδεσμοι υποσέλιδου και πληροφορίες έκδοσης',
     feedbackLabel: 'Feedback',
     feedbackAccessibilityLabel: 'Αποστολή σχολίων μέσω email',
+    analyticsChoicesLabel: 'Επιλογές analytics',
+    analyticsChoicesAccessibilityLabel: 'Άνοιγμα επιλογών συγκατάθεσης analytics',
     ecosystemLabel: 'Markellos Ecosystem',
     ecosystemAccessibilityLabel: 'Επιστροφή στο Markellos Ecosystem',
     buildAccessibilityLabel: 'Έκδοση κατασκευής εφαρμογής',
