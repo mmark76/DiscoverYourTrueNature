@@ -18,7 +18,7 @@ export const englishContent = {
     languageLabel: 'Language selection',
     greekLanguage: 'Greek',
     englishLanguage: 'English',
-    ecosystemLink: 'Return to Markellos Ecosystem',
+    ecosystemLink: 'Markellos Ecosystem',
     feedbackAccessibilityLabel: 'Send feedback by email',
   },
   home: {

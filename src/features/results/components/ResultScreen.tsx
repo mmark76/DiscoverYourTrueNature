@@ -6,6 +6,7 @@ import { useAppearance } from '../../../settings/AppearanceProvider';
 import type { SemanticColors } from '../../../settings/appearanceTypes';
 import { AppText } from '../../../shared/components/AppText';
 import { FocusablePressable } from '../../../shared/components/FocusablePressable';
+import { PageContent } from '../../../shared/components/PageContent';
 import { theme } from '../../../shared/styles/theme';
 import type { AssessmentResult } from '../../assessment/types';
 
@@ -28,33 +29,35 @@ export function ResultScreen({ result, onRestart }: ResultScreenProps) {
   }, [result.primaryId, result.secondaryId]);
 
   return (
-    <ScrollView contentContainerStyle={styles.container} style={styles.scrollView}>
-      <View style={styles.reveal}>
-        <View
-          accessible
-          accessibilityLabel={`${copy.primaryAnimal}: ${primaryName}. ${copy.secondaryAnimal}: ${secondaryName}`}
-          accessibilityLiveRegion="polite"
-          accessibilityRole="header"
-          ref={revealHeadingRef}
-          style={styles.animalResult}
-          tabIndex={-1}
-        >
-          <AppText style={styles.label}>{copy.primaryAnimal}</AppText>
-          <AppText style={styles.name}>{primaryName}</AppText>
+    <ScrollView contentContainerStyle={styles.scrollContent} style={styles.scrollView}>
+      <PageContent style={styles.page}>
+        <View style={styles.reveal}>
+          <View
+            accessible
+            accessibilityLabel={`${copy.primaryAnimal}: ${primaryName}. ${copy.secondaryAnimal}: ${secondaryName}`}
+            accessibilityLiveRegion="polite"
+            accessibilityRole="header"
+            ref={revealHeadingRef}
+            style={styles.animalResult}
+            tabIndex={-1}
+          >
+            <AppText style={styles.label}>{copy.primaryAnimal}</AppText>
+            <AppText style={styles.name}>{primaryName}</AppText>
+          </View>
+          <View style={styles.animalResult}>
+            <AppText style={styles.label}>{copy.secondaryAnimal}</AppText>
+            <AppText accessibilityRole="header" style={styles.name}>{secondaryName}</AppText>
+          </View>
+          <FocusablePressable
+            accessibilityHint={copy.restartHint}
+            accessibilityRole="button"
+            onPress={onRestart}
+            style={({ pressed }) => [styles.restartButton, pressed && styles.buttonPressed]}
+          >
+            <AppText style={styles.restartText}>{copy.restart}</AppText>
+          </FocusablePressable>
         </View>
-        <View style={styles.animalResult}>
-          <AppText style={styles.label}>{copy.secondaryAnimal}</AppText>
-          <AppText accessibilityRole="header" style={styles.name}>{secondaryName}</AppText>
-        </View>
-        <FocusablePressable
-          accessibilityHint={copy.restartHint}
-          accessibilityRole="button"
-          onPress={onRestart}
-          style={({ pressed }) => [styles.restartButton, pressed && styles.buttonPressed]}
-        >
-          <AppText style={styles.restartText}>{copy.restart}</AppText>
-        </FocusablePressable>
-      </View>
+      </PageContent>
     </ScrollView>
   );
 }
@@ -62,7 +65,8 @@ export function ResultScreen({ result, onRestart }: ResultScreenProps) {
 function createStyles(colors: SemanticColors) {
   return StyleSheet.create({
     scrollView: { backgroundColor: colors.background, flex: 1 },
-    container: { alignItems: 'center', flexGrow: 1, justifyContent: 'center', padding: theme.spacing.lg, width: '100%' },
+    scrollContent: { flexGrow: 1 },
+    page: { alignItems: 'center', flexGrow: 1, justifyContent: 'center', paddingVertical: theme.spacing.lg },
     reveal: { alignItems: 'stretch', gap: theme.spacing.xl, maxWidth: 560, width: '100%' },
     animalResult: { alignItems: 'center', gap: theme.spacing.sm },
     label: { color: colors.text, fontSize: 15, fontWeight: '700', textAlign: 'center' },

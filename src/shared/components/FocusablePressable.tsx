@@ -1,27 +1,28 @@
-import { useState } from 'react';
 import { Pressable, PressableProps } from 'react-native';
 
 import { useAppearance } from '../../settings/AppearanceProvider';
+import { useFocusVisible } from '../accessibility/useFocusVisible';
 
 export function FocusablePressable({ onBlur, onFocus, style, ...props }: PressableProps) {
   const { colors } = useAppearance();
-  const [focused, setFocused] = useState(false);
+  const { focusVisible, hideFocus, showFocus } = useFocusVisible();
 
   return (
     <Pressable
       {...props}
       onBlur={(event) => {
-        setFocused(false);
+        hideFocus();
         onBlur?.(event);
       }}
       onFocus={(event) => {
-        setFocused(true);
+        showFocus();
         onFocus?.(event);
       }}
       style={(state) => [
         typeof style === 'function' ? style(state) : style,
-        focused && {
+        focusVisible && {
           outlineColor: colors.focus,
+          outlineOffset: -2,
           outlineStyle: 'solid',
           outlineWidth: 2,
         },

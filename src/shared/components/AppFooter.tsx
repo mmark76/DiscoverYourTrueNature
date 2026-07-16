@@ -9,6 +9,7 @@ import { useTranslation } from '../../i18n/useTranslation';
 import { useAppearance } from '../../settings/AppearanceProvider';
 import type { SemanticColors } from '../../settings/appearanceTypes';
 import { useFooterLayout } from '../layout/FooterLayoutProvider';
+import { shouldStackFooterNavigation } from '../layout/responsiveLayout';
 import { theme } from '../styles/theme';
 import { ActionTextLink } from './ActionTextLink';
 import { AppText } from './AppText';
@@ -16,16 +17,15 @@ import { ExternalTextLink } from './ExternalTextLink';
 import { PageContent } from './PageContent';
 
 const ecosystemUrl = 'https://markellosecosystem.com';
-const layeredFooterBreakpoint = 1100;
 
 export function AppFooter() {
-  const { colors } = useAppearance();
+  const { colors, settings } = useAppearance();
   const { content } = useTranslation();
   const { openChoices } = useAnalyticsConsent();
   const { setFooterHeight } = useFooterLayout();
   const { width } = useWindowDimensions();
   const styles = createStyles(colors);
-  const useStackedNavigation = width < layeredFooterBreakpoint;
+  const useStackedNavigation = shouldStackFooterNavigation(width, settings.textSize);
   const currentYear = new Date().getFullYear();
   const copyrightNotice = `© ${currentYear} Markellos Markides. All rights reserved.`;
   const feedbackUrl = createFeedbackMailto({
@@ -42,6 +42,7 @@ export function AppFooter() {
       accessibilityLabel={content.footer.accessibilityLabel}
       edges={['bottom', 'left', 'right']}
       onLayout={measureFooter}
+      role="contentinfo"
       style={styles.footer}
     >
       <PageContent style={styles.footerInner}>
@@ -51,6 +52,7 @@ export function AppFooter() {
 
         <View
           accessibilityLabel={content.footer.navigationLabel}
+          role="navigation"
           testID="footer-row-navigation"
           style={[styles.navigationRow, useStackedNavigation && styles.navigationRowStacked]}
         >
@@ -62,22 +64,26 @@ export function AppFooter() {
               style={styles.link}
               textStyle={styles.linkLabel}
             />
-            <AppText accessibilityElementsHidden style={styles.separator}>·</AppText>
-            <ActionTextLink
-              accessibilityLabel={content.footer.analyticsChoicesAccessibilityLabel}
-              label={content.footer.analyticsChoicesLabel}
-              onPress={openChoices}
-              style={styles.link}
-              textStyle={styles.linkLabel}
-            />
-            <AppText accessibilityElementsHidden style={styles.separator}>·</AppText>
-            <ExternalTextLink
-              accessibilityLabel={content.footer.ecosystemAccessibilityLabel}
-              label={content.footer.ecosystemLabel}
-              url={ecosystemUrl}
-              style={styles.link}
-              textStyle={styles.linkLabel}
-            />
+            <View style={styles.linkPair}>
+              <AppText accessibilityElementsHidden style={styles.separator}>·</AppText>
+              <ActionTextLink
+                accessibilityLabel={content.footer.analyticsChoicesAccessibilityLabel}
+                label={content.footer.analyticsChoicesLabel}
+                onPress={openChoices}
+                style={styles.link}
+                textStyle={styles.linkLabel}
+              />
+            </View>
+            <View style={styles.linkPair}>
+              <AppText accessibilityElementsHidden style={styles.separator}>·</AppText>
+              <ExternalTextLink
+                accessibilityLabel={content.footer.ecosystemAccessibilityLabel}
+                label={content.footer.ecosystemLabel}
+                url={ecosystemUrl}
+                style={styles.link}
+                textStyle={styles.linkLabel}
+              />
+            </View>
           </View>
           <AppText
             accessibilityLabel={`${content.footer.buildAccessibilityLabel}: ${buildVersion}`}
@@ -121,6 +127,7 @@ function createStyles(colors: SemanticColors) {
     },
     navigationRowStacked: { alignItems: 'stretch' },
     linkGroup: { alignItems: 'center', alignSelf: 'center', columnGap: 6, flexDirection: 'row', flexShrink: 1, flexWrap: 'wrap', justifyContent: 'center', maxWidth: '100%', minWidth: 0, rowGap: 2 },
+    linkPair: { alignItems: 'center', flexDirection: 'row', flexShrink: 1, gap: 6, minWidth: 0 },
     link: { flexShrink: 1, justifyContent: 'center' },
     linkLabel: { color: colors.footerText, fontSize: 10, lineHeight: 14, textDecorationLine: 'underline' },
     separator: { color: colors.footerMuted, fontSize: 10, lineHeight: 14 },
