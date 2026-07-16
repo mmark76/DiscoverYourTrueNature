@@ -31,6 +31,31 @@ test('feedback helper creates the exact encoded mailto draft', () => {
   assert.match(mailto, /%0A/);
 });
 
+test('feedback draft accepts no assessment, animal, personality, or scoring context', () => {
+  const feedbackSource = readFileSync('src/config/feedback.ts', 'utf8');
+  const mailto = createFeedbackMailto({
+    languageLabel: 'English',
+    buildVersion: 'version_20260716_1834_abcdef0',
+  });
+  const parsed = new URL(mailto);
+  const publicDraft = `${parsed.searchParams.get('subject')}\n${parsed.searchParams.get('body')}`;
+
+  assert.doesNotMatch(
+    feedbackSource,
+    /features\/(?:assessment|personalities|animals|results)|questionId|optionId|rankings|adaptiveQuestion|primaryTypeId|secondaryTypeId|animalId|score|distance|confidence/i,
+  );
+  assert.doesNotMatch(
+    publicDraft,
+    /\b(?:INTJ|INTP|ENTJ|ENTP|INFJ|INFP|ENFJ|ENFP|ISTJ|ISFJ|ESTJ|ESFJ|ISTP|ISFP|ESTP|ESFP)\b|primary animal|secondary animal|score|distance|confidence|percentage/i,
+  );
+  assert.deepEqual(
+    feedbackSource.match(/interface FeedbackMailtoOptions \{([\s\S]*?)\}/)?.[1]
+      .match(/\b\w+:/g)
+      ?.map((field) => field.slice(0, -1)),
+    ['languageLabel', 'buildVersion'],
+  );
+});
+
 test('header and footer share the active centralized Feedback builder', () => {
   for (const source of [headerSource, footerSource]) {
     assert.match(source, /createFeedbackMailto/);
@@ -108,7 +133,7 @@ test('new footer and Feedback accessibility copy resolves in both languages', ()
   assert.equal(translations.en.footer.feedbackAccessibilityLabel, 'Send feedback by email');
   assert.equal(translations.el.footer.feedbackAccessibilityLabel, 'Αποστολή σχολίων μέσω email');
   assert.equal(translations.en.footer.buildAccessibilityLabel, 'Application build version');
-  assert.equal(translations.el.footer.buildAccessibilityLabel, 'Έκδοση κατασκευής εφαρμογής');
+  assert.equal(translations.el.footer.buildAccessibilityLabel, 'Έκδοση εφαρμογής');
   assert.equal(translations.en.common.selectedLanguageName, 'English');
   assert.equal(translations.el.common.selectedLanguageName, 'Ελληνικά');
 });

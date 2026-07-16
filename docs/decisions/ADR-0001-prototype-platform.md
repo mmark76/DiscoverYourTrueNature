@@ -35,4 +35,7 @@ The same codebase can be tested in a web browser and can later target Android. T
 - OpenAI model and prompt design.
 - Google Play Billing library and purchase validation.
 - Database and user identity.
-- Final number of animal archetypes.
+- Long-term backend and synchronization architecture.
+
+The assessment shape and fixed 16-animal mapping are resolved separately by
+[ADR-0002](ADR-0002-ranked-personality-animal-model.md).

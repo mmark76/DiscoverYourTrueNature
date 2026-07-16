@@ -1,12 +1,12 @@
 # Architecture Decision Records
 
-Important technical and product architecture decisions will be recorded here as Architecture Decision Records (ADRs).
+Important technical and product architecture decisions are recorded here with context, decision,
+consequences, and status.
 
-Suggested naming:
+## Index
 
-```text
-0001-short-decision-title.md
-0002-short-decision-title.md
-```
+- [ADR-0001: Use Expo React Native for the Validation Prototype](ADR-0001-prototype-platform.md)
+- [ADR-0002: Adopt the Ranked Sixteen-Personality Animal Model](ADR-0002-ranked-personality-animal-model.md)
 
-Each ADR should document context, decision, alternatives, consequences, and status.
+New records use the `ADR-NNNN-short-decision-title.md` naming convention. Accepted records are not
+silently rewritten when a decision changes; a later ADR should supersede them and link both ways.

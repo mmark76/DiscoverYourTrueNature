@@ -1,141 +1,162 @@
 import {
-  canonicalArchetypes,
-  type ArchetypeId,
-} from '../../archetypes/data/archetypes.ts';
+  canonicalPersonalityAnimals,
+  personalityTypeIds,
+  type PersonalityTypeId,
+} from '../../personalities/data/personalityAnimals.ts';
 import {
+  createEmptyDimensionProfile,
+  dimensionDefinitions,
   dimensionIds,
-  type TraitScoreMap,
-} from '../../archetypes/types.ts';
+  type DimensionId,
+} from '../../personalities/types.ts';
+import {
+  adaptiveQuestionBank,
+  allAssessmentQuestions,
+  fixedAssessmentQuestions,
+} from '../data/questions.ts';
 import {
   createCanonicalProfile,
   createRepresentativeAssessmentSession,
-  createSecondaryRepresentativeAssessmentSession,
+  createSeededAssessmentSession,
 } from './assessmentFixtures.ts';
 import {
   calculateAssessmentRanking,
-  rankArchetypes,
+  rankPersonalityTypes,
 } from './scoreAssessment.ts';
-
-export interface ReachabilityResult {
-  primaryId: ArchetypeId;
-  secondaryId: ArchetypeId;
-}
-
-export interface RepresentativeRunResult extends ReachabilityResult {
-  questionCount: number;
-  adaptiveQuestionIds: readonly string[];
-}
+import { selectAdaptiveQuestionIds } from './selectAdaptiveQuestions.ts';
 
 export interface AssessmentBalanceReport {
+  label: 'Engineering balance check — not scientific validation';
   sampleCount: number;
-  primaryCounts: Record<ArchetypeId, number>;
-  secondaryCounts: Record<ArchetypeId, number>;
-  averageDistances: Record<ArchetypeId, number>;
-  tieCount: number;
-  directProfileResults: Record<ArchetypeId, ReachabilityResult>;
-  secondaryFixtureResults: Record<ArchetypeId, RepresentativeRunResult>;
-  representativeRunResults: Record<ArchetypeId, RepresentativeRunResult>;
-  adaptivePairCounts: Record<string, number>;
-  unreachablePrimary: ArchetypeId[];
-  unreachableSecondary: ArchetypeId[];
+  fixedQuestionCount: number;
+  adaptiveBankCount: number;
+  fixedQuestionsPerDimension: Record<DimensionId, number>;
+  adaptiveQuestionsPerDimension: Record<DimensionId, number>;
+  optionStructureValid: boolean;
+  uniqueAnimalCount: number;
+  uniqueTypeCount: number;
+  completeTypeCoverage: boolean;
+  deterministicAdaptiveSelection: boolean;
+  canonicalScoringSymmetry: boolean;
+  exactTieHandlingDeterministic: boolean;
+  primarySecondaryAlwaysDistinct: boolean;
+  primaryCounts: Record<PersonalityTypeId, number>;
+  secondaryCounts: Record<PersonalityTypeId, number>;
+  unreachablePrimary: PersonalityTypeId[];
+  unreachableSecondary: PersonalityTypeId[];
 }
 
-export function analyzeAssessmentBalance(seed = 250712): AssessmentBalanceReport {
-  const primaryCounts = createArchetypeCounter();
-  const secondaryCounts = createArchetypeCounter();
-  const distanceTotals = createArchetypeCounter();
-  const directProfileResults = {} as Record<ArchetypeId, ReachabilityResult>;
-  const secondaryFixtureResults = {} as Record<ArchetypeId, RepresentativeRunResult>;
-  const representativeRunResults = {} as Record<ArchetypeId, RepresentativeRunResult>;
-  const adaptivePairCounts: Record<string, number> = {};
+export function analyzeAssessmentBalance(
+  seed = 160425,
+  simulationCount = 4096,
+): AssessmentBalanceReport {
+  const primaryCounts = createTypeCounter();
+  const secondaryCounts = createTypeCounter();
   let sampleCount = 0;
-  let tieCount = 0;
+  let primarySecondaryAlwaysDistinct = true;
 
-  function record(profile: TraitScoreMap): ReachabilityResult {
-    const matches = rankArchetypes(profile);
-    const primary = matches[0];
-    const secondary = matches[1];
-    if (!primary || !secondary) throw new Error('Balance analysis requires two matches.');
-    primaryCounts[primary.archetype.id] += 1;
-    secondaryCounts[secondary.archetype.id] += 1;
-    for (const match of matches) distanceTotals[match.archetype.id] += match.distance;
-    if (Math.abs(primary.distance - secondary.distance) < Number.EPSILON * 10) tieCount += 1;
+  function recordSession(typeId: PersonalityTypeId, secondaryId: PersonalityTypeId): void {
+    primaryCounts[typeId] += 1;
+    secondaryCounts[secondaryId] += 1;
+    primarySecondaryAlwaysDistinct &&= typeId !== secondaryId;
     sampleCount += 1;
-    return { primaryId: primary.archetype.id, secondaryId: secondary.archetype.id };
   }
 
-  for (const archetype of canonicalArchetypes) {
-    directProfileResults[archetype.id] = record(createCanonicalProfile(archetype.id));
-    const secondarySession = createSecondaryRepresentativeAssessmentSession(archetype.id);
-    const secondaryRanking = calculateAssessmentRanking(secondarySession.answers);
-    secondaryFixtureResults[archetype.id] = {
-      ...secondaryRanking.result,
-      questionCount: secondarySession.answers.length,
-      adaptiveQuestionIds: secondarySession.adaptiveQuestionIds,
-    };
-    record(secondaryRanking.profile);
-
-    const session = createRepresentativeAssessmentSession(archetype.id);
-    const ranking = calculateAssessmentRanking(session.answers);
-    const pairKey = session.adaptiveQuestionIds.join(' + ');
-    adaptivePairCounts[pairKey] = (adaptivePairCounts[pairKey] ?? 0) + 1;
-    representativeRunResults[archetype.id] = {
-      ...ranking.result,
-      questionCount: session.answers.length,
-      adaptiveQuestionIds: session.adaptiveQuestionIds,
-    };
-    record(ranking.profile);
+  for (const typeId of personalityTypeIds) {
+    const session = createRepresentativeAssessmentSession(typeId);
+    if (!session.result) throw new Error(`Representative session did not finish for ${typeId}.`);
+    recordSession(session.result.primaryTypeId, session.result.secondaryTypeId);
   }
 
-  const random = createSeededRandom(seed);
-  for (const archetype of canonicalArchetypes) {
-    for (let sample = 0; sample < 200; sample += 1) {
-      const profile = Object.fromEntries(dimensionIds.map((dimension) => [
-        dimension,
-        clamp(archetype.profile[dimension] + ((random() - 0.5) * 0.5), -1, 1),
-      ])) as TraitScoreMap;
-      record(profile);
-    }
+  for (let index = 0; index < simulationCount; index += 1) {
+    const session = createSeededAssessmentSession(seed + index);
+    if (!session.result) throw new Error(`Seeded session did not finish for sample ${index}.`);
+    recordSession(session.result.primaryTypeId, session.result.secondaryTypeId);
   }
 
-  for (let sample = 0; sample < 10000; sample += 1) {
-    record(Object.fromEntries(
-      dimensionIds.map((dimension) => [dimension, (random() * 2) - 1]),
-    ) as TraitScoreMap);
-  }
+  const deterministicFixture = createRepresentativeAssessmentSession('INTJ');
+  const fixedAnswers = deterministicFixture.answers.slice(0, fixedAssessmentQuestions.length);
+  const firstAdaptiveSelection = selectAdaptiveQuestionIds(fixedAnswers);
+  const secondAdaptiveSelection = selectAdaptiveQuestionIds(fixedAnswers);
+  const deterministicAdaptiveSelection = sameStrings(
+    firstAdaptiveSelection,
+    secondAdaptiveSelection,
+  ) && firstAdaptiveSelection.length === 5
+    && new Set(firstAdaptiveSelection).size === 5;
 
-  const averageDistances = Object.fromEntries(canonicalArchetypes.map(({ id }) => [
-    id,
-    Number((distanceTotals[id] / sampleCount).toFixed(4)),
-  ])) as Record<ArchetypeId, number>;
+  const canonicalScoringSymmetry = personalityTypeIds.every((typeId) =>
+    rankPersonalityTypes(createCanonicalProfile(typeId))[0]?.personality.id === typeId,
+  );
+  const firstTieRanking = calculateAssessmentRanking([]);
+  const secondTieRanking = calculateAssessmentRanking([]);
+  const exactTieHandlingDeterministic =
+    firstTieRanking.result.balancedDimensionIds.length === dimensionIds.length
+    && sameStrings(
+      firstTieRanking.matches.map(({ personality }) => personality.id),
+      secondTieRanking.matches.map(({ personality }) => personality.id),
+    )
+    && firstTieRanking.result.primaryTypeId !== firstTieRanking.result.secondaryTypeId;
+
+  const fixedQuestionsPerDimension = countQuestionsByDimension(fixedAssessmentQuestions);
+  const adaptiveQuestionsPerDimension = countQuestionsByDimension(adaptiveQuestionBank);
+  const optionStructureValid = allAssessmentQuestions.every((question) => {
+    const { firstPole, secondPole } = dimensionDefinitions[question.dimension];
+    return question.options.length === 4
+      && question.options[0].pole === firstPole
+      && question.options[0].intensity === 2
+      && question.options[1].pole === firstPole
+      && question.options[1].intensity === 1
+      && question.options[2].pole === secondPole
+      && question.options[2].intensity === 1
+      && question.options[3].pole === secondPole
+      && question.options[3].intensity === 2;
+  });
+  const uniqueAnimalCount = new Set(
+    canonicalPersonalityAnimals.map(({ animalId }) => animalId),
+  ).size;
+  const uniqueTypeCount = new Set(canonicalPersonalityAnimals.map(({ id }) => id)).size;
 
   return {
+    label: 'Engineering balance check — not scientific validation',
     sampleCount,
+    fixedQuestionCount: fixedAssessmentQuestions.length,
+    adaptiveBankCount: adaptiveQuestionBank.length,
+    fixedQuestionsPerDimension,
+    adaptiveQuestionsPerDimension,
+    optionStructureValid,
+    uniqueAnimalCount,
+    uniqueTypeCount,
+    completeTypeCoverage: uniqueTypeCount === 16 && uniqueAnimalCount === 16,
+    deterministicAdaptiveSelection,
+    canonicalScoringSymmetry,
+    exactTieHandlingDeterministic,
+    primarySecondaryAlwaysDistinct,
     primaryCounts,
     secondaryCounts,
-    averageDistances,
-    tieCount,
-    directProfileResults,
-    secondaryFixtureResults,
-    representativeRunResults,
-    adaptivePairCounts,
-    unreachablePrimary: canonicalArchetypes.filter(({ id }) => primaryCounts[id] === 0).map(({ id }) => id),
-    unreachableSecondary: canonicalArchetypes.filter(({ id }) => secondaryCounts[id] === 0).map(({ id }) => id),
+    unreachablePrimary: personalityTypeIds.filter((id) => primaryCounts[id] === 0),
+    unreachableSecondary: personalityTypeIds.filter((id) => secondaryCounts[id] === 0),
   };
 }
 
-function createArchetypeCounter(): Record<ArchetypeId, number> {
-  return Object.fromEntries(canonicalArchetypes.map(({ id }) => [id, 0])) as Record<ArchetypeId, number>;
+function countQuestionsByDimension(
+  questions: readonly { dimension: DimensionId }[],
+): Record<DimensionId, number> {
+  return Object.fromEntries(dimensionIds.map((dimension) => [
+    dimension,
+    questions.filter((question) => question.dimension === dimension).length,
+  ])) as Record<DimensionId, number>;
 }
 
-function createSeededRandom(initialSeed: number): () => number {
-  let state = initialSeed >>> 0;
-  return () => {
-    state = ((state * 1664525) + 1013904223) >>> 0;
-    return state / 4294967296;
-  };
+function createTypeCounter(): Record<PersonalityTypeId, number> {
+  return Object.fromEntries(personalityTypeIds.map((id) => [id, 0])) as Record<
+    PersonalityTypeId,
+    number
+  >;
 }
 
-function clamp(value: number, minimum: number, maximum: number): number {
-  return Math.min(maximum, Math.max(minimum, value));
+function sameStrings(left: readonly string[], right: readonly string[]): boolean {
+  return left.length === right.length && left.every((value, index) => value === right[index]);
 }
+
+// Retained as an explicit analysis fixture: the origin is equally balanced on all four axes.
+export const exactTieProfile = createEmptyDimensionProfile();
