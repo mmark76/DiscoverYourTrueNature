@@ -6,6 +6,7 @@ import { createFeedbackMailto } from '../../config/feedback';
 import { useTranslation } from '../../i18n/useTranslation';
 import { useAppearance } from '../../settings/AppearanceProvider';
 import type { AppLanguage, SemanticColors } from '../../settings/appearanceTypes';
+import { shouldUseCompactHeader } from '../layout/responsiveLayout';
 import { theme } from '../styles/theme';
 import { AppText } from './AppText';
 import { ExternalTextLink } from './ExternalTextLink';
@@ -33,9 +34,7 @@ export function AppHeader({ currentScreen, onNavigate, onOpenSettings }: AppHead
   const { colors, settings, updateSettings } = useAppearance();
   const { content } = useTranslation();
   const { width } = useWindowDimensions();
-  const compact =
-    width < theme.layout.headerBalancedBreakpoint
-    || settings.textSize === 'extra-large';
+  const compact = shouldUseCompactHeader(width, settings.textSize);
   const styles = createStyles(colors);
   const feedbackUrl = createFeedbackMailto({
     languageLabel: content.common.selectedLanguageName,
@@ -51,7 +50,7 @@ export function AppHeader({ currentScreen, onNavigate, onOpenSettings }: AppHead
   }
 
   return (
-    <View style={styles.header}>
+    <View role="banner" style={styles.header}>
       <PageContent style={[styles.headerInner, compact && styles.headerInnerCompact]}>
         <View
           style={[styles.brandZone, !compact && styles.balancedOuterZone]}
@@ -73,6 +72,7 @@ export function AppHeader({ currentScreen, onNavigate, onOpenSettings }: AppHead
 
         <View
           accessibilityLabel={content.header.navigationLabel}
+          role="navigation"
           style={[styles.navigation, compact && styles.navigationCompact]}
           testID="header-navigation-group"
         >
@@ -105,7 +105,12 @@ export function AppHeader({ currentScreen, onNavigate, onOpenSettings }: AppHead
           ]}
           testID="header-right-zone"
         >
-          <View style={styles.headerLinkGroup} testID="header-link-group">
+          <View
+            accessibilityLabel={`${content.header.feedback}, ${content.header.ecosystemLink}`}
+            role="group"
+            style={styles.headerLinkGroup}
+            testID="header-link-group"
+          >
             <ExternalTextLink
               accessibilityLabel={content.header.feedbackAccessibilityLabel}
               label={content.header.feedback}
@@ -121,8 +126,17 @@ export function AppHeader({ currentScreen, onNavigate, onOpenSettings }: AppHead
             />
           </View>
 
-          <View style={styles.headerControlGroup} testID="header-control-group">
-            <View accessibilityLabel={content.header.languageLabel} style={styles.languageSelector}>
+          <View
+            accessibilityLabel={`${content.header.languageLabel}, ${content.header.settings}`}
+            role="group"
+            style={styles.headerControlGroup}
+            testID="header-control-group"
+          >
+            <View
+              accessibilityLabel={content.header.languageLabel}
+              role="radiogroup"
+              style={styles.languageSelector}
+            >
               {(['el', 'en'] as const).map((language) => {
                 const selected = settings.language === language;
                 return (
@@ -177,23 +191,23 @@ export function AppHeader({ currentScreen, onNavigate, onOpenSettings }: AppHead
 function createStyles(colors: SemanticColors) {
   return StyleSheet.create({
     header: { backgroundColor: colors.surfaceMuted, borderBottomColor: colors.border, borderBottomWidth: 1 },
-    headerInner: { alignItems: 'center', flexDirection: 'row', gap: theme.layout.majorGroupGap, justifyContent: 'space-between', paddingVertical: theme.spacing.sm },
-    headerInnerCompact: { alignItems: 'stretch', flexDirection: 'column', gap: theme.layout.compactGroupGap },
+    headerInner: { alignItems: 'center', flexDirection: 'row', gap: theme.layout.groupGap, justifyContent: 'space-between', paddingVertical: theme.spacing.sm },
+    headerInnerCompact: { alignItems: 'stretch', flexDirection: 'column', gap: theme.layout.controlGap },
     balancedOuterZone: { flexBasis: 0, flexGrow: 1, minWidth: 0 },
     brandZone: { minWidth: 0 },
     brandButton: { alignItems: 'center', alignSelf: 'flex-start', borderRadius: theme.radius.sm, flexDirection: 'row', minHeight: 44 },
     brandButtonCompact: { alignSelf: 'center' },
     brand: { color: colors.heading, fontSize: 20, fontWeight: '800' },
-    navigation: { alignItems: 'center', flexDirection: 'row', flexShrink: 0, flexWrap: 'wrap', gap: 4, justifyContent: 'center' },
+    navigation: { alignItems: 'center', flexDirection: 'row', flexShrink: 0, flexWrap: 'wrap', gap: theme.layout.inlineGap, justifyContent: 'center' },
     navigationCompact: { alignSelf: 'center', maxWidth: '100%', width: '100%' },
     navButton: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: theme.radius.sm, borderWidth: 1, minHeight: 44, paddingHorizontal: theme.spacing.sm, paddingVertical: theme.spacing.xs },
     navButtonSelected: { backgroundColor: colors.selection, borderColor: colors.primary },
     navLabel: { color: colors.text, fontSize: 13, fontWeight: '700' },
     navLabelSelected: { color: colors.accent },
-    rightZone: { alignItems: 'flex-end', gap: theme.layout.compactGroupGap, minWidth: 0 },
-    rightZoneCompact: { alignItems: 'center', alignSelf: 'stretch', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' },
-    headerLinkGroup: { alignItems: 'center', flexDirection: 'row', flexShrink: 0, gap: theme.layout.compactGroupGap },
-    headerControlGroup: { alignItems: 'center', flexDirection: 'row', flexShrink: 0, gap: theme.layout.compactGroupGap },
+    rightZone: { alignContent: 'center', alignItems: 'center', flexDirection: 'row', flexWrap: 'wrap', gap: theme.layout.controlGap, justifyContent: 'flex-end', minWidth: 0 },
+    rightZoneCompact: { alignSelf: 'stretch', justifyContent: 'center' },
+    headerLinkGroup: { alignItems: 'center', flexDirection: 'row', flexShrink: 0, gap: theme.layout.controlGap },
+    headerControlGroup: { alignItems: 'center', flexDirection: 'row', flexShrink: 0, gap: theme.layout.controlGap },
     headerTextLink: { justifyContent: 'center', minHeight: 44 },
     headerLinkLabel: { color: colors.text, fontSize: 13, fontWeight: '700' },
     languageSelector: { borderColor: colors.border, borderRadius: theme.radius.sm, borderWidth: 1, flexDirection: 'row', overflow: 'hidden' },

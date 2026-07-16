@@ -2,17 +2,50 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
+import { shouldShowAppChrome } from '../src/app/navigation.ts';
 import { translations } from '../src/i18n/translations.ts';
 import { theme } from '../src/shared/styles/theme.ts';
 
+const appSource = readFileSync('App.tsx', 'utf8');
+const appShellSource = readFileSync('src/shared/layout/AppShell.tsx', 'utf8');
+const responsiveLayoutSource = readFileSync('src/shared/layout/responsiveLayout.ts', 'utf8');
 const headerSource = readFileSync('src/shared/components/AppHeader.tsx', 'utf8');
 const pageContentSource = readFileSync('src/shared/components/PageContent.tsx', 'utf8');
 const homeSource = readFileSync('src/features/home/components/HomeScreen.tsx', 'utf8');
 const footerSource = readFileSync('src/shared/components/AppFooter.tsx', 'utf8');
 
-test('header brand renders without the decorative colored dot', () => {
-  assert.match(headerSource, /content\.common\.productName/);
-  assert.doesNotMatch(headerSource, /brandMark|styles\.brandMark/);
+const sharedContainerSources = {
+  header: headerSource,
+  home: homeSource,
+  assessment: readFileSync('src/features/assessment/components/AssessmentScreen.tsx', 'utf8'),
+  result: readFileSync('src/features/results/components/ResultScreen.tsx', 'utf8'),
+  animals: readFileSync('src/features/animals/components/AnimalsScreen.tsx', 'utf8'),
+  howItWorks: readFileSync(
+    'src/features/information/components/HowItWorksScreen.tsx',
+    'utf8',
+  ),
+  settings: readFileSync('src/settings/components/SettingsScreen.tsx', 'utf8'),
+  footer: footerSource,
+};
+
+function sourceBetween(source, startNeedle, endNeedle) {
+  const start = source.indexOf(startNeedle);
+  const end = source.indexOf(endNeedle, start + startNeedle.length);
+
+  assert.ok(start >= 0, `Missing start marker: ${startNeedle}`);
+  assert.ok(end > start, `Missing end marker after ${startNeedle}: ${endNeedle}`);
+  return source.slice(start, end);
+}
+
+test('header brand renders only the Animals Within wording without a decorative dot', () => {
+  const brandZone = sourceBetween(
+    headerSource,
+    'testID="header-brand-zone"',
+    'testID="header-navigation-group"',
+  );
+
+  assert.match(brandZone, /content\.common\.productName/);
+  assert.doesNotMatch(brandZone, /brand(?:Mark|Dot)|styles\.dot|[●•]/i);
 });
 
 test('header ecosystem label is shortened in English and Greek', () => {
@@ -22,49 +55,72 @@ test('header ecosystem label is shortened in English and Greek', () => {
   assert.doesNotMatch(translations.el.header.ecosystemLink, /επιστροφή/i);
 });
 
-test('header keeps related links and controls in explicit groups', () => {
-  const linkGroupStart = headerSource.indexOf('testID="header-link-group"');
-  const controlGroupStart = headerSource.indexOf('testID="header-control-group"');
-  const linkGroupSource = headerSource.slice(linkGroupStart, controlGroupStart);
-  const controlGroupSource = headerSource.slice(controlGroupStart, headerSource.indexOf('</PageContent>'));
+test('header keeps navigation, links, and controls in three explicit complete groups', () => {
+  const navigationGroup = sourceBetween(
+    headerSource,
+    'testID="header-navigation-group"',
+    'testID="header-right-zone"',
+  );
+  const linkGroup = sourceBetween(
+    headerSource,
+    'testID="header-link-group"',
+    '</View>',
+  );
+  const controlGroup = sourceBetween(
+    headerSource,
+    'testID="header-control-group"',
+    '</PageContent>',
+  );
 
-  assert.ok(linkGroupStart >= 0 && controlGroupStart > linkGroupStart);
-  assert.match(linkGroupSource, /content\.header\.feedback/);
-  assert.match(linkGroupSource, /content\.header\.ecosystemLink/);
-  assert.doesNotMatch(linkGroupSource, /languageSelector|content\.header\.settings/);
-  assert.match(controlGroupSource, /styles\.languageSelector/);
-  assert.match(controlGroupSource, /content\.header\.settings/);
+  assert.match(navigationGroup, /navigationItems\.map/);
+  assert.equal((headerSource.match(/screen: '(?:home|assessment|animals|how-it-works)'/g) ?? []).length, 4);
+
+  assert.match(linkGroup, /content\.header\.feedback/);
+  assert.match(linkGroup, /content\.header\.ecosystemLink/);
+  assert.doesNotMatch(linkGroup, /languageSelector|content\.header\.settings/);
+
+  assert.match(controlGroup, /styles\.languageSelector/);
+  assert.match(controlGroup, /content\.header\.settings/);
+  assert.match(headerSource, /role="navigation"/);
+  assert.equal((headerSource.match(/role="group"/g) ?? []).length, 2);
+  assert.match(headerSource, /role="radiogroup"/);
 });
 
-test('Feedback and Markellos Ecosystem use the same header link typography', () => {
-  const linkGroupStart = headerSource.indexOf('testID="header-link-group"');
-  const controlGroupStart = headerSource.indexOf('testID="header-control-group"');
-  const linkGroupSource = headerSource.slice(linkGroupStart, controlGroupStart);
+test('Feedback and Markellos Ecosystem share one typography style', () => {
+  const linkGroup = sourceBetween(
+    headerSource,
+    'testID="header-link-group"',
+    '</View>',
+  );
 
-  assert.equal((linkGroupSource.match(/textStyle=\{styles\.headerLinkLabel\}/g) ?? []).length, 2);
-  assert.doesNotMatch(linkGroupSource, /ecosystemLabel|fontSize/);
+  assert.equal((linkGroup.match(/textStyle=\{styles\.headerLinkLabel\}/g) ?? []).length, 2);
+  assert.doesNotMatch(linkGroup, /ecosystemLabel|fontSize/);
 });
 
-test('header, Home hero and cards, and footer share one page container strategy', () => {
-  assert.equal(theme.layout.contentMaxWidth, 1320);
-  assert.equal(theme.layout.pagePaddingMobile, 16);
-  assert.equal(theme.layout.pagePaddingDesktop, 24);
-  assert.equal(theme.layout.pagePaddingWide, 32);
-  assert.match(pageContentSource, /maxWidth:\s*theme\.layout\.contentMaxWidth/);
+test('all primary surfaces use the centralized responsive page container', () => {
+  assert.ok(theme.layout.pageMaxWidth > 0);
+  assert.ok(theme.layout.pagePaddingMobile <= theme.layout.pagePaddingTablet);
+  assert.ok(theme.layout.pagePaddingTablet <= theme.layout.pagePaddingDesktop);
+  assert.ok(theme.layout.tabletBreakpoint < theme.layout.desktopBreakpoint);
+
+  assert.match(pageContentSource, /maxWidth:\s*theme\.layout\.pageMaxWidth/);
   assert.match(pageContentSource, /marginHorizontal:\s*'auto'/);
+  assert.match(pageContentSource, /getPageHorizontalPadding\(width\)/);
+  assert.match(responsiveLayoutSource, /theme\.layout\.pagePaddingMobile/);
+  assert.match(responsiveLayoutSource, /theme\.layout\.pagePaddingTablet/);
+  assert.match(responsiveLayoutSource, /theme\.layout\.pagePaddingDesktop/);
 
-  for (const source of [headerSource, homeSource, footerSource]) {
-    assert.match(source, /<PageContent/);
+  for (const [surface, source] of Object.entries(sharedContainerSources)) {
+    assert.match(source, /<PageContent/, `${surface} must use PageContent`);
   }
 
-  const pageStart = homeSource.indexOf('<PageContent');
-  const hero = homeSource.indexOf('<HeroSection');
-  const grid = homeSource.indexOf('style={styles.grid}');
-  const pageEnd = homeSource.indexOf('</PageContent>');
-  assert.ok(pageStart >= 0 && pageStart < hero && hero < grid && grid < pageEnd);
+  const homeContainer = sourceBetween(homeSource, '<PageContent', '</PageContent>');
+  assert.match(homeContainer, /<HeroSection/);
+  assert.match(homeContainer, /style=\{styles\.sectionHeading\}/);
+  assert.match(homeContainer, /style=\{styles\.grid\}/);
 });
 
-test('header zones balance widely and move complete groups into responsive rows', () => {
+test('wide header balances three zones and compact layouts wrap only complete groups', () => {
   const zoneOrder = [
     'testID="header-brand-zone"',
     'testID="header-navigation-group"',
@@ -73,18 +129,50 @@ test('header zones balance widely and move complete groups into responsive rows'
 
   assert.ok(zoneOrder.every((index) => index >= 0));
   assert.deepEqual(zoneOrder, [...zoneOrder].sort((a, b) => a - b));
-  assert.match(headerSource, /width < theme\.layout\.headerBalancedBreakpoint/);
-  assert.match(headerSource, /settings\.textSize === 'extra-large'/);
+  assert.match(headerSource, /shouldUseCompactHeader\(width, settings\.textSize\)/);
+  assert.match(responsiveLayoutSource, /viewportWidth < theme\.layout\.headerThreeZoneBreakpoint/);
+  assert.match(responsiveLayoutSource, /textSize === 'extra-large'/);
   assert.match(headerSource, /balancedOuterZone:[^\n]*flexBasis:\s*0[^\n]*flexGrow:\s*1/);
-  assert.match(headerSource, /rightZoneCompact:[^\n]*flexWrap:\s*'wrap'[^\n]*justifyContent:\s*'center'/);
+  assert.match(headerSource, /rightZone:[^\n]*flexDirection:\s*'row'[^\n]*flexWrap:\s*'wrap'[^\n]*justifyContent:\s*'flex-end'/);
+  assert.match(headerSource, /rightZoneCompact:[^\n]*justifyContent:\s*'center'/);
   assert.match(headerSource, /headerLinkGroup:[^\n]*flexShrink:\s*0/);
   assert.match(headerSource, /headerControlGroup:[^\n]*flexShrink:\s*0/);
   assert.doesNotMatch(headerSource, /overflowX|horizontal=\{true\}|position:\s*'absolute'/);
 });
 
-test('existing centered footer and responsive version layering remain intact', () => {
+test('footer centers copyright and links independently from its secondary build version', () => {
   assert.match(footerSource, /copyright:[^\n]*textAlign:\s*'center'/);
   assert.match(footerSource, /linkGroup:[^\n]*justifyContent:\s*'center'/);
   assert.match(footerSource, /buildVersionLayered:[^\n]*position:\s*'absolute'[^\n]*right:\s*0/);
   assert.match(footerSource, /buildVersionStacked:[^\n]*alignSelf:\s*'stretch'/);
+  assert.match(footerSource, /shouldStackFooterNavigation\(width, settings\.textSize\)/);
+  assert.match(footerSource, /linkLabel:[^\n]*color:\s*colors\.footerText/);
+  assert.match(footerSource, /buildVersion:[\s\S]*?color:\s*colors\.footerMuted/);
+  assert.match(footerSource, /role="contentinfo"/);
+
+  const linkFontSize = Number(footerSource.match(/linkLabel:[^\n]*fontSize:\s*(\d+)/)?.[1]);
+  const versionFontSize = Number(
+    footerSource.match(/buildVersion:\s*\{[\s\S]*?fontSize:\s*(\d+)/)?.[1],
+  );
+  assert.ok(versionFontSize < linkFontSize);
+
+  assert.equal((footerSource.match(/style=\{styles\.linkPair\}/g) ?? []).length, 2);
+});
+
+test('result hides normal app chrome while keeping the consent layer in the shell', () => {
+  assert.equal(shouldShowAppChrome('result'), false);
+  for (const screen of ['home', 'assessment', 'animals', 'how-it-works', 'settings']) {
+    assert.equal(shouldShowAppChrome(screen), true);
+  }
+
+  assert.match(appSource, /const showAppChrome = shouldShowAppChrome\(screen\)/);
+  assert.match(appSource, /showChrome=\{showAppChrome\}/);
+  assert.match(
+    appSource,
+    /showAppChrome[\s\S]*?\['top', 'left', 'right'\][\s\S]*?\['top', 'bottom', 'left', 'right'\]/,
+  );
+  assert.match(appShellSource, /\{showChrome && header\}/);
+  assert.match(appShellSource, /\{showChrome && <AppFooter \/>\}/);
+  assert.match(appShellSource, /<AnalyticsConsentBanner \/>/);
+  assert.match(appShellSource, /<AnalyticsConsentDialog \/>/);
 });

@@ -55,7 +55,7 @@ test('footer is fixed, measured, safe-area aware, and reserved by the shell', ()
   assert.match(footerSource, /'fixed'/);
   assert.match(footerSource, /onLayout=\{measureFooter\}/);
   assert.match(footerSource, /edges=\{\['bottom', 'left', 'right'\]\}/);
-  assert.match(shellSource, /paddingBottom:\s*footerHeight/);
+  assert.match(shellSource, /paddingBottom:\s*showChrome \? footerHeight : 0/);
   assert.match(shellSource, /FooterLayoutProvider/);
 });
 
@@ -93,7 +93,10 @@ test('footer layers the build version at the far right without shifting centered
 });
 
 test('mobile footer stacks the version without horizontal overflow', () => {
-  assert.match(footerSource, /useStackedNavigation = width < theme\.layout\.footerLayeredBreakpoint/);
+  assert.match(
+    footerSource,
+    /useStackedNavigation = shouldStackFooterNavigation\(width, settings\.textSize\)/,
+  );
   assert.match(footerSource, /navigationRowStacked:[^\n]*alignItems:\s*'stretch'/);
   assert.match(footerSource, /buildVersionStacked:[^\n]*alignSelf:\s*'stretch'/);
   assert.match(footerSource, /linkGroup:[^\n]*flexWrap:\s*'wrap'[^\n]*maxWidth:\s*'100%'/);

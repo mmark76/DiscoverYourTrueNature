@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { SafeAreaProvider, SafeAreaView as InsetSafeAreaView } from 'react-native-safe-area-context';
 
-import { AppScreen, NavigableScreen } from './src/app/navigation';
+import { AppScreen, NavigableScreen, shouldShowAppChrome } from './src/app/navigation';
 import { AnalyticsConsentProvider } from './src/features/analytics/consent/AnalyticsConsentProvider';
 import { Ga4ConsentBridge } from './src/features/analytics/ga4/Ga4ConsentBridge';
 import { AnimalsScreen } from './src/features/animals/components/AnimalsScreen';
@@ -89,10 +89,18 @@ function AppContent() {
     }
   }
 
+  const showAppChrome = shouldShowAppChrome(screen);
+
   return (
-    <InsetSafeAreaView edges={['top', 'left', 'right']} style={[styles.safeArea, { backgroundColor: colors.background }]}>
+    <InsetSafeAreaView
+      edges={showAppChrome
+        ? ['top', 'left', 'right']
+        : ['top', 'bottom', 'left', 'right']}
+      style={[styles.safeArea, { backgroundColor: colors.background }]}
+    >
       <AppShell
         header={<AppHeader currentScreen={screen} onNavigate={navigate} onOpenSettings={openSettings} />}
+        showChrome={showAppChrome}
       >
 
         {screen === 'home' && <HomeScreen onNavigate={navigate} />}

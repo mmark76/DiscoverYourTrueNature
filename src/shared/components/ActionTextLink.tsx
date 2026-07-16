@@ -4,6 +4,7 @@ import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 
 import { useAppearance } from '../../settings/AppearanceProvider';
 import type { SemanticColors } from '../../settings/appearanceTypes';
+import { useFocusVisible } from '../accessibility/useFocusVisible';
 import { AppText } from './AppText';
 
 interface ActionTextLinkProps {
@@ -16,7 +17,7 @@ interface ActionTextLinkProps {
 
 export function ActionTextLink({ accessibilityLabel, label, onPress, style, textStyle }: ActionTextLinkProps) {
   const { colors } = useAppearance();
-  const [focused, setFocused] = useState(false);
+  const { focusVisible, hideFocus, showFocus } = useFocusVisible();
   const [hovered, setHovered] = useState(false);
   const styles = createStyles(colors);
 
@@ -25,14 +26,14 @@ export function ActionTextLink({ accessibilityLabel, label, onPress, style, text
       accessibilityLabel={accessibilityLabel ?? label}
       accessibilityRole="link"
       hitSlop={8}
-      onBlur={() => setFocused(false)}
-      onFocus={() => setFocused(true)}
+      onBlur={hideFocus}
+      onFocus={showFocus}
       onHoverIn={() => setHovered(true)}
       onHoverOut={() => setHovered(false)}
       onPress={onPress}
-      style={({ pressed }) => [style, focused && styles.focused, pressed && styles.pressed]}
+      style={({ pressed }) => [style, focusVisible && styles.focused, pressed && styles.pressed]}
     >
-      <AppText style={[styles.label, textStyle, (focused || hovered) && styles.underlined]}>
+      <AppText style={[styles.label, textStyle, (focusVisible || hovered) && styles.underlined]}>
         {label}
       </AppText>
     </Pressable>
@@ -42,7 +43,7 @@ export function ActionTextLink({ accessibilityLabel, label, onPress, style, text
 function createStyles(colors: SemanticColors) {
   return StyleSheet.create({
     label: { color: colors.primary, fontSize: 13, fontWeight: '700' },
-    focused: { outlineColor: colors.focus, outlineStyle: 'solid', outlineWidth: 2 },
+    focused: { outlineColor: colors.focus, outlineOffset: -2, outlineStyle: 'solid', outlineWidth: 2 },
     pressed: { opacity: 0.65 },
     underlined: { textDecorationLine: 'underline' },
   });

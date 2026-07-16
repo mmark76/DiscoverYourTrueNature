@@ -4,6 +4,7 @@ import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 
 import { useAppearance } from '../../settings/AppearanceProvider';
 import type { SemanticColors } from '../../settings/appearanceTypes';
+import { useFocusVisible } from '../accessibility/useFocusVisible';
 import { AppText } from './AppText';
 
 interface ExternalTextLinkProps {
@@ -16,9 +17,9 @@ interface ExternalTextLinkProps {
 
 export function ExternalTextLink({ accessibilityLabel, label, url, style, textStyle }: ExternalTextLinkProps) {
   const { colors } = useAppearance();
-  const [focused, setFocused] = useState(false);
+  const { focusVisible, hideFocus, showFocus } = useFocusVisible();
   const [hovered, setHovered] = useState(false);
-  const underlined = focused || hovered;
+  const underlined = focusVisible || hovered;
   const styles = createStyles(colors);
 
   return (
@@ -26,12 +27,12 @@ export function ExternalTextLink({ accessibilityLabel, label, url, style, textSt
       accessibilityLabel={accessibilityLabel ?? label}
       accessibilityRole="link"
       hitSlop={8}
-      onBlur={() => setFocused(false)}
-      onFocus={() => setFocused(true)}
+      onBlur={hideFocus}
+      onFocus={showFocus}
       onHoverIn={() => setHovered(true)}
       onHoverOut={() => setHovered(false)}
       onPress={() => Linking.openURL(url)}
-      style={({ pressed }) => [style, focused && styles.focused, pressed && styles.pressed]}
+      style={({ pressed }) => [style, focusVisible && styles.focused, pressed && styles.pressed]}
     >
       <AppText style={[styles.label, textStyle, underlined && styles.underlined]}>{label}</AppText>
     </Pressable>
@@ -41,7 +42,7 @@ export function ExternalTextLink({ accessibilityLabel, label, url, style, textSt
 function createStyles(colors: SemanticColors) {
   return StyleSheet.create({
     label: { color: colors.primary, fontSize: 13, fontWeight: '700' },
-    focused: { outlineColor: colors.focus, outlineStyle: 'solid', outlineWidth: 2 },
+    focused: { outlineColor: colors.focus, outlineOffset: -2, outlineStyle: 'solid', outlineWidth: 2 },
     pressed: { opacity: 0.65 },
     underlined: { textDecorationLine: 'underline' },
   });

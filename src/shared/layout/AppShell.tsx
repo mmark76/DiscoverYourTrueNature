@@ -9,6 +9,7 @@ import { FooterLayoutProvider, useFooterLayout } from './FooterLayoutProvider';
 interface AppShellProps {
   header: ReactNode;
   children: ReactNode;
+  showChrome?: boolean;
 }
 
 export function AppShell(props: AppShellProps) {
@@ -19,18 +20,18 @@ export function AppShell(props: AppShellProps) {
   );
 }
 
-function MeasuredAppShell({ header, children }: AppShellProps) {
+function MeasuredAppShell({ header, children, showChrome = true }: AppShellProps) {
   const { footerHeight } = useFooterLayout();
 
   return (
     <View style={styles.shell}>
-      {header}
-      <View style={[styles.screen, { paddingBottom: footerHeight }]}>
+      {showChrome && header}
+      <View style={[styles.screen, { paddingBottom: showChrome ? footerHeight : 0 }]}>
         <View style={styles.screenContent}>{children}</View>
         <AnalyticsConsentBanner />
       </View>
       <AnalyticsConsentDialog />
-      <AppFooter />
+      {showChrome && <AppFooter />}
     </View>
   );
 }

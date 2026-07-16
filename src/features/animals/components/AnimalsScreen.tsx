@@ -40,7 +40,7 @@ function createStyles(colors: SemanticColors) {
   return StyleSheet.create({
     scrollView: { backgroundColor: colors.background, flex: 1 },
     scrollContent: { flexGrow: 1 },
-    content: { gap: theme.spacing.xl, paddingVertical: theme.spacing.lg },
+    content: { gap: theme.layout.sectionGap, paddingVertical: theme.spacing.lg },
     introduction: { gap: theme.spacing.sm, maxWidth: 760 },
     eyebrow: { color: colors.primary, fontSize: 11, fontWeight: '900', letterSpacing: 1.2 },
     title: { color: colors.heading, fontSize: 40, fontWeight: '900', lineHeight: 47 },

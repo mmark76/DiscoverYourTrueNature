@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 
+import { getPageHorizontalPadding } from '../layout/responsiveLayout';
 import { theme } from '../styles/theme';
 
 interface PageContentProps {
@@ -11,12 +12,7 @@ interface PageContentProps {
 
 export function PageContent({ children, style }: PageContentProps) {
   const { width } = useWindowDimensions();
-  const horizontalPadding =
-    width < theme.layout.mobileBreakpoint
-      ? theme.layout.pagePaddingMobile
-      : width >= theme.layout.wideBreakpoint
-        ? theme.layout.pagePaddingWide
-        : theme.layout.pagePaddingDesktop;
+  const horizontalPadding = getPageHorizontalPadding(width);
 
   return (
     <View style={[styles.container, { paddingHorizontal: horizontalPadding }, style]}>
@@ -29,7 +25,7 @@ const styles = StyleSheet.create({
   container: {
     alignSelf: 'center',
     marginHorizontal: 'auto',
-    maxWidth: theme.layout.contentMaxWidth,
+    maxWidth: theme.layout.pageMaxWidth,
     width: '100%',
   },
 });

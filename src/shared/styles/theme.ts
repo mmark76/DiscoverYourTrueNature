@@ -1,4 +1,4 @@
-const contentMaxWidth = 1320;
+const pageMaxWidth = 1320;
 
 export const theme = {
   spacing: {
@@ -14,16 +14,17 @@ export const theme = {
     lg: 22,
   },
   layout: {
-    contentMaxWidth,
-    headerBalancedBreakpoint: contentMaxWidth,
-    footerLayeredBreakpoint: 1100,
-    majorGroupGap: 24,
-    compactGroupGap: 8,
-    sectionSpacing: 32,
-    mobileBreakpoint: 680,
+    pageMaxWidth,
     pagePaddingMobile: 16,
-    pagePaddingDesktop: 24,
-    pagePaddingWide: 32,
-    wideBreakpoint: 1200,
+    pagePaddingTablet: 24,
+    pagePaddingDesktop: 32,
+    tabletBreakpoint: 680,
+    desktopBreakpoint: 1200,
+    headerThreeZoneBreakpoint: 1180,
+    footerLayeredBreakpoint: 1100,
+    sectionGap: 32,
+    groupGap: 24,
+    controlGap: 8,
+    inlineGap: 4,
   },
 } as const;
