@@ -132,7 +132,9 @@ test('wide header balances three zones and compact layouts wrap only complete gr
   assert.match(headerSource, /shouldUseCompactHeader\(width, settings\.textSize\)/);
   assert.match(responsiveLayoutSource, /viewportWidth < theme\.layout\.headerThreeZoneBreakpoint/);
   assert.match(responsiveLayoutSource, /textSize === 'extra-large'/);
-  assert.match(headerSource, /balancedOuterZone:[^\n]*flexBasis:\s*0[^\n]*flexGrow:\s*1/);
+  assert.match(headerSource, /brandZoneWide:[^\n]*flexBasis:\s*0[^\n]*flexGrow:\s*1/);
+  assert.match(headerSource, /rightZoneWide:[^\n]*flexShrink:\s*0[^\n]*maxWidth:\s*'45%'/);
+  assert.match(headerSource, /navButton:[^\n]*alignItems:\s*'center'[^\n]*justifyContent:\s*'center'/);
   assert.match(headerSource, /rightZone:[^\n]*flexDirection:\s*'row'[^\n]*flexWrap:\s*'wrap'[^\n]*justifyContent:\s*'flex-end'/);
   assert.match(headerSource, /rightZoneCompact:[^\n]*justifyContent:\s*'center'/);
   assert.match(headerSource, /headerLinkGroup:[^\n]*flexShrink:\s*0/);

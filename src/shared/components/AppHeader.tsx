@@ -53,7 +53,7 @@ export function AppHeader({ currentScreen, onNavigate, onOpenSettings }: AppHead
     <View role="banner" style={styles.header}>
       <PageContent style={[styles.headerInner, compact && styles.headerInnerCompact]}>
         <View
-          style={[styles.brandZone, !compact && styles.balancedOuterZone]}
+          style={[styles.brandZone, !compact && styles.brandZoneWide]}
           testID="header-brand-zone"
         >
           <FocusablePressable
@@ -101,7 +101,7 @@ export function AppHeader({ currentScreen, onNavigate, onOpenSettings }: AppHead
         <View
           style={[
             styles.rightZone,
-            compact ? styles.rightZoneCompact : styles.balancedOuterZone,
+            compact ? styles.rightZoneCompact : styles.rightZoneWide,
           ]}
           testID="header-right-zone"
         >
@@ -193,19 +193,20 @@ function createStyles(colors: SemanticColors) {
     header: { backgroundColor: colors.surfaceMuted, borderBottomColor: colors.border, borderBottomWidth: 1 },
     headerInner: { alignItems: 'center', flexDirection: 'row', gap: theme.layout.groupGap, justifyContent: 'space-between', paddingVertical: theme.spacing.sm },
     headerInnerCompact: { alignItems: 'stretch', flexDirection: 'column', gap: theme.layout.controlGap },
-    balancedOuterZone: { flexBasis: 0, flexGrow: 1, minWidth: 0 },
     brandZone: { minWidth: 0 },
+    brandZoneWide: { flexBasis: 0, flexGrow: 1, minWidth: 0 },
     brandButton: { alignItems: 'center', alignSelf: 'flex-start', borderRadius: theme.radius.sm, flexDirection: 'row', minHeight: 44 },
     brandButtonCompact: { alignSelf: 'center' },
     brand: { color: colors.heading, fontSize: 20, fontWeight: '800' },
     navigation: { alignItems: 'center', flexDirection: 'row', flexShrink: 0, flexWrap: 'wrap', gap: theme.layout.inlineGap, justifyContent: 'center' },
     navigationCompact: { alignSelf: 'center', maxWidth: '100%', width: '100%' },
-    navButton: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: theme.radius.sm, borderWidth: 1, minHeight: 44, paddingHorizontal: theme.spacing.sm, paddingVertical: theme.spacing.xs },
+    navButton: { alignItems: 'center', backgroundColor: colors.surface, borderColor: colors.border, borderRadius: theme.radius.sm, borderWidth: 1, justifyContent: 'center', minHeight: 44, paddingHorizontal: theme.spacing.sm, paddingVertical: theme.spacing.xs },
     navButtonSelected: { backgroundColor: colors.selection, borderColor: colors.primary },
     navLabel: { color: colors.text, fontSize: 13, fontWeight: '700' },
     navLabelSelected: { color: colors.accent },
     rightZone: { alignContent: 'center', alignItems: 'center', flexDirection: 'row', flexWrap: 'wrap', gap: theme.layout.controlGap, justifyContent: 'flex-end', minWidth: 0 },
     rightZoneCompact: { alignSelf: 'stretch', justifyContent: 'center' },
+    rightZoneWide: { flexShrink: 0, maxWidth: '45%' },
     headerLinkGroup: { alignItems: 'center', flexDirection: 'row', flexShrink: 0, gap: theme.layout.controlGap },
     headerControlGroup: { alignItems: 'center', flexDirection: 'row', flexShrink: 0, gap: theme.layout.controlGap },
     headerTextLink: { justifyContent: 'center', minHeight: 44 },
