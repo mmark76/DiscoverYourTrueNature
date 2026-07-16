@@ -7,14 +7,13 @@ import { AnalyticsConsentProvider } from './src/features/analytics/consent/Analy
 import { Ga4ConsentBridge } from './src/features/analytics/ga4/Ga4ConsentBridge';
 import { AnimalsScreen } from './src/features/animals/components/AnimalsScreen';
 import { AssessmentScreen } from './src/features/assessment/components/AssessmentScreen';
-import { assessmentQuestions } from './src/features/assessment/data/questions';
 import {
-  addDimensionScore,
-  calculateAssessmentResult,
-  createEmptyDimensionScores,
-} from './src/features/assessment/services/scoreAssessment';
-import type { AnswerValue, DimensionId, DimensionScoreMap } from './src/features/archetypes/types';
-import type { AssessmentResult } from './src/features/assessment/types';
+  answerCurrentAssessmentQuestion,
+  createAssessmentSession,
+  getCurrentAssessmentQuestion,
+  restartAssessmentSession,
+} from './src/features/assessment/services/assessmentSession';
+import { completedAssessmentQuestionCount } from './src/features/assessment/data/questions';
 import { HomeScreen } from './src/features/home/components/HomeScreen';
 import { HowItWorksScreen } from './src/features/information/components/HowItWorksScreen';
 import { ResultScreen } from './src/features/results/components/ResultScreen';
@@ -40,26 +39,20 @@ function AppContent() {
   const { colors } = useAppearance();
   const [screen, setScreen] = useState<AppScreen>('home');
   const [settingsReturnScreen, setSettingsReturnScreen] = useState<AppScreen>('home');
-  const [questionIndex, setQuestionIndex] = useState(0);
-  const [scores, setScores] = useState<DimensionScoreMap>(createEmptyDimensionScores);
-  const [result, setResult] = useState<AssessmentResult | null>(null);
-  const [assessmentStarted, setAssessmentStarted] = useState(false);
+  const [assessmentSession, setAssessmentSession] = useState(createAssessmentSession);
 
   const currentQuestion = useMemo(
-    () => assessmentQuestions[questionIndex],
-    [questionIndex],
+    () => getCurrentAssessmentQuestion(assessmentSession),
+    [assessmentSession],
   );
 
   function resetAndStartAssessment() {
-    setQuestionIndex(0);
-    setScores(createEmptyDimensionScores());
-    setResult(null);
-    setAssessmentStarted(true);
+    setAssessmentSession(restartAssessmentSession());
     setScreen('assessment');
   }
 
   function openAssessment() {
-    if (!assessmentStarted || result) {
+    if (assessmentSession.result) {
       resetAndStartAssessment();
       return;
     }
@@ -83,20 +76,17 @@ function AppContent() {
     }
   }
 
-  function selectAnswer(dimension: DimensionId, value: AnswerValue) {
-    const nextScores = addDimensionScore(scores, dimension, value);
-    const isLastQuestion = questionIndex === assessmentQuestions.length - 1;
+  function selectAnswer(questionId: string, optionId: string) {
+    const nextSession = answerCurrentAssessmentQuestion(
+      assessmentSession,
+      questionId,
+      optionId,
+    );
+    setAssessmentSession(nextSession);
 
-    setScores(nextScores);
-
-    if (isLastQuestion) {
-      setResult(calculateAssessmentResult(nextScores));
-      setAssessmentStarted(false);
+    if (nextSession.result) {
       setScreen('result');
-      return;
     }
-
-    setQuestionIndex((currentIndex) => currentIndex + 1);
   }
 
   return (
@@ -110,16 +100,15 @@ function AppContent() {
         {screen === 'assessment' && currentQuestion && (
           <AssessmentScreen
             question={currentQuestion}
-            questionNumber={questionIndex + 1}
-            totalQuestions={assessmentQuestions.length}
+            questionNumber={assessmentSession.answers.length + 1}
+            totalQuestions={completedAssessmentQuestionCount}
             onSelect={selectAnswer}
           />
         )}
 
-        {screen === 'result' && result && (
+        {screen === 'result' && assessmentSession.result && (
           <ResultScreen
-            result={result}
-            onHome={() => setScreen('home')}
+            result={assessmentSession.result}
             onRestart={resetAndStartAssessment}
           />
         )}

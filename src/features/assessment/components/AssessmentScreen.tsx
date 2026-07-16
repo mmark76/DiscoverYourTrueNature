@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { formatTranslation } from '../../../i18n/translations';
@@ -7,17 +8,17 @@ import type { SemanticColors } from '../../../settings/appearanceTypes';
 import { AppText } from '../../../shared/components/AppText';
 import { theme } from '../../../shared/styles/theme';
 import type { AssessmentQuestionData } from '../data/questions';
-import type { AnswerValue, DimensionId } from '../../archetypes/types';
 import { OptionButton } from './OptionButton';
 
 interface AssessmentScreenProps {
   question: AssessmentQuestionData;
   questionNumber: number;
   totalQuestions: number;
-  onSelect: (dimension: DimensionId, value: AnswerValue) => void;
+  onSelect: (questionId: string, optionId: string) => void;
 }
 
 export function AssessmentScreen({ question, questionNumber, totalQuestions, onSelect }: AssessmentScreenProps) {
+  const questionHeadingRef = useRef<View>(null);
   const { colors } = useAppearance();
   const { content } = useTranslation();
   const copy = content.assessment;
@@ -29,11 +30,15 @@ export function AssessmentScreen({ question, questionNumber, totalQuestions, onS
   });
   const styles = createStyles(colors);
 
+  useEffect(() => {
+    questionHeadingRef.current?.focus();
+  }, [question.id]);
+
   return (
     <ScrollView contentContainerStyle={styles.container} style={styles.scrollView}>
       <View>
         <AppText style={styles.eyebrow}>{copy.eyebrow}</AppText>
-        <AppText style={styles.counter}>{counter}</AppText>
+        <AppText accessibilityLiveRegion="polite" style={styles.counter}>{counter}</AppText>
         <View
           accessibilityLabel={progressLabel}
           accessibilityRole="progressbar"
@@ -42,20 +47,29 @@ export function AssessmentScreen({ question, questionNumber, totalQuestions, onS
         >
           <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
         </View>
+        {questionNumber === 1 && (
+          <AppText style={styles.introduction}>{copy.introduction}</AppText>
+        )}
       </View>
-      <AppText accessibilityRole="header" style={styles.question}>
-        {copy.questions[question.id]}
-      </AppText>
+      <View
+        accessible
+        accessibilityLabel={copy.questions[question.id]}
+        accessibilityLiveRegion="polite"
+        accessibilityRole="header"
+        ref={questionHeadingRef}
+        tabIndex={-1}
+      >
+        <AppText style={styles.question}>{copy.questions[question.id]}</AppText>
+      </View>
       <View style={styles.options}>
         {question.options.map((option) => (
           <OptionButton
             key={option.id}
             label={copy.options[option.id]}
-            onPress={() => onSelect(question.dimension, option.value)}
+            onPress={() => onSelect(question.id, option.id)}
           />
         ))}
       </View>
-      <AppText style={styles.note}>{copy.instruction}</AppText>
     </ScrollView>
   );
 }
@@ -66,10 +80,10 @@ function createStyles(colors: SemanticColors) {
     container: { alignSelf: 'center', flexGrow: 1, gap: theme.spacing.lg, justifyContent: 'space-between', maxWidth: 720, padding: theme.spacing.lg, width: '100%' },
     eyebrow: { color: colors.primary, fontSize: 12, fontWeight: '700', letterSpacing: 1.2 },
     counter: { color: colors.mutedText, fontSize: 14, marginTop: theme.spacing.sm },
+    introduction: { color: colors.text, fontSize: 15, lineHeight: 23, marginTop: theme.spacing.md },
     progressTrack: { backgroundColor: colors.progressTrack, borderRadius: 999, height: 8, marginTop: theme.spacing.sm, overflow: 'hidden' },
     progressFill: { backgroundColor: colors.primary, height: '100%' },
     question: { color: colors.heading, fontSize: 28, fontWeight: '700', lineHeight: 36 },
     options: { gap: theme.spacing.sm },
-    note: { color: colors.mutedText, fontSize: 13, lineHeight: 19, textAlign: 'center' },
   });
 }

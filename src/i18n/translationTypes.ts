@@ -3,7 +3,6 @@ import type {
   AssessmentOptionId,
   AssessmentQuestionId,
 } from '../features/assessment/data/questions';
-import type { ArchetypeId } from '../features/assessment/types';
 import type { HomeFeatureId } from '../features/home/data/features';
 
 export interface HomeFeatureCopy {
@@ -11,14 +10,6 @@ export interface HomeFeatureCopy {
   title: string;
   description: string;
   actionLabel: string;
-}
-
-export interface ArchetypeCopy {
-  name: string;
-  summary: string;
-  description: string;
-  strengths: readonly [string, string, string];
-  watchOuts: readonly [string, string];
 }
 
 export interface AnimalCopy {
@@ -67,26 +58,15 @@ export interface TranslationContent {
     eyebrow: string;
     counter: string;
     progressLabel: string;
-    instruction: string;
+    introduction: string;
     questions: Record<AssessmentQuestionId, string>;
     options: Record<AssessmentOptionId, string>;
   };
   results: {
-    primaryEyebrow: string;
-    matchStrength: string;
-    matchStrengthAccessibility: string;
-    strengths: string;
-    watchOuts: string;
-    secondaryInfluence: string;
-    fullProfile: string;
-    entertainmentModel: string;
-    modelExplanation: string;
-    rankingAccessibility: string;
+    primaryAnimal: string;
+    secondaryAnimal: string;
     restart: string;
     restartHint: string;
-    returnHome: string;
-    returnHomeHint: string;
-    archetypes: Record<ArchetypeId, ArchetypeCopy>;
   };
   animals: {
     eyebrow: string;
