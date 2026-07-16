@@ -132,5 +132,5 @@ test('consent UI and storage remain isolated from analytics transport and assess
     .join('\n');
 
   assert.doesNotMatch(consentFeatureSource, /googletagmanager|google-analytics|\bgtag\b|fetch\s*\(|XMLHttpRequest|sendBeacon|document\.cookie|<script|https?:\/\//i);
-  assert.doesNotMatch(consentFeatureSource, /assessmentQuestions|DimensionScoreMap|AssessmentResult|feedbackRecipient/i);
+  assert.doesNotMatch(consentFeatureSource, /assessmentQuestions|AssessmentAnswer|TraitScoreMap|AssessmentResult|adaptiveQuestion|primaryId|secondaryId|feedbackRecipient/i);
 });

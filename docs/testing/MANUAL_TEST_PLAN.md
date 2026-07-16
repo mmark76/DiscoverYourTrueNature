@@ -34,22 +34,26 @@
 1. Start the assessment and answer at least two questions.
 2. Open Home through the header.
 3. Choose **Ανακάλυψη** and verify the same unfinished question is restored.
-4. Complete all 24 questions and verify a primary, secondary influence, and twelve-row ranking appear.
+4. Complete all 25 questions and verify only a primary animal, secondary animal, and restart action
+   appear in the result content.
 5. Open Home from the result and verify the dashboard remains available.
-6. Complete another run and choose restart; verify question 1 opens with clean scores.
+6. Complete another run and choose **Take it again / Κάνε το ξανά**; verify question 1 opens with
+   no answers, adaptive choices, or previous result while language, appearance, and analytics consent
+   remain unchanged.
 
 ## Twelve-animal catalog
 
 - Verify all twelve required animals and provisional trait descriptions are present.
 - Verify every card uses a consistent presentation with its canonical animal symbol.
 - Verify no availability or status badge separates the twelve animals.
-- Verify every animal can appear in the full result ranking.
+- Verify every animal can appear as a primary and a secondary assessment result.
 
 ## Content and safety
 
-- Verify How It Works describes 24 questions, eight editorial dimensions, twelve provisional vectors,
-  local deterministic scoring, and the entertainment-only purpose.
-- Verify How It Works and result disclosures describe the experience as recreational and non-diagnostic.
+- Verify How It Works describes 25 quick local choices, deterministic comparison with twelve
+  profiles, and the entertainment-only purpose without revealing which questions are adaptive.
+- Verify How It Works describes the experience as recreational and non-diagnostic without adding a
+  long disclaimer to the result.
 - Verify the footer copyright uses the current year without changing between Greek and English.
 - Verify there is no Privacy placeholder or invented Privacy destination.
 
@@ -78,9 +82,9 @@ Use browser Developer Tools with **Preserve log** enabled. Filter the Network pa
 3. Confirm exactly one explicit initial `page_view` reaches GA4 and that automatic page-view
    duplication is absent.
 4. Inspect the request payload and confirm it contains only the current page location and document
-   title from the application. Confirm it contains no answers, question or archetype IDs, dimension
-   scores, animals, rankings, percentages, email or Feedback content, language/theme preferences, or
-   build version.
+   title from the application. Confirm it contains no answers, question or option IDs, trait values,
+   adaptive candidates, animal IDs or names, rankings, email or Feedback content, language/theme
+   preferences, or build version.
 5. Navigate among Home, assessment, catalog, information, Settings, and result screens. Confirm no
    additional SPA page views, screen views, or custom application analytics events are sent; those
    features are not implemented yet.
@@ -155,16 +159,28 @@ For scenarios 3–9, also verify that switching language does not navigate away 
 screen. At each responsive width, test keyboard focus, localized accessibility labels, selected and
 disabled states, complete answer-option wrapping, and the absence of horizontal overflow.
 
-## Twenty-four-question and result review
+## Twenty-five-question and result review
 
-- Review all 24 questions and 96 options in English and Greek at mobile width.
+- Review the 23 fixed questions and all 10 adaptive-bank questions in English and Greek. Confirm a
+  completed run contains exactly 25 answers: the 23 fixed questions followed by two distinct
+  adaptive-bank questions.
 - Confirm each question has four options, no animal is named, and no answer is framed as the best choice.
 - Open Settings at question 12, switch language and appearance, return, and verify question 12 remains.
-- Complete canonical fixtures for all twelve primary animals and the twelve secondary fixtures.
-- Verify the primary match strength, secondary influence, and all twelve compact ranking rows.
-- Verify whole-number percentages are described as entertainment-model match strength, never confidence.
-- Review Extra Large text, Warm Ivory Light/Dark, Amber Light, keyboard order, and 125%/200% zoom.
-- Confirm the fixed footer covers no question, option, result row, or focused control.
+- Switch language after question 23 and after question 24; verify answers, current position, selected
+  adaptive IDs, and eventual result do not change.
+- Complete representative legal 25-answer fixtures for all twelve primary and all twelve secondary
+  animals.
+- Verify the result body shows only the primary label/name, secondary label/name, and restart action.
+  Confirm there are no percentages, confidence, ranking, analysis, strengths, weaknesses, charts,
+  trait labels, recommendations, share prompts, or extra result cards.
+- Confirm restart clears all 25 answers, both adaptive IDs, and the result.
+- Confirm the fixed footer covers no question, option, result text, or focused control.
+
+Run the visual matrix at approximately 1440 px desktop, 1280 px laptop, 768 px tablet, and 390 px
+mobile in English and Greek, Small and Extra Large text, Light and Dark modes, and 200% browser zoom.
+For representative combinations, verify the progress counter moves from 1 through 25, questions feel
+quick and non-repetitive, options remain neutral and wrap fully, focus order is logical, the question
+change is announced, and no horizontal scrolling or footer overlap appears.
 
 ## Warm Ivory and fixed-footer review
 
@@ -215,7 +231,7 @@ For the Header and Footer Feedback entry points, verify the email client opens a
 recipient is `markellos.markides@gmail.com`, the subject is `Animals Within Feedback`, and the body
 contains the selected localized language name, current build identifier, and a blank Feedback area.
 Inspect the footer with a screen reader in both languages and verify this order: copyright,
-Feedback, Markellos Ecosystem, build version. Verify calm visible keyboard focus and usable touch
+Feedback, Analytics choices, Markellos Ecosystem, build version. Verify calm visible keyboard focus and usable touch
 targets.
 
 For exported/deployed builds, confirm the format is `version_YYYYMMDD_HHmm_abcdefg`, the timestamp

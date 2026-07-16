@@ -285,7 +285,14 @@ test('new users and Reset Appearance receive the documented defaults', () => {
 });
 
 test('switching appearance mode and color preserves assessment state', () => {
-  const assessmentState = { questionIndex: 4, scores: { affiliation: 2, reasoning: -1 } };
+  const assessmentState = {
+    answers: [
+      { questionId: 'b01-new-group', optionId: 'b01-b' },
+      { questionId: 'b02-sudden-change', optionId: 'b02-a' },
+    ],
+    adaptiveQuestionIds: [],
+    result: null,
+  };
   const state = { appearance: documentedDefaults, assessment: assessmentState };
   const nextState = {
     ...state,
@@ -296,18 +303,13 @@ test('switching appearance mode and color preserves assessment state', () => {
   assert.deepEqual(nextState.assessment, state.assessment);
 });
 
-test('switching font and text size preserves accumulated scores', () => {
-  const accumulatedScores = {
-    affiliation: 2,
-    reasoning: -1,
-    tempo: 3,
-    structure: 0,
-    influence: 1,
-    exploration: -2,
-    expression: 1,
-    perspective: 2,
+test('switching font and text size preserves language-neutral assessment answers', () => {
+  const assessment = {
+    answers: [{ questionId: 'b01-new-group', optionId: 'b01-d' }],
+    adaptiveQuestionIds: [],
+    result: null,
   };
-  const state = { appearance: documentedDefaults, accumulatedScores };
+  const state = { appearance: documentedDefaults, assessment };
   const nextState = {
     ...state,
     appearance: updateAppearanceSettings(state.appearance, {
@@ -316,7 +318,7 @@ test('switching font and text size preserves accumulated scores', () => {
     }),
   };
 
-  assert.strictEqual(nextState.accumulatedScores, accumulatedScores);
+  assert.strictEqual(nextState.assessment, assessment);
 });
 
 test('all four text sizes resolve to valid typography scales', () => {

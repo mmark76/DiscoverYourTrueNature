@@ -332,7 +332,8 @@ test('GA4 bootstrap exposes no custom events or restricted assessment payload da
     .join('\n');
 
   assert.doesNotMatch(ga4Source, /assessment_start|assessment_complete|screen_view|feedback_click|language_change|theme_change/);
-  assert.doesNotMatch(ga4Source, /questionId|DimensionScoreMap|AssessmentResult|primaryAnimal|secondaryAnimal|matchPercentage|buildVersion|feedbackRecipient/);
+  assert.doesNotMatch(ga4Source, /questionId|optionId|AssessmentAnswer|TraitScoreMap|AssessmentResult|adaptiveQuestion|candidateAnimal|primaryAnimal|secondaryAnimal|primaryId|secondaryId|matchPercentage|buildVersion|feedbackRecipient/);
+  assert.doesNotMatch(ga4Source, /features\/assessment|features\/archetypes/);
   assert.equal((ga4Source.match(/['"]page_view['"]/g) ?? []).length, 2);
 });
 

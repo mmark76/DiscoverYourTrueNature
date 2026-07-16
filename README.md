@@ -8,9 +8,10 @@ provisional animal archetypes. The public prototype is available at
 
 The responsive home dashboard provides:
 
-- a clear path into the 24-question assessment;
-- deterministic local scoring across eight editorial dimensions and twelve archetypes;
-- primary, secondary, and complete twelve-match result presentation;
+- a clear path into an assessment with exactly 25 answers per completed run;
+- 23 fixed questions followed by two deterministic adaptive differentiators;
+- local multidimensional scoring across all twelve archetypes;
+- a minimal primary-and-secondary animal reveal;
 - a consistent catalog of all 12 provisional animals;
 - a transparent explanation of how the prototype works;
 - desktop, tablet, and mobile layouts;
@@ -56,34 +57,38 @@ language store. With no saved preference, the interface starts in English. A man
 header or Settings is applied immediately and restored after refresh. Invalid or unavailable storage
 falls back safely without preventing the app from loading.
 
-The typed dictionaries in `src/i18n/content/` cover the header, Home, all 24 questions and 96 answer
-options, results, all twelve animal records, How It Works, Settings, the footer, and meaningful
+The typed dictionaries in `src/i18n/content/` cover the header, Home, all 23 fixed questions, the
+10-question adaptive bank, all 132 possible answer options, results, all twelve animal records,
+How It Works, Settings, the footer, and meaningful
 accessibility text. Language-neutral domain data retains question, option, animal, and archetype IDs
 plus scoring metadata. Dictionary completeness and scoring fixtures are enforced by automated tests.
 
 Changing language does not navigate away, restart the assessment, change the current question,
-clear accumulated scores, or recalculate a completed primary/secondary result. The visible result
-copy is resolved from stable archetype IDs in the newly selected language.
+clear answers or adaptive choices, or recalculate a completed primary/secondary result. The visible
+result names are resolved from stable archetype IDs in the newly selected language.
 
 ## Assessment model
 
-Model `12-archetype-v1` measures eight editorial dimensions with three questions each. Every answer
-contributes one value (`-2`, `-1`, `+1`, or `+2`) to one dimension. The local deterministic scorer
-normalizes the resulting profile, compares it with twelve provisional vectors, and ranks exact match
-scores before rounding display percentages. The percentages are independent alignment values, not
-shares of a total. See [the technical model document](docs/assessment/TWELVE_ARCHETYPE_MODEL.md).
+Model `12-archetype-v2-25q` uses five hidden primary dimensions and six complementary behavioral
+signals. Each option contributes a sparse, language-neutral vector. Behavior questions have normal
+weight, preferences have reduced weight, and the two adaptive differentiators have controlled
+weight. Per-dimension opportunity normalization is followed by weighted normalized distance to all
+twelve canonical animal profiles. The two closest distinct profiles become the primary and
+secondary results; no score or ranking is displayed. See
+[the technical model and question audit](docs/assessment/TWELVE_ARCHETYPE_MODEL.md).
 
 ## Assessment navigation
 
-Opening Home during an unfinished assessment preserves the current question and accumulated
-scores. Choosing **Ανακάλυψη / Discover** or a discovery call to action resumes that assessment. Restarting
-from a completed result intentionally begins again from question 1 with clean scores.
+Opening Home during an unfinished assessment preserves the current question, answer IDs, and any
+selected adaptive question. Choosing **Ανακάλυψη / Discover** or a discovery call to action resumes
+that assessment. **Take it again / Κάνε το ξανά** clears all 25 answers, adaptive selections, and the
+result, then begins at question 1 without changing language, appearance, or analytics consent.
 
 ## Appearance settings
 
 The header includes a language selector and a **Ρυθμίσεις / Settings** control. Language and appearance changes
-are applied immediately without restarting an unfinished assessment, clearing accumulated scores,
-changing the current question, or replacing an existing result.
+are applied immediately without restarting an unfinished assessment, clearing answers or adaptive
+state, changing the current question, or replacing an existing result.
 
 Supported settings:
 
@@ -191,8 +196,9 @@ After acceptance, the bootstrap updates analytics storage consent to granted whi
 storage, ad user data, and ad personalization denied. It then loads
 `https://www.googletagmanager.com/gtag/js?id=G-QBR3YHHMWS`, disables automatic page-view delivery,
 Google Signals, and ad-personalization signals, and sends one explicit initial `page_view`. That
-event contains only the current page location and document title. Assessment answers, question IDs,
-dimension scores, animal results, preferences, email and Feedback content, and the build version are
+event contains only the current page location and document title. Assessment answers, question or
+option IDs, trait values, adaptive candidates, animal results, preferences, email and Feedback
+content, and the build version are
 not analytics payloads.
 
 The footer's **Analytics choices** action reopens the existing bilingual controls. Revoking an
@@ -207,11 +213,11 @@ steps for accept, reject, and revoke flows are documented in
 ## Repository structure
 
 - `src/features/home/` — dashboard content and feature cards.
-- `src/features/archetypes/` — canonical IDs, symbols, ordering, dimensions, and vectors.
+- `src/features/archetypes/` — canonical IDs, symbols, ordering, hidden dimensions, and profiles.
 - `src/features/animals/` — the provisional 12-animal catalog.
-- `src/features/assessment/` — questions, fixtures, dimension scoring, and balance analysis.
+- `src/features/assessment/` — metadata, adaptive session flow, scoring, fixtures, and balance analysis.
 - `src/features/information/` — the How It Works explanation.
-- `src/features/results/` — primary, secondary, and complete ranked result presentation.
+- `src/features/results/` — the minimal primary-and-secondary result reveal.
 - `src/features/analytics/` — persisted consent controls and the consent-gated GA4 bootstrap.
 - `src/i18n/` — typed Greek and English dictionaries plus the translation hook.
 - `src/config/` — prepared build information and centralized Feedback mailto construction.
