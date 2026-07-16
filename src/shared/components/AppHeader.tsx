@@ -20,6 +20,7 @@ interface AppHeaderProps {
 }
 
 const ecosystemUrl = 'https://markellosecosystem.com';
+const feedbackLabel = 'Feedback';
 const navigationItems = [
   { labelKey: 'home', screen: 'home' },
   { labelKey: 'discover', screen: 'assessment' },
@@ -106,17 +107,17 @@ export function AppHeader({ currentScreen, onNavigate, onOpenSettings }: AppHead
           testID="header-right-zone"
         >
           <View
-            accessibilityLabel={`${content.header.feedback}, ${content.header.ecosystemLink}`}
+            accessibilityLabel={`${feedbackLabel}, ${content.header.ecosystemLink}`}
             role="group"
             style={styles.headerLinkGroup}
             testID="header-link-group"
           >
             <ExternalTextLink
-              accessibilityLabel={content.header.feedbackAccessibilityLabel}
-              label={content.header.feedback}
+              accessibilityLabel={`${feedbackLabel} email`}
+              label={feedbackLabel}
               url={feedbackUrl}
               style={styles.headerTextLink}
-              textStyle={styles.headerLinkLabel}
+              textStyle={[styles.headerLinkLabel, styles.feedbackLinkLabel]}
             />
             <ExternalTextLink
               label={content.header.ecosystemLink}
@@ -211,6 +212,7 @@ function createStyles(colors: SemanticColors) {
     headerControlGroup: { alignItems: 'center', flexDirection: 'row', flexShrink: 0, gap: theme.layout.controlGap },
     headerTextLink: { justifyContent: 'center', minHeight: 44 },
     headerLinkLabel: { color: colors.text, fontSize: 13, fontWeight: '700' },
+    feedbackLinkLabel: { color: colors.accent, fontWeight: '800' },
     languageSelector: { borderColor: colors.border, borderRadius: theme.radius.sm, borderWidth: 1, flexDirection: 'row', overflow: 'hidden' },
     languageOption: { alignItems: 'center', justifyContent: 'center', minHeight: 42, minWidth: 42 },
     languageOptionSelected: { backgroundColor: colors.selection },
