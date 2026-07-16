@@ -13,6 +13,7 @@ import {
 } from '../src/features/analytics/config/analyticsConfig.ts';
 import { createBrowserGa4Adapter } from '../src/features/analytics/ga4/ga4BrowserAdapter.ts';
 import { createGa4Client } from '../src/features/analytics/ga4/ga4Client.ts';
+import { persistAnalyticsConsent } from '../src/features/analytics/consent/analyticsConsentStorage.ts';
 
 function createFakeBrowser({ cookies = ['session', '_ga', '_ga_QBR3YHHMWS'] } = {}) {
   const commands = [];
@@ -158,6 +159,16 @@ test('unknown and rejected consent never load or initialize the Google tag', () 
     assert.equal(browser.scriptRequests.length, 0);
     assert.equal(commandsNamed(browser.commands, 'config').length, 0);
     assert.equal(commandsNamed(browser.commands, 'event').length, 0);
+    if (consentState === 'unknown') {
+      assert.equal(browser.disableChanges.length, 0);
+      assert.equal(browser.expiredCookies.length, 0);
+    } else {
+      assert.deepEqual(browser.disableChanges, [{
+        property: ga4DisableProperty,
+        disabled: true,
+      }]);
+      assert.deepEqual(browser.expiredCookies.sort(), ['_ga', '_ga_QBR3YHHMWS']);
+    }
   }
 });
 
@@ -248,6 +259,54 @@ test('accepted to rejected denies consent, disables GA, and clears only _ga cook
   assert.equal(commandsNamed(browser.commands, 'config').length, 1);
   assert.equal(commandsNamed(browser.commands, 'event').length, 1);
   assert.equal(browser.scriptRequests.length, 1);
+});
+
+test('accepted to unknown fails closed and clears only _ga cookies', () => {
+  const browser = createFakeBrowser({
+    cookies: ['session', '_ga', '_ga_QBR3YHHMWS', 'preferences', '_gid'],
+  });
+  const client = createGa4Client(browser.adapter);
+
+  client.syncConsent('accepted');
+  browser.completeScriptLoad();
+  client.syncConsent('unknown');
+
+  assert.deepEqual(browser.commands.at(-1), ['consent', 'update', ga4DisabledConsentConfig]);
+  assert.deepEqual(browser.disableChanges.at(-1), {
+    property: ga4DisableProperty,
+    disabled: true,
+  });
+  assert.deepEqual(browser.expiredCookies.sort(), ['_ga', '_ga_QBR3YHHMWS']);
+  assert.equal(commandsNamed(browser.commands, 'event').length, 1);
+
+  browser.completeScriptLoad();
+  client.syncConsent('unknown');
+  assert.equal(commandsNamed(browser.commands, 'event').length, 1);
+});
+
+test('failed rejection persistence becomes unknown and shuts down previously accepted GA4', () => {
+  const browser = createFakeBrowser();
+  const client = createGa4Client(browser.adapter);
+  const unavailableStorage = {
+    getItem: () => 'accepted',
+    setItem: () => { throw new Error('blocked'); },
+  };
+
+  client.syncConsent('accepted');
+  browser.completeScriptLoad();
+  const nextConsent = persistAnalyticsConsent(unavailableStorage, 'rejected')
+    ? 'rejected'
+    : 'unknown';
+  assert.equal(nextConsent, 'unknown');
+  client.syncConsent(nextConsent);
+
+  assert.deepEqual(browser.commands.at(-1), ['consent', 'update', ga4DisabledConsentConfig]);
+  assert.deepEqual(browser.disableChanges.at(-1), {
+    property: ga4DisableProperty,
+    disabled: true,
+  });
+  assert.deepEqual(browser.expiredCookies.sort(), ['_ga', '_ga_QBR3YHHMWS']);
+  assert.equal(commandsNamed(browser.commands, 'event').length, 1);
 });
 
 test('revoking while the Google tag is loading blocks late initialization and page views', () => {
