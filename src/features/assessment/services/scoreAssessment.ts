@@ -1,87 +1,126 @@
 import {
-  canonicalArchetypes,
-  type ArchetypeProfile,
-} from '../../archetypes/data/archetypes.ts';
+  canonicalPersonalityAnimals,
+  type PersonalityAnimalProfile,
+} from '../../personalities/data/personalityAnimals.ts';
 import {
-  complementaryDimensionIds,
-  createEmptyTraitMap,
+  createEmptyDimensionProfile,
+  createEmptyPoleScoreMap,
+  dimensionDefinitions,
   dimensionIds,
-  primaryDimensionIds,
   type DimensionId,
-  type SparseTraitVector,
-  type TraitScoreMap,
-} from '../../archetypes/types.ts';
+  type DimensionProfile,
+  type PoleScoreMap,
+} from '../../personalities/types.ts';
 import {
   assessmentQuestionById,
   type AssessmentQuestionData,
 } from '../data/questions.ts';
 import type {
-  ArchetypeMatch,
   AssessmentAnswer,
+  AssessmentOptionIntensity,
+  AssessmentQuestionKind,
+  AssessmentRank,
   AssessmentRanking,
   AssessmentResult,
-  AssessmentWeightClass,
+  PersonalityMatch,
 } from '../types.ts';
+import { isValidAssessmentAnswer } from './ranking.ts';
 
-export const questionWeightMultipliers = {
-  normal: 1,
-  lower: 0.45,
-  differentiator: 0.6,
-} as const satisfies Record<AssessmentWeightClass, number>;
+export const assessmentPhaseWeights = {
+  fixed: 1,
+  adaptive: 0.75,
+} as const satisfies Record<AssessmentQuestionKind, number>;
 
-export const matchingDimensionWeights: TraitScoreMap = {
-  openness: 1,
-  conscientiousness: 1,
-  extraversion: 1,
-  agreeableness: 1,
-  emotionalStability: 1,
-  independence: 0.55,
-  initiative: 0.55,
-  novelty: 0.55,
-  directness: 0.55,
-  flexibility: 0.55,
-  fairness: 0.45,
+export const matchingDimensionWeights: DimensionProfile = {
+  energy: 1,
+  information: 1,
+  decisions: 1,
+  structure: 1,
 };
 
-export function calculateTraitProfile(answers: readonly AssessmentAnswer[]): TraitScoreMap {
-  const totals = createEmptyTraitMap();
-  const opportunities = createEmptyTraitMap();
+export function calculateBaseContribution(
+  rank: AssessmentRank,
+  intensity: AssessmentOptionIntensity,
+): number {
+  return rank * intensity;
+}
+
+export function calculateWeightedContribution(
+  rank: AssessmentRank,
+  intensity: AssessmentOptionIntensity,
+  questionKind: AssessmentQuestionKind,
+): number {
+  return calculateBaseContribution(rank, intensity) * assessmentPhaseWeights[questionKind];
+}
+
+export function calculatePoleTotals(answers: readonly AssessmentAnswer[]): PoleScoreMap {
+  const totals = createEmptyPoleScoreMap();
 
   for (const answer of answers) {
     const question = getAssessmentQuestion(answer.questionId);
-    const option = question.options.find(({ id }) => id === answer.optionId);
-    if (!option) throw new Error(`Unknown option ${answer.optionId} for question ${answer.questionId}.`);
-    const weight = questionWeightMultipliers[question.weightClass];
+    if (!isValidAssessmentAnswer(question, answer)) {
+      throw new Error(`Invalid ranking answer for question ${answer.questionId}.`);
+    }
 
-    for (const dimension of dimensionIds) {
-      const vector: SparseTraitVector = option.vector;
-      const value = vector[dimension] ?? 0;
-      const capacity = maximumQuestionCapacity(question, dimension);
-      totals[dimension] += value * weight;
-      opportunities[dimension] += capacity * weight;
+    for (const assignment of answer.rankings) {
+      const option = question.options.find(({ id }) => id === assignment.optionId);
+      if (!option) {
+        throw new Error(`Unknown option ${assignment.optionId} for question ${answer.questionId}.`);
+      }
+      totals[option.pole] += calculateWeightedContribution(
+        assignment.rank,
+        option.intensity,
+        question.kind,
+      );
     }
   }
 
-  return Object.fromEntries(dimensionIds.map((dimension) => {
-    const opportunity = opportunities[dimension];
-    const normalized = opportunity > 0 ? totals[dimension] / opportunity : 0;
-    if (!Number.isFinite(normalized)) throw new Error(`Invalid trait score: ${dimension}`);
-    return [dimension, clamp(normalized, -1, 1)];
-  })) as TraitScoreMap;
+  return totals;
+}
+
+export function calculateSignedDimensionProfile(
+  poleTotals: PoleScoreMap,
+): DimensionProfile {
+  const profile = createEmptyDimensionProfile();
+
+  for (const dimension of dimensionIds) {
+    const { firstPole, secondPole } = dimensionDefinitions[dimension];
+    const firstTotal = poleTotals[firstPole];
+    const secondTotal = poleTotals[secondPole];
+    const opportunity = firstTotal + secondTotal;
+    profile[dimension] = opportunity === 0
+      ? 0
+      : clamp((firstTotal - secondTotal) / opportunity, -1, 1);
+  }
+
+  return profile;
+}
+
+export function calculateAssessmentProfile(
+  answers: readonly AssessmentAnswer[],
+): DimensionProfile {
+  return calculateSignedDimensionProfile(calculatePoleTotals(answers));
+}
+
+export function findBalancedDimensions(poleTotals: PoleScoreMap): readonly DimensionId[] {
+  return dimensionIds.filter((dimension) => {
+    const { firstPole, secondPole } = dimensionDefinitions[dimension];
+    return poleTotals[firstPole] === poleTotals[secondPole];
+  });
 }
 
 export function calculateNormalizedDistance(
-  profile: TraitScoreMap,
-  archetype: ArchetypeProfile,
+  profile: DimensionProfile,
+  personality: PersonalityAnimalProfile,
 ): number {
   let weightedSquaredDistance = 0;
   let totalWeight = 0;
 
   for (const dimension of dimensionIds) {
     const value = profile[dimension];
-    if (!Number.isFinite(value)) throw new Error(`Invalid trait score: ${dimension}`);
+    if (!Number.isFinite(value)) throw new Error(`Invalid dimension score: ${dimension}.`);
     const weight = matchingDimensionWeights[dimension];
-    const difference = value - archetype.profile[dimension];
+    const difference = value - personality.profile[dimension];
     weightedSquaredDistance += difference * difference * weight;
     totalWeight += weight;
   }
@@ -89,36 +128,41 @@ export function calculateNormalizedDistance(
   return Math.sqrt(weightedSquaredDistance / totalWeight);
 }
 
-export function rankArchetypes(profile: TraitScoreMap): readonly ArchetypeMatch[] {
-  return canonicalArchetypes
-    .map((archetype, canonicalIndex) => ({
-      archetype,
+export function rankPersonalityTypes(
+  profile: DimensionProfile,
+): readonly PersonalityMatch[] {
+  return canonicalPersonalityAnimals
+    .map((personality, canonicalIndex) => ({
+      personality,
       canonicalIndex,
-      distance: calculateNormalizedDistance(profile, archetype),
+      distance: calculateNormalizedDistance(profile, personality),
     }))
     .sort((left, right) =>
       (left.distance - right.distance) || (left.canonicalIndex - right.canonicalIndex),
     )
-    .map(({ archetype, distance }) => ({ archetype, distance }));
+    .map(({ personality, distance }) => ({ personality, distance }));
 }
 
 export function calculateAssessmentRanking(
   answers: readonly AssessmentAnswer[],
 ): AssessmentRanking {
-  const profile = calculateTraitProfile(answers);
-  const matches = rankArchetypes(profile);
+  const poleTotals = calculatePoleTotals(answers);
+  const profile = calculateSignedDimensionProfile(poleTotals);
+  const matches = rankPersonalityTypes(profile);
   const primary = matches[0];
   const secondary = matches[1];
-  if (!primary || !secondary || primary.archetype.id === secondary.archetype.id) {
-    throw new Error('The assessment requires two distinct archetype matches.');
+  if (!primary || !secondary || primary.personality.id === secondary.personality.id) {
+    throw new Error('The assessment requires two distinct personality matches.');
   }
 
   return {
+    poleTotals,
     profile,
     matches,
     result: {
-      primaryId: primary.archetype.id,
-      secondaryId: secondary.archetype.id,
+      primaryTypeId: primary.personality.id,
+      secondaryTypeId: secondary.personality.id,
+      balancedDimensionIds: findBalancedDimensions(poleTotals),
     },
   };
 }
@@ -133,24 +177,6 @@ export function getAssessmentQuestion(questionId: string): AssessmentQuestionDat
   const question = assessmentQuestionById.get(questionId);
   if (!question) throw new Error(`Unknown assessment question: ${questionId}.`);
   return question;
-}
-
-export function isPrimaryDimension(dimension: DimensionId): boolean {
-  return (primaryDimensionIds as readonly DimensionId[]).includes(dimension);
-}
-
-export function isComplementaryDimension(dimension: DimensionId): boolean {
-  return (complementaryDimensionIds as readonly DimensionId[]).includes(dimension);
-}
-
-function maximumQuestionCapacity(
-  question: AssessmentQuestionData,
-  dimension: DimensionId,
-): number {
-  return Math.max(...question.options.map((option) => {
-    const vector: SparseTraitVector = option.vector;
-    return Math.abs(vector[dimension] ?? 0);
-  }));
 }
 
 function clamp(value: number, minimum: number, maximum: number): number {

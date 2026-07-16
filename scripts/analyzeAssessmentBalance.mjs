@@ -1,21 +1,37 @@
-import { assessmentModelVersion } from '../src/features/archetypes/data/archetypes.ts';
+import { assessmentModelVersion } from '../src/features/personalities/data/personalityAnimals.ts';
 import { analyzeAssessmentBalance } from '../src/features/assessment/services/analyzeAssessmentBalance.ts';
 
 const report = analyzeAssessmentBalance();
 
+console.log(report.label);
 console.log(`Assessment model: ${assessmentModelVersion}`);
-console.log(`Samples: ${report.sampleCount}`);
-console.log('Primary counts:', report.primaryCounts);
-console.log('Secondary counts:', report.secondaryCounts);
-console.log('Average normalized distances:', report.averageDistances);
-console.log(`Top-rank ties: ${report.tieCount}`);
-console.log('Direct-profile reachability:', report.directProfileResults);
-console.log('Secondary 25-answer fixture reachability:', report.secondaryFixtureResults);
-console.log('Representative 25-answer runs:', report.representativeRunResults);
-console.log('Adaptive question pairs:', report.adaptivePairCounts);
-console.log('Unreachable primary:', report.unreachablePrimary);
-console.log('Unreachable secondary:', report.unreachableSecondary);
+console.log(`Fixed questions: ${report.fixedQuestionCount}`, report.fixedQuestionsPerDimension);
+console.log(`Adaptive bank: ${report.adaptiveBankCount}`, report.adaptiveQuestionsPerDimension);
+console.log(`Seeded and representative samples: ${report.sampleCount}`);
+console.log('Primary distribution:', report.primaryCounts);
+console.log('Secondary distribution:', report.secondaryCounts);
+console.log('Unreachable primary patterns:', report.unreachablePrimary);
+console.log('Unreachable secondary patterns:', report.unreachableSecondary);
+console.log('Checks:', {
+  completeTypeCoverage: report.completeTypeCoverage,
+  optionStructureValid: report.optionStructureValid,
+  deterministicAdaptiveSelection: report.deterministicAdaptiveSelection,
+  canonicalScoringSymmetry: report.canonicalScoringSymmetry,
+  exactTieHandlingDeterministic: report.exactTieHandlingDeterministic,
+  primarySecondaryAlwaysDistinct: report.primarySecondaryAlwaysDistinct,
+});
 
-if (report.unreachablePrimary.length > 0 || report.unreachableSecondary.length > 0) {
-  process.exitCode = 1;
-}
+const failed = report.fixedQuestionCount !== 20
+  || Object.values(report.fixedQuestionsPerDimension).some((count) => count !== 5)
+  || report.adaptiveBankCount < 16
+  || Object.values(report.adaptiveQuestionsPerDimension).some((count) => count < 4)
+  || !report.completeTypeCoverage
+  || !report.optionStructureValid
+  || !report.deterministicAdaptiveSelection
+  || !report.canonicalScoringSymmetry
+  || !report.exactTieHandlingDeterministic
+  || !report.primarySecondaryAlwaysDistinct
+  || report.unreachablePrimary.length > 0
+  || report.unreachableSecondary.length > 0;
+
+if (failed) process.exitCode = 1;

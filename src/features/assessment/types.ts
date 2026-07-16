@@ -1,59 +1,84 @@
 import type {
-  DimensionId,
-  SparseTraitVector,
-  TraitScoreMap,
-} from '../archetypes/types.ts';
+  PersonalityTypeId,
+  PersonalityAnimalProfile,
+} from '../personalities/data/personalityAnimals.ts';
 import type {
-  ArchetypeId,
-  ArchetypeProfile,
-} from '../archetypes/data/archetypes.ts';
+  DimensionId,
+  DimensionProfile,
+  PoleId,
+  PoleScoreMap,
+} from '../personalities/types.ts';
 
-export type { ArchetypeId, ArchetypeProfile, DimensionId, TraitScoreMap };
+export type {
+  DimensionId,
+  DimensionProfile,
+  PersonalityAnimalProfile,
+  PersonalityTypeId,
+  PoleId,
+  PoleScoreMap,
+};
 
-export const assessmentQuestionCategories = ['behavior', 'preference', 'adaptive'] as const;
-export const assessmentWeightClasses = ['normal', 'lower', 'differentiator'] as const;
+export const assessmentQuestionKinds = ['fixed', 'adaptive'] as const;
+export const assessmentRanks = [1, 2, 3, 4] as const;
+export const assessmentOptionIntensities = [1, 2] as const;
 
-export type AssessmentQuestionCategory = (typeof assessmentQuestionCategories)[number];
-export type AssessmentWeightClass = (typeof assessmentWeightClasses)[number];
+export type AssessmentQuestionKind = (typeof assessmentQuestionKinds)[number];
+export type AssessmentRank = (typeof assessmentRanks)[number];
+export type AssessmentOptionIntensity = (typeof assessmentOptionIntensities)[number];
 
 export interface AssessmentOption {
   id: string;
-  vector: SparseTraitVector;
+  pole: PoleId;
+  intensity: AssessmentOptionIntensity;
 }
 
 export interface AssessmentQuestion {
   id: string;
-  category: AssessmentQuestionCategory;
+  kind: AssessmentQuestionKind;
   scenarioId: string;
-  primaryDimension: DimensionId;
-  secondaryDimensions: readonly DimensionId[];
-  weightClass: AssessmentWeightClass;
-  adaptiveEligible: boolean;
+  dimension: DimensionId;
   options: readonly [AssessmentOption, AssessmentOption, AssessmentOption, AssessmentOption];
 }
 
-export interface AssessmentAnswer {
-  questionId: string;
+export interface AssessmentRankAssignment {
   optionId: string;
+  rank: AssessmentRank;
 }
 
-export interface ArchetypeMatch {
-  archetype: ArchetypeProfile;
+export type AssessmentRankingAssignments = readonly [
+  AssessmentRankAssignment,
+  AssessmentRankAssignment,
+  AssessmentRankAssignment,
+  AssessmentRankAssignment,
+];
+
+export interface AssessmentAnswer {
+  questionId: string;
+  rankings: AssessmentRankingAssignments;
+}
+
+export interface PersonalityMatch {
+  personality: PersonalityAnimalProfile;
   distance: number;
 }
 
 export interface AssessmentResult {
-  primaryId: ArchetypeId;
-  secondaryId: ArchetypeId;
+  primaryTypeId: PersonalityTypeId;
+  secondaryTypeId: PersonalityTypeId;
+  balancedDimensionIds: readonly DimensionId[];
 }
 
 export interface AssessmentRanking {
-  profile: TraitScoreMap;
-  matches: readonly ArchetypeMatch[];
+  poleTotals: PoleScoreMap;
+  profile: DimensionProfile;
+  matches: readonly PersonalityMatch[];
   result: AssessmentResult;
 }
 
 export interface AssessmentSession {
+  schemaVersion: 2;
+  modelVersion: '16-personality-ranking-v1-25q';
+  currentQuestionIndex: number;
   answers: readonly AssessmentAnswer[];
   adaptiveQuestionIds: readonly string[];
   result: AssessmentResult | null;
