@@ -1,25 +1,31 @@
-import { Platform, StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, useWindowDimensions, View } from 'react-native';
 import type { LayoutChangeEvent, ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { buildVersion } from '../../config/buildInfo';
 import { createFeedbackMailto } from '../../config/feedback';
+import { useAnalyticsConsent } from '../../features/analytics/consent/AnalyticsConsentProvider';
 import { useTranslation } from '../../i18n/useTranslation';
 import { useAppearance } from '../../settings/AppearanceProvider';
 import type { SemanticColors } from '../../settings/appearanceTypes';
 import { useFooterLayout } from '../layout/FooterLayoutProvider';
 import { theme } from '../styles/theme';
+import { ActionTextLink } from './ActionTextLink';
 import { AppText } from './AppText';
 import { ExternalTextLink } from './ExternalTextLink';
 import { PageContent } from './PageContent';
 
 const ecosystemUrl = 'https://markellosecosystem.com';
+const layeredFooterBreakpoint = 1100;
 
 export function AppFooter() {
   const { colors } = useAppearance();
   const { content } = useTranslation();
+  const { openChoices } = useAnalyticsConsent();
   const { setFooterHeight } = useFooterLayout();
+  const { width } = useWindowDimensions();
   const styles = createStyles(colors);
+  const useStackedNavigation = width < layeredFooterBreakpoint;
   const currentYear = new Date().getFullYear();
   const copyrightNotice = `© ${currentYear} Markellos Markides. All rights reserved.`;
   const feedbackUrl = createFeedbackMailto({
@@ -46,13 +52,21 @@ export function AppFooter() {
         <View
           accessibilityLabel={content.footer.navigationLabel}
           testID="footer-row-navigation"
-          style={styles.navigationRow}
+          style={[styles.navigationRow, useStackedNavigation && styles.navigationRowStacked]}
         >
           <View style={styles.linkGroup}>
             <ExternalTextLink
               accessibilityLabel={content.footer.feedbackAccessibilityLabel}
               label={content.footer.feedbackLabel}
               url={feedbackUrl}
+              style={styles.link}
+              textStyle={styles.linkLabel}
+            />
+            <AppText accessibilityElementsHidden style={styles.separator}>·</AppText>
+            <ActionTextLink
+              accessibilityLabel={content.footer.analyticsChoicesAccessibilityLabel}
+              label={content.footer.analyticsChoicesLabel}
+              onPress={openChoices}
               style={styles.link}
               textStyle={styles.linkLabel}
             />
@@ -67,7 +81,12 @@ export function AppFooter() {
           </View>
           <AppText
             accessibilityLabel={`${content.footer.buildAccessibilityLabel}: ${buildVersion}`}
-            style={styles.buildVersion}
+            style={[
+              styles.buildVersion,
+              useStackedNavigation
+                ? styles.buildVersionStacked
+                : styles.buildVersionLayered,
+            ]}
           >
             {buildVersion}
           </AppText>
@@ -90,18 +109,18 @@ function createStyles(colors: SemanticColors) {
       zIndex: 20,
     },
     footerInner: { gap: 3, paddingBottom: 6, paddingTop: 6 },
-    copyrightRow: { minWidth: 0, width: '100%' },
-    copyright: { color: colors.footerText, fontSize: 10, lineHeight: 14 },
+    copyrightRow: { alignItems: 'center', minWidth: 0, width: '100%' },
+    copyright: { color: colors.footerText, fontSize: 10, lineHeight: 14, textAlign: 'center', width: '100%' },
     navigationRow: {
       alignItems: 'center',
-      columnGap: theme.spacing.sm,
-      flexDirection: 'row',
-      flexWrap: 'wrap',
+      justifyContent: 'center',
       minWidth: 0,
+      position: 'relative',
       rowGap: 2,
       width: '100%',
     },
-    linkGroup: { alignItems: 'center', columnGap: 6, flexDirection: 'row', flexShrink: 1, flexWrap: 'wrap', minWidth: 0, rowGap: 2 },
+    navigationRowStacked: { alignItems: 'stretch' },
+    linkGroup: { alignItems: 'center', alignSelf: 'center', columnGap: 6, flexDirection: 'row', flexShrink: 1, flexWrap: 'wrap', justifyContent: 'center', maxWidth: '100%', minWidth: 0, rowGap: 2 },
     link: { flexShrink: 1, justifyContent: 'center' },
     linkLabel: { color: colors.footerText, fontSize: 10, lineHeight: 14, textDecorationLine: 'underline' },
     separator: { color: colors.footerMuted, fontSize: 10, lineHeight: 14 },
@@ -110,9 +129,10 @@ function createStyles(colors: SemanticColors) {
       flexShrink: 1,
       fontSize: 9,
       lineHeight: 14,
-      marginLeft: 'auto',
       maxWidth: '100%',
       textAlign: 'right',
     },
+    buildVersionLayered: { position: 'absolute', right: 0, top: 0 },
+    buildVersionStacked: { alignSelf: 'stretch', marginTop: 2 },
   });
 }

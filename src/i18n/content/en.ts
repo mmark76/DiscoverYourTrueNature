@@ -306,11 +306,23 @@ export const englishContent = {
     cancel: 'Cancel',
     back: 'Back',
   },
+  analyticsConsent: {
+    title: 'Analytics choices',
+    description:
+      'Help us understand how the application is used. Analytics will only be enabled with your permission. Assessment answers and animal results will never be sent.',
+    accept: 'Accept analytics',
+    reject: 'Reject analytics',
+    close: 'Close analytics choices',
+    bannerAccessibilityLabel: 'Analytics consent choices',
+    dialogAccessibilityLabel: 'Change analytics consent choices',
+  },
   footer: {
     accessibilityLabel: 'Animals Within information and links',
     navigationLabel: 'Footer links and build information',
     feedbackLabel: 'Feedback',
     feedbackAccessibilityLabel: 'Send feedback by email',
+    analyticsChoicesLabel: 'Analytics choices',
+    analyticsChoicesAccessibilityLabel: 'Open analytics consent choices',
     ecosystemLabel: 'Markellos Ecosystem',
     ecosystemAccessibilityLabel: 'Return to Markellos Ecosystem',
     buildAccessibilityLabel: 'Application build version',

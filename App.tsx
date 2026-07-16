@@ -3,6 +3,7 @@ import { StyleSheet } from 'react-native';
 import { SafeAreaProvider, SafeAreaView as InsetSafeAreaView } from 'react-native-safe-area-context';
 
 import { AppScreen, NavigableScreen } from './src/app/navigation';
+import { AnalyticsConsentProvider } from './src/features/analytics/consent/AnalyticsConsentProvider';
 import { AnimalsScreen } from './src/features/animals/components/AnimalsScreen';
 import { AssessmentScreen } from './src/features/assessment/components/AssessmentScreen';
 import { assessmentQuestions } from './src/features/assessment/data/questions';
@@ -25,7 +26,9 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <AppearanceProvider>
-        <AppContent />
+        <AnalyticsConsentProvider>
+          <AppContent />
+        </AnalyticsConsentProvider>
       </AppearanceProvider>
     </SafeAreaProvider>
   );
