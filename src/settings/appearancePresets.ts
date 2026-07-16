@@ -42,7 +42,7 @@ export const appearancePresets: Record<
       accentMuted: '#F5E2DE', border: '#CDDCE1', borderStrong: '#9CB4BC', focus: '#8B321F',
       disabled: '#D8E2E5', disabledText: '#63777E', success: '#216A55', successSurface: '#DDF0E9',
       warning: '#79431E', warningSurface: '#F6E7D8', progressTrack: '#D4E4E8', selection: '#DDEEF3',
-      footerBackground: '#142A33', footerText: '#FFFFFF', footerMuted: '#C1D2D8', heroMuted: '#D7EBF0',
+      footerBackground: '#F5F9FA', footerText: '#142A33', footerMuted: '#526A73', heroMuted: '#D7EBF0',
       heroDecoration: '#5B91A2', heroDecorationStrong: '#14556A',
     },
     dark: {
@@ -64,7 +64,7 @@ export const appearancePresets: Record<
       accentMuted: '#F4DFD7', border: '#E0D2BD', borderStrong: '#B8A486', focus: '#92321F',
       disabled: '#E2DBD0', disabledText: '#756B5C', success: '#35633A', successSurface: '#E4EFE2',
       warning: '#78420B', warningSurface: '#F6E5C7', progressTrack: '#E6DAC6', selection: '#F0E1C6',
-      footerBackground: '#332516', footerText: '#FFFFFF', footerMuted: '#D9CCBC', heroMuted: '#F1E3CE',
+      footerBackground: '#FCF8F1', footerText: '#332516', footerMuted: '#6E5B45', heroMuted: '#F1E3CE',
       heroDecoration: '#A27A43', heroDecorationStrong: '#6A410C',
     },
     dark: {
@@ -86,7 +86,7 @@ export const appearancePresets: Record<
       accentMuted: '#F2E0DB', border: '#DED1DF', borderStrong: '#B8A3BA', focus: '#873820',
       disabled: '#DFD8E0', disabledText: '#736976', success: '#356448', successSurface: '#E2EFE7',
       warning: '#75411F', warningSurface: '#F4E4D7', progressTrack: '#E3D8E4', selection: '#EADDEC',
-      footerBackground: '#302033', footerText: '#FFFFFF', footerMuted: '#D6C8D8', heroMuted: '#EEDFF0',
+      footerBackground: '#FAF7FA', footerText: '#302033', footerMuted: '#6C586F', heroMuted: '#EEDFF0',
       heroDecoration: '#947099', heroDecorationStrong: '#5D3763',
     },
     dark: {

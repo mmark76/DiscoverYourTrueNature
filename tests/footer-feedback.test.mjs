@@ -38,7 +38,17 @@ test('header and footer share the active centralized Feedback builder', () => {
   }
   assert.match(headerSource, /url=\{feedbackUrl\}/);
   assert.match(footerSource, /url=\{feedbackUrl\}/);
+  assert.match(footerSource, /https:\/\/markellosecosystem\.com/);
+  assert.match(footerSource, /url=\{ecosystemUrl\}/);
+  assert.match(footerSource, /\{buildVersion\}/);
   assert.doesNotMatch(footerSource, /colors\.accent/);
+});
+
+test('footer renders a dynamic current-year copyright notice', () => {
+  assert.match(footerSource, /const currentYear = new Date\(\)\.getFullYear\(\)/);
+  assert.match(footerSource, /© \$\{currentYear\} Markellos Markides\. All rights reserved\./);
+  assert.match(footerSource, /testID="footer-row-copyright"/);
+  assert.doesNotMatch(footerSource, /©\s*2026/);
 });
 
 test('footer is fixed, measured, safe-area aware, and reserved by the shell', () => {
@@ -52,7 +62,7 @@ test('footer is fixed, measured, safe-area aware, and reserved by the shell', ()
 test('footer has exactly two semantic rows in accessible content order', () => {
   assert.equal((footerSource.match(/testID="footer-row-/g) ?? []).length, 2);
   const order = [
-    'content.footer.compactDisclaimer',
+    'testID="footer-row-copyright"',
     'content.footer.feedbackAccessibilityLabel',
     'content.footer.ecosystemAccessibilityLabel',
     'content.footer.buildAccessibilityLabel',
@@ -61,8 +71,8 @@ test('footer has exactly two semantic rows in accessible content order', () => {
   assert.deepEqual(order, [...order].sort((a, b) => a - b));
 });
 
-test('footer does not render a placeholder Privacy item', () => {
-  assert.doesNotMatch(footerSource, /privacy|accessibilityState=\{\{ disabled: true \}\}/i);
+test('footer renders no inactive legal or analytics items', () => {
+  assert.doesNotMatch(footerSource, /privacy|license|analytics choices|copyright protected|coming soon|accessibilityState=\{\{ disabled: true \}\}/i);
   assert.equal('privacyLabel' in translations.en.footer, false);
   assert.equal('privacyLabel' in translations.el.footer, false);
 });
@@ -81,6 +91,4 @@ test('new footer and Feedback accessibility copy resolves in both languages', ()
   assert.equal(translations.el.footer.buildAccessibilityLabel, 'Έκδοση κατασκευής εφαρμογής');
   assert.equal(translations.en.common.selectedLanguageName, 'English');
   assert.equal(translations.el.common.selectedLanguageName, 'Ελληνικά');
-  assert.match(translations.en.footer.compactDisclaimer, /not a psychological diagnosis/);
-  assert.match(translations.el.footer.compactDisclaimer, /όχι ψυχολογική διάγνωση/);
 });

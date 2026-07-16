@@ -308,12 +308,10 @@ export const greekContent = {
   },
   footer: {
     accessibilityLabel: 'Πληροφορίες και σύνδεσμοι του Animals Within',
-    compactDisclaimer: 'Ψυχαγωγική εμπειρία αυτογνωσίας — όχι ψυχολογική διάγνωση ή επιστημονική αξιολόγηση.',
     navigationLabel: 'Σύνδεσμοι υποσέλιδου και πληροφορίες έκδοσης',
     feedbackLabel: 'Feedback',
     feedbackAccessibilityLabel: 'Αποστολή σχολίων μέσω email',
     ecosystemLabel: 'Markellos Ecosystem',
-    ecosystemCompactLabel: 'Ecosystem',
     ecosystemAccessibilityLabel: 'Επιστροφή στο Markellos Ecosystem',
     buildAccessibilityLabel: 'Έκδοση κατασκευής εφαρμογής',
   },
