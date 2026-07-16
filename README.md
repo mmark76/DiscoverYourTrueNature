@@ -15,7 +15,7 @@ The responsive home dashboard provides:
 - a transparent explanation of how the prototype works;
 - desktop, tablet, and mobile layouts;
 - persistent appearance controls available from every screen;
-- a compact fixed footer with an active email Feedback action and build identifier;
+- a compact fixed footer with active Feedback and Analytics choices actions plus a build identifier;
 - complete Greek and English content, including questions, results, the animal catalog,
   accessibility labels, and disclaimers.
 
@@ -180,6 +180,30 @@ Feedback in the header and footer opens the user's email client with a draft add
 interface language, current build identifier, line breaks, and a blank Feedback area; it never sends
 mail automatically and requires no backend.
 
+## Analytics consent and GA4 bootstrap
+
+The application uses the public GA4 Measurement ID `G-QBR3YHHMWS`. The Google tag is created at
+runtime only after the user explicitly chooses **Accept analytics**. With an `unknown` or `rejected`
+decision, the application queues denied consent locally but does not insert the Google script,
+configure GA4, send an analytics event, contact Google Analytics, or create a GA cookie.
+
+After acceptance, the bootstrap updates analytics storage consent to granted while keeping ad
+storage, ad user data, and ad personalization denied. It then loads
+`https://www.googletagmanager.com/gtag/js?id=G-QBR3YHHMWS`, disables automatic page-view delivery,
+Google Signals, and ad-personalization signals, and sends one explicit initial `page_view`. That
+event contains only the current page location and document title. Assessment answers, question IDs,
+dimension scores, animal results, preferences, email and Feedback content, and the build version are
+not analytics payloads.
+
+The footer's **Analytics choices** action reopens the existing bilingual controls. Revoking an
+accepted decision immediately queues denied consent, enables the GA disable flag, and expires only
+first-party cookies whose names begin with `_ga`. The stored rejection remains in place, so the tag
+does not load on the next visit. Accepting later can initialize the tag without a reload.
+
+This bootstrap does not implement SPA screen tracking or custom product events. Network verification
+steps for accept, reject, and revoke flows are documented in
+[the manual test plan](docs/testing/MANUAL_TEST_PLAN.md#analytics-consent-and-ga4-bootstrap).
+
 ## Repository structure
 
 - `src/features/home/` — dashboard content and feature cards.
@@ -188,6 +212,7 @@ mail automatically and requires no backend.
 - `src/features/assessment/` — questions, fixtures, dimension scoring, and balance analysis.
 - `src/features/information/` — the How It Works explanation.
 - `src/features/results/` — primary, secondary, and complete ranked result presentation.
+- `src/features/analytics/` — persisted consent controls and the consent-gated GA4 bootstrap.
 - `src/i18n/` — typed Greek and English dictionaries plus the translation hook.
 - `src/config/` — prepared build information and centralized Feedback mailto construction.
 - `src/shared/` — shared shell components and earthy theme tokens.

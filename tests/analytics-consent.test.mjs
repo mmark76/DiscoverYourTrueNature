@@ -126,24 +126,11 @@ test('consent controls support safe areas, focus, screen readers, and non-overla
   assert.doesNotMatch(bannerSource, /position:\s*['"](?:absolute|fixed)['"]/);
 });
 
-test('no analytics loader, identifier, cookie, event, or network transport is present', () => {
-  const paths = [
-    'App.tsx',
-    'app.config.js',
-    'app.json',
-    'package.json',
-    ...sourceFiles('src'),
-  ];
-  const applicationSource = paths.map((path) => readFileSync(path, 'utf8')).join('\n');
-  const analyticsFeatureSource = sourceFiles('src/features/analytics')
+test('consent UI and storage remain isolated from analytics transport and assessment data', () => {
+  const consentFeatureSource = sourceFiles('src/features/analytics/consent')
     .map((path) => readFileSync(path, 'utf8'))
     .join('\n');
 
-  assert.doesNotMatch(applicationSource, /googletagmanager|google-analytics|\bgtag\b|measurement[_-]?id/i);
-  assert.doesNotMatch(
-    applicationSource,
-    /(?:^|['"`\s:=])G-[A-Z0-9]{6,}(?=$|['"`\s,}])/m,
-  );
-  assert.doesNotMatch(analyticsFeatureSource, /fetch\s*\(|XMLHttpRequest|sendBeacon|document\.cookie|<script|https?:\/\//i);
-  assert.doesNotMatch(analyticsFeatureSource, /assessmentQuestions|DimensionScoreMap|AssessmentResult|feedbackRecipient/i);
+  assert.doesNotMatch(consentFeatureSource, /googletagmanager|google-analytics|\bgtag\b|fetch\s*\(|XMLHttpRequest|sendBeacon|document\.cookie|<script|https?:\/\//i);
+  assert.doesNotMatch(consentFeatureSource, /assessmentQuestions|DimensionScoreMap|AssessmentResult|feedbackRecipient/i);
 });
