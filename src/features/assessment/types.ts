@@ -1,31 +1,35 @@
-export type ArchetypeId = 'wolf' | 'owl' | 'eagle' | 'dolphin' | 'bear';
+import type {
+  AnswerValue,
+  DimensionId,
+  DimensionScoreMap,
+} from '../archetypes/types.ts';
+import type {
+  ArchetypeId,
+  ArchetypeProfile,
+} from '../archetypes/data/archetypes.ts';
 
-export type ScoreMap = Partial<Record<ArchetypeId, number>>;
+export type { ArchetypeId, ArchetypeProfile, DimensionId, DimensionScoreMap };
 
 export interface AssessmentOption {
   id: string;
-  label: string;
-  scores: ScoreMap;
+  value: AnswerValue;
 }
 
 export interface AssessmentQuestion {
   id: string;
-  prompt: string;
-  options: AssessmentOption[];
+  dimension: DimensionId;
+  options: readonly AssessmentOption[];
 }
 
-export interface ArchetypeProfile {
-  id: ArchetypeId;
-  name: string;
-  symbol: string;
-  summary: string;
-  strengths: string[];
-  watchOuts: string[];
+export interface ArchetypeMatch {
+  archetype: ArchetypeProfile;
+  score: number;
+  exactScore: number;
 }
 
 export interface AssessmentResult {
-  primary: ArchetypeProfile;
-  secondary: ArchetypeProfile;
-  confidence: number;
-  scores: Record<ArchetypeId, number>;
+  primary: ArchetypeMatch;
+  secondary: ArchetypeMatch;
+  matches: readonly ArchetypeMatch[];
+  dimensions: DimensionScoreMap;
 }

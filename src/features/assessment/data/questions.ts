@@ -1,224 +1,104 @@
-import { AssessmentQuestion } from '../types';
+import type { AssessmentQuestion } from '../types.ts';
 
-export const assessmentQuestions: AssessmentQuestion[] = [
-  {
-    id: 'crisis-response',
-    prompt: 'Μια ξαφνική κρίση βρίσκει την ομάδα απροετοίμαστη. Ποια είναι η πρώτη σου αντίδραση;',
-    options: [
-      {
-        id: 'take-command',
-        label: 'Αναλαμβάνω αμέσως την κατεύθυνση και μοιράζω ρόλους.',
-        scores: { eagle: 2, wolf: 1 },
-      },
-      {
-        id: 'observe-first',
-        label: 'Παρατηρώ προσεκτικά και εντοπίζω την πραγματική αιτία.',
-        scores: { owl: 2, bear: 1 },
-      },
-      {
-        id: 'steady-people',
-        label: 'Ηρεμώ τους ανθρώπους και δημιουργώ συνεργασία.',
-        scores: { dolphin: 2, bear: 1 },
-      },
-    ],
-  },
-  {
-    id: 'decision-style',
-    prompt: 'Όταν πρέπει να πάρεις σημαντική απόφαση, τι εμπιστεύεσαι περισσότερο;',
-    options: [
-      {
-        id: 'evidence',
-        label: 'Τα δεδομένα, τις λεπτομέρειες και τη λογική ανάλυση.',
-        scores: { owl: 2, bear: 1 },
-      },
-      {
-        id: 'instinct',
-        label: 'Το ένστικτο και την ικανότητά μου να κινηθώ γρήγορα.',
-        scores: { eagle: 2, wolf: 1 },
-      },
-      {
-        id: 'perspectives',
-        label: 'Τις απόψεις των ανθρώπων που επηρεάζονται.',
-        scores: { dolphin: 2, bear: 1 },
-      },
-    ],
-  },
-  {
-    id: 'trust-circle',
-    prompt: 'Πώς χτίζεις συνήθως σχέσεις εμπιστοσύνης;',
-    options: [
-      {
-        id: 'small-circle',
-        label: 'Με λίγους ανθρώπους, αλλά με μεγάλη αφοσίωση.',
-        scores: { wolf: 2, bear: 1 },
-      },
-      {
-        id: 'wide-network',
-        label: 'Συνδέομαι εύκολα με διαφορετικούς ανθρώπους.',
-        scores: { dolphin: 2, eagle: 1 },
-      },
-      {
-        id: 'earned-respect',
-        label: 'Η εμπιστοσύνη κερδίζεται μέσα από συνέπεια και ικανότητα.',
-        scores: { owl: 1, eagle: 1, bear: 1 },
-      },
-    ],
-  },
-  {
-    id: 'conflict',
-    prompt: 'Όταν προκύπτει σοβαρή σύγκρουση, πώς αντιδράς;',
-    options: [
-      {
-        id: 'direct',
-        label: 'Αντιμετωπίζω το θέμα άμεσα και ξεκάθαρα.',
-        scores: { eagle: 2, wolf: 1 },
-      },
-      {
-        id: 'common-ground',
-        label: 'Αναζητώ κοινό έδαφος και λύση που διατηρεί τις σχέσεις.',
-        scores: { dolphin: 2, bear: 1 },
-      },
-      {
-        id: 'analyze',
-        label: 'Κάνω ένα βήμα πίσω για να καταλάβω όλες τις πλευρές.',
-        scores: { owl: 2, wolf: 1 },
-      },
-    ],
-  },
-  {
-    id: 'motivation',
-    prompt: 'Ποιο είδος στόχου σε κινητοποιεί περισσότερο;',
-    options: [
-      {
-        id: 'ambitious-goal',
-        label: 'Ένας δύσκολος στόχος που απαιτεί τόλμη και υπέρβαση.',
-        scores: { eagle: 2, wolf: 1 },
-      },
-      {
-        id: 'mastery',
-        label: 'Η βαθιά κατανόηση και η κατάκτηση μιας σύνθετης δεξιότητας.',
-        scores: { owl: 2, wolf: 1 },
-      },
-      {
-        id: 'protect-contribute',
-        label: 'Η δημιουργία ασφάλειας και ουσιαστικής προσφοράς στους άλλους.',
-        scores: { bear: 2, dolphin: 1 },
-      },
-    ],
-  },
-  {
-    id: 'change',
-    prompt: 'Πώς αντιμετωπίζεις μια μεγάλη και απρόβλεπτη αλλαγή;',
-    options: [
-      {
-        id: 'explore',
-        label: 'Τη βλέπω ως ευκαιρία και δοκιμάζω γρήγορα νέες κατευθύνσεις.',
-        scores: { eagle: 2, dolphin: 1 },
-      },
-      {
-        id: 'plan',
-        label: 'Δημιουργώ σχέδιο, αξιολογώ κινδύνους και προχωρώ ελεγχόμενα.',
-        scores: { wolf: 2, owl: 1 },
-      },
-      {
-        id: 'stabilize',
-        label: 'Διατηρώ ό,τι λειτουργεί και προστατεύω τη σταθερότητα.',
-        scores: { bear: 2, owl: 1 },
-      },
-      {
-        id: 'adapt-with-people',
-        label: 'Προσαρμόζομαι μέσα από επικοινωνία και συνεργασία.',
-        scores: { dolphin: 2, bear: 1 },
-      },
-    ],
-  },
-  {
-    id: 'pressure',
-    prompt: 'Όταν η πίεση αυξάνεται, ποια πλευρά σου εμφανίζεται εντονότερα;',
-    options: [
-      {
-        id: 'command',
-        label: 'Γίνομαι πιο αποφασιστικός και παίρνω τον έλεγχο.',
-        scores: { eagle: 2, wolf: 1 },
-      },
-      {
-        id: 'calm-analysis',
-        label: 'Κλείνω τον θόρυβο και αναλύω ψύχραιμα το πρόβλημα.',
-        scores: { owl: 2, bear: 1 },
-      },
-      {
-        id: 'protect-team',
-        label: 'Εστιάζω στους ανθρώπους και προσπαθώ να τους κρατήσω ενωμένους.',
-        scores: { dolphin: 2, bear: 1 },
-      },
-    ],
-  },
-  {
-    id: 'working-style',
-    prompt: 'Σε ποιο περιβάλλον αποδίδεις καλύτερα;',
-    options: [
-      {
-        id: 'deep-focus',
-        label: 'Μόνος, με χρόνο για βαθιά συγκέντρωση.',
-        scores: { owl: 2, wolf: 1 },
-      },
-      {
-        id: 'trusted-team',
-        label: 'Σε μικρή ομάδα ανθρώπων που εμπιστεύομαι.',
-        scores: { wolf: 2, bear: 1 },
-      },
-      {
-        id: 'dynamic-group',
-        label: 'Σε δυναμικό περιβάλλον με ανταλλαγή ιδεών και ανθρώπινη επαφή.',
-        scores: { dolphin: 2, eagle: 1 },
-      },
-    ],
-  },
-  {
-    id: 'risk',
-    prompt: 'Πώς σχετίζεσαι με τον κίνδυνο;',
-    options: [
-      {
-        id: 'calculated-risk',
-        label: 'Τον αποδέχομαι όταν η πιθανή ανταμοιβή αξίζει.',
-        scores: { eagle: 2, wolf: 1 },
-      },
-      {
-        id: 'evidence-first',
-        label: 'Προχωρώ μόνο όταν έχω επαρκείς ενδείξεις και εναλλακτικό σχέδιο.',
-        scores: { owl: 2, bear: 1 },
-      },
-      {
-        id: 'human-impact',
-        label: 'Εξαρτάται κυρίως από το πώς θα επηρεάσει τους ανθρώπους γύρω μου.',
-        scores: { dolphin: 2, bear: 1 },
-      },
-    ],
-  },
-  {
-    id: 'core-value',
-    prompt: 'Ποια αξία αισθάνεσαι πιο κοντά στον πυρήνα σου;',
-    options: [
-      {
-        id: 'freedom',
-        label: 'Ελευθερία και ανεξαρτησία.',
-        scores: { wolf: 2, eagle: 1 },
-      },
-      {
-        id: 'truth',
-        label: 'Αλήθεια και βαθιά κατανόηση.',
-        scores: { owl: 2, eagle: 1 },
-      },
-      {
-        id: 'connection',
-        label: 'Σύνδεση και ουσιαστική προσφορά.',
-        scores: { dolphin: 2, bear: 1 },
-      },
-      {
-        id: 'security',
-        label: 'Ασφάλεια και σταθερότητα.',
-        scores: { bear: 2, wolf: 1 },
-      },
-    ],
-  },
-];
+export const assessmentQuestions = [
+  { id: 'affiliation-collaboration', dimension: 'affiliation', options: [
+    { id: 'affiliation-collaboration-a', value: -2 }, { id: 'affiliation-collaboration-b', value: 1 },
+    { id: 'affiliation-collaboration-c', value: 2 }, { id: 'affiliation-collaboration-d', value: -1 },
+  ] },
+  { id: 'reasoning-incomplete', dimension: 'reasoning', options: [
+    { id: 'reasoning-incomplete-a', value: 2 }, { id: 'reasoning-incomplete-b', value: -1 },
+    { id: 'reasoning-incomplete-c', value: -2 }, { id: 'reasoning-incomplete-d', value: 1 },
+  ] },
+  { id: 'tempo-deadline', dimension: 'tempo', options: [
+    { id: 'tempo-deadline-a', value: 1 }, { id: 'tempo-deadline-b', value: -2 },
+    { id: 'tempo-deadline-c', value: -1 }, { id: 'tempo-deadline-d', value: 2 },
+  ] },
+  { id: 'structure-project', dimension: 'structure', options: [
+    { id: 'structure-project-a', value: -1 }, { id: 'structure-project-b', value: 2 },
+    { id: 'structure-project-c', value: 1 }, { id: 'structure-project-d', value: -2 },
+  ] },
+  { id: 'influence-direction', dimension: 'influence', options: [
+    { id: 'influence-direction-a', value: 2 }, { id: 'influence-direction-b', value: -2 },
+    { id: 'influence-direction-c', value: 1 }, { id: 'influence-direction-d', value: -1 },
+  ] },
+  { id: 'exploration-opportunity', dimension: 'exploration', options: [
+    { id: 'exploration-opportunity-a', value: -2 }, { id: 'exploration-opportunity-b', value: 2 },
+    { id: 'exploration-opportunity-c', value: -1 }, { id: 'exploration-opportunity-d', value: 1 },
+  ] },
+  { id: 'expression-new-group', dimension: 'expression', options: [
+    { id: 'expression-new-group-a', value: 1 }, { id: 'expression-new-group-b', value: -1 },
+    { id: 'expression-new-group-c', value: 2 }, { id: 'expression-new-group-d', value: -2 },
+  ] },
+  { id: 'perspective-problem', dimension: 'perspective', options: [
+    { id: 'perspective-problem-a', value: -1 }, { id: 'perspective-problem-b', value: 1 },
+    { id: 'perspective-problem-c', value: -2 }, { id: 'perspective-problem-d', value: 2 },
+  ] },
+  { id: 'affiliation-recharge', dimension: 'affiliation', options: [
+    { id: 'affiliation-recharge-a', value: 2 }, { id: 'affiliation-recharge-b', value: -1 },
+    { id: 'affiliation-recharge-c', value: 1 }, { id: 'affiliation-recharge-d', value: -2 },
+  ] },
+  { id: 'reasoning-learning', dimension: 'reasoning', options: [
+    { id: 'reasoning-learning-a', value: -1 }, { id: 'reasoning-learning-b', value: -2 },
+    { id: 'reasoning-learning-c', value: 2 }, { id: 'reasoning-learning-d', value: 1 },
+  ] },
+  { id: 'tempo-problem', dimension: 'tempo', options: [
+    { id: 'tempo-problem-a', value: -2 }, { id: 'tempo-problem-b', value: 1 },
+    { id: 'tempo-problem-c', value: -1 }, { id: 'tempo-problem-d', value: 2 },
+  ] },
+  { id: 'structure-journey', dimension: 'structure', options: [
+    { id: 'structure-journey-a', value: 1 }, { id: 'structure-journey-b', value: 2 },
+    { id: 'structure-journey-c', value: -2 }, { id: 'structure-journey-d', value: -1 },
+  ] },
+  { id: 'influence-conflict', dimension: 'influence', options: [
+    { id: 'influence-conflict-a', value: -2 }, { id: 'influence-conflict-b', value: -1 },
+    { id: 'influence-conflict-c', value: 2 }, { id: 'influence-conflict-d', value: 1 },
+  ] },
+  { id: 'exploration-experiment', dimension: 'exploration', options: [
+    { id: 'exploration-experiment-a', value: 1 }, { id: 'exploration-experiment-b', value: -2 },
+    { id: 'exploration-experiment-c', value: 2 }, { id: 'exploration-experiment-d', value: -1 },
+  ] },
+  { id: 'expression-excitement', dimension: 'expression', options: [
+    { id: 'expression-excitement-a', value: -1 }, { id: 'expression-excitement-b', value: 2 },
+    { id: 'expression-excitement-c', value: -2 }, { id: 'expression-excitement-d', value: 1 },
+  ] },
+  { id: 'perspective-explain', dimension: 'perspective', options: [
+    { id: 'perspective-explain-a', value: 2 }, { id: 'perspective-explain-b', value: -2 },
+    { id: 'perspective-explain-c', value: 1 }, { id: 'perspective-explain-d', value: -1 },
+  ] },
+  { id: 'affiliation-responsibility', dimension: 'affiliation', options: [
+    { id: 'affiliation-responsibility-a', value: -1 }, { id: 'affiliation-responsibility-b', value: 1 },
+    { id: 'affiliation-responsibility-c', value: -2 }, { id: 'affiliation-responsibility-d', value: 2 },
+  ] },
+  { id: 'reasoning-disagreement', dimension: 'reasoning', options: [
+    { id: 'reasoning-disagreement-a', value: 1 }, { id: 'reasoning-disagreement-b', value: 2 },
+    { id: 'reasoning-disagreement-c', value: -1 }, { id: 'reasoning-disagreement-d', value: -2 },
+  ] },
+  { id: 'tempo-opportunity', dimension: 'tempo', options: [
+    { id: 'tempo-opportunity-a', value: 2 }, { id: 'tempo-opportunity-b', value: -1 },
+    { id: 'tempo-opportunity-c', value: -2 }, { id: 'tempo-opportunity-d', value: 1 },
+  ] },
+  { id: 'structure-disruption', dimension: 'structure', options: [
+    { id: 'structure-disruption-a', value: -2 }, { id: 'structure-disruption-b', value: 1 },
+    { id: 'structure-disruption-c', value: 2 }, { id: 'structure-disruption-d', value: -1 },
+  ] },
+  { id: 'influence-vacuum', dimension: 'influence', options: [
+    { id: 'influence-vacuum-a', value: 1 }, { id: 'influence-vacuum-b', value: -2 },
+    { id: 'influence-vacuum-c', value: -1 }, { id: 'influence-vacuum-d', value: 2 },
+  ] },
+  { id: 'exploration-novelty', dimension: 'exploration', options: [
+    { id: 'exploration-novelty-a', value: -1 }, { id: 'exploration-novelty-b', value: 2 },
+    { id: 'exploration-novelty-c', value: 1 }, { id: 'exploration-novelty-d', value: -2 },
+  ] },
+  { id: 'expression-concern', dimension: 'expression', options: [
+    { id: 'expression-concern-a', value: 2 }, { id: 'expression-concern-b', value: -2 },
+    { id: 'expression-concern-c', value: -1 }, { id: 'expression-concern-d', value: 1 },
+  ] },
+  { id: 'perspective-future', dimension: 'perspective', options: [
+    { id: 'perspective-future-a', value: -2 }, { id: 'perspective-future-b', value: -1 },
+    { id: 'perspective-future-c', value: 2 }, { id: 'perspective-future-d', value: 1 },
+  ] },
+] as const satisfies readonly AssessmentQuestion[];
+
+export type AssessmentQuestionId = (typeof assessmentQuestions)[number]['id'];
+export type AssessmentOptionId = (typeof assessmentQuestions)[number]['options'][number]['id'];
+export type AssessmentQuestionData = (typeof assessmentQuestions)[number];

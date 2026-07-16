@@ -6,14 +6,10 @@ Create the smallest usable version that allows the owner to test the core experi
 
 ## Included
 
-- Greek-language welcome screen.
-- Ten questions, presented one at a time.
-- Five initial animal archetypes:
-  - wolf,
-  - owl,
-  - eagle,
-  - dolphin,
-  - bear.
+- Bilingual Greek and English home dashboard.
+- Twenty-four questions, presented one at a time across eight editorial dimensions.
+- Twelve active animal archetypes: wolf, owl, eagle, dolphin, bear, lion, fox,
+  panther, elephant, horse, turtle, and octopus.
 - Deterministic and inspectable scoring.
 - Primary and secondary animal archetype.
 - Short strengths and watch-outs.
@@ -34,8 +30,8 @@ Create the smallest usable version that allows the owner to test the core experi
 ## Product constraints
 
 - The standard experience should remain short.
-- The first prototype uses 10 questions.
-- Future adaptive versions must never exceed 15 questions without a documented product decision.
+- The current entertainment model uses 24 questions across eight editorial dimensions.
+- Future question-count changes require a documented product decision and a new model version.
 - The result is presented as entertainment and self-reflection, not diagnosis.
 
 ## Validation questions
