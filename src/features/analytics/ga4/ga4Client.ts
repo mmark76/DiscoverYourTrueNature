@@ -83,14 +83,19 @@ export function createGa4Client(adapter: Ga4BrowserAdapter | null): Ga4Client {
 
   function denyAnalytics(consentState: Exclude<AnalyticsConsentState, 'accepted'>) {
     if (!adapter || !queueDefaultDeniedConsent()) return;
-    const wasAcceptedOrLoading = currentConsent === 'accepted' || scriptLoadRequested || initialized;
+    const wasAcceptedOrActive =
+      currentConsent === 'accepted'
+      || scriptLoadRequested
+      || scriptReady
+      || initialized;
+    const shouldFullyDisable = consentState === 'rejected' || wasAcceptedOrActive;
     currentConsent = consentState;
 
-    if (wasAcceptedOrLoading) {
+    if (wasAcceptedOrActive) {
       adapter.queue(['consent', 'update', ga4DisabledConsentConfig]);
     }
 
-    if (consentState === 'rejected') {
+    if (shouldFullyDisable) {
       adapter.setAnalyticsDisabled(ga4DisableProperty, true);
       clearGaCookies();
     }
