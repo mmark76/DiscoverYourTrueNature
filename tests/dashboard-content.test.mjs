@@ -45,3 +45,12 @@ test('three-card grid is intentional at desktop, tablet, and mobile widths', () 
   assert.deepEqual([0, 1, 2].map((index) => getHomeFeatureCardWidth(800, index)), ['48%', '48%', '100%']);
   assert.deepEqual([0, 1, 2].map((index) => getHomeFeatureCardWidth(390, index)), ['100%', '100%', '100%']);
 });
+
+test('Home hero separates the archetype number and caption into normal-flow layout areas', () => {
+  const hero = readFileSync('src/features/home/components/HeroSection.tsx', 'utf8');
+  assert.match(hero, /<View style=\{styles\.motifNumberArea\}>[\s\S]*?<AppText style=\{styles\.motifText\}>12<\/AppText>[\s\S]*?<\/View>/);
+  assert.match(hero, /<View style=\{styles\.motifCaptionArea\}>[\s\S]*?<AppText style=\{styles\.motifCaption\}>\{copy\.motifCaption\}<\/AppText>[\s\S]*?<\/View>/);
+  assert.doesNotMatch(hero.match(/motifNumberArea:\s*\{[^}]+\}/)?.[0] ?? '', /position:\s*'absolute'/);
+  assert.doesNotMatch(hero.match(/motifCaptionArea:\s*\{[^}]+\}/)?.[0] ?? '', /position:\s*'absolute'/);
+  assert.match(hero, /motifCaption:\s*\{\s*color:\s*colors\.text/);
+});
