@@ -99,7 +99,8 @@ from `assessmentMode: 'short' | 'long'`, but public results stay animal-only.
 
 The Short model identifier is `animals-within-short-binary-v1-15q`:
 
-- 12 fixed questions, weighted `1.0`, with exactly three in each internal area;
+- 12 fixed questions, weighted `1.0`, with exactly three in each internal area and the four areas
+  interleaved in a repeating order;
 - sociability and social intelligence maps internally to `energy`;
 - emotional intelligence maps internally to `decisions`;
 - creativity and imagination maps internally to `information`;

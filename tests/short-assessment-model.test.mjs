@@ -98,6 +98,37 @@ test('Short metadata defines 12 fixed questions, three separators, and leaves Lo
   assert.deepEqual(new Set(Object.values(shortAssessmentAreaDimensions)), new Set(dimensionIds));
 });
 
+test('the 12 fixed questions repeat sociability, emotional, creativity, and practicality', () => {
+  assert.deepEqual(shortFixedAssessmentQuestions.map(({ area }) => area), [
+    'sociability',
+    'emotional-intelligence',
+    'creativity',
+    'practicality',
+    'sociability',
+    'emotional-intelligence',
+    'creativity',
+    'practicality',
+    'sociability',
+    'emotional-intelligence',
+    'creativity',
+    'practicality',
+  ]);
+  assert.deepEqual(shortFixedAssessmentQuestions.map(({ id }) => id), [
+    'short-q01-social-setting',
+    'short-q04-noticing-feelings',
+    'short-q07-imagining-possibilities',
+    'short-q10-solving-problem',
+    'short-q02-group-conversation',
+    'short-q05-supporting-someone',
+    'short-q08-creative-start',
+    'short-q11-making-plan',
+    'short-q03-new-people',
+    'short-q06-handling-tension',
+    'short-q09-story-ideas',
+    'short-q12-checking-work',
+  ]);
+});
+
 test('every Short question is binary, single-area, weighted, and direction-balanced', () => {
   assert.deepEqual(shortAssessmentPhaseWeights, { fixed: 1, separator: 1.5 });
   assert.equal(shortFixedAssessmentQuestions.filter(({ reverseKeyed }) => reverseKeyed).length, 6);
@@ -267,4 +298,54 @@ test('all canonical primary patterns produce deterministic animal-only pairs int
       first.lockedPrimary,
     );
   }
+});
+
+test('all 32,768 Short answer paths preserve the lock and produce distinct animals', () => {
+  const reachedPrimary = new Set();
+  const reachedSecondary = new Set();
+  let completionCount = 0;
+
+  for (let fixedPattern = 0; fixedPattern < 2 ** 12; fixedPattern += 1) {
+    let lockedSession = createShortAssessmentSession();
+    for (let questionIndex = 0; questionIndex < 12; questionIndex += 1) {
+      const question = currentQuestion(lockedSession);
+      const optionIndex = (fixedPattern >> questionIndex) & 1;
+      lockedSession = answerCurrentShortAssessmentQuestion(
+        lockedSession,
+        question.id,
+        question.options[optionIndex].id,
+      );
+    }
+
+    const locked = lockedSession.lockedPrimary;
+    assert.ok(locked);
+    reachedPrimary.add(locked.primaryTypeId);
+
+    for (let separatorPattern = 0; separatorPattern < 2 ** 3; separatorPattern += 1) {
+      let completedSession = lockedSession;
+      for (let questionIndex = 0; questionIndex < 3; questionIndex += 1) {
+        const question = currentQuestion(completedSession);
+        const optionIndex = (separatorPattern >> questionIndex) & 1;
+        completedSession = answerCurrentShortAssessmentQuestion(
+          completedSession,
+          question.id,
+          question.options[optionIndex].id,
+        );
+        assert.strictEqual(completedSession.lockedPrimary, locked);
+      }
+
+      assert.equal(completedSession.answers.length, 15);
+      assert.equal(completedSession.result?.primaryTypeId, locked.primaryTypeId);
+      assert.notEqual(
+        completedSession.result?.secondaryTypeId,
+        completedSession.result?.primaryTypeId,
+      );
+      reachedSecondary.add(completedSession.result?.secondaryTypeId);
+      completionCount += 1;
+    }
+  }
+
+  assert.equal(completionCount, 32_768);
+  assert.deepEqual(reachedPrimary, new Set(personalityTypeIds));
+  assert.deepEqual(reachedSecondary, new Set(personalityTypeIds));
 });

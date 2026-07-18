@@ -31,7 +31,8 @@ The Short questionnaire contains:
 
 - 12 fixed binary questions weighted `1.0`;
 - exactly three fixed questions in each internal area: sociability and social intelligence,
-  emotional intelligence, creativity and imagination, and practicality/logic/analytical thinking;
+  emotional intelligence, creativity and imagination, and practicality/logic/analytical thinking,
+  interleaved by repeating that four-area order three times;
 - an internal one-to-one bridge from those areas to the canonical `energy`, `decisions`,
   `information`, and `structure` dimensions respectively;
 - a primary animal calculated and locked from questions 1–12;

@@ -43,16 +43,16 @@ interface ShortAssessmentQuestionDefinition {
 
 export const shortFixedQuestionDefinitions = [
   { id: 'short-q01-social-setting', phase: 'fixed', scenarioId: 'social-setting', area: 'sociability', dimension: 'energy', reverseKeyed: false },
-  { id: 'short-q02-group-conversation', phase: 'fixed', scenarioId: 'group-conversation', area: 'sociability', dimension: 'energy', reverseKeyed: true },
-  { id: 'short-q03-new-people', phase: 'fixed', scenarioId: 'new-people', area: 'sociability', dimension: 'energy', reverseKeyed: false },
   { id: 'short-q04-noticing-feelings', phase: 'fixed', scenarioId: 'noticing-feelings', area: 'emotional-intelligence', dimension: 'decisions', reverseKeyed: true },
-  { id: 'short-q05-supporting-someone', phase: 'fixed', scenarioId: 'supporting-someone', area: 'emotional-intelligence', dimension: 'decisions', reverseKeyed: false },
-  { id: 'short-q06-handling-tension', phase: 'fixed', scenarioId: 'handling-tension', area: 'emotional-intelligence', dimension: 'decisions', reverseKeyed: true },
   { id: 'short-q07-imagining-possibilities', phase: 'fixed', scenarioId: 'imagining-possibilities', area: 'creativity', dimension: 'information', reverseKeyed: true },
-  { id: 'short-q08-creative-start', phase: 'fixed', scenarioId: 'creative-start', area: 'creativity', dimension: 'information', reverseKeyed: false },
-  { id: 'short-q09-story-ideas', phase: 'fixed', scenarioId: 'story-ideas', area: 'creativity', dimension: 'information', reverseKeyed: true },
   { id: 'short-q10-solving-problem', phase: 'fixed', scenarioId: 'solving-problem', area: 'practicality', dimension: 'structure', reverseKeyed: false },
+  { id: 'short-q02-group-conversation', phase: 'fixed', scenarioId: 'group-conversation', area: 'sociability', dimension: 'energy', reverseKeyed: true },
+  { id: 'short-q05-supporting-someone', phase: 'fixed', scenarioId: 'supporting-someone', area: 'emotional-intelligence', dimension: 'decisions', reverseKeyed: false },
+  { id: 'short-q08-creative-start', phase: 'fixed', scenarioId: 'creative-start', area: 'creativity', dimension: 'information', reverseKeyed: false },
   { id: 'short-q11-making-plan', phase: 'fixed', scenarioId: 'making-plan', area: 'practicality', dimension: 'structure', reverseKeyed: true },
+  { id: 'short-q03-new-people', phase: 'fixed', scenarioId: 'new-people', area: 'sociability', dimension: 'energy', reverseKeyed: false },
+  { id: 'short-q06-handling-tension', phase: 'fixed', scenarioId: 'handling-tension', area: 'emotional-intelligence', dimension: 'decisions', reverseKeyed: true },
+  { id: 'short-q09-story-ideas', phase: 'fixed', scenarioId: 'story-ideas', area: 'creativity', dimension: 'information', reverseKeyed: true },
   { id: 'short-q12-checking-work', phase: 'fixed', scenarioId: 'checking-work', area: 'practicality', dimension: 'structure', reverseKeyed: false },
 ] as const satisfies readonly ShortAssessmentQuestionDefinition[];
 

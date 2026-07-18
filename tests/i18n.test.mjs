@@ -125,8 +125,8 @@ test('all Short fixed and separator questions resolve completely in Greek and En
   );
   for (const language of ['el', 'en']) {
     const assessment = getTranslation(language).shortAssessment;
-    assert.deepEqual(Object.keys(assessment.questions), expectedQuestionIds);
-    assert.deepEqual(Object.keys(assessment.options), expectedOptionIds);
+    assert.deepEqual(Object.keys(assessment.questions).sort(), [...expectedQuestionIds].sort());
+    assert.deepEqual(Object.keys(assessment.options).sort(), [...expectedOptionIds].sort());
     for (const question of allShortAssessmentQuestions) {
       assertPopulated(assessment.questions[question.id], `${language}.shortAssessment.${question.id}`);
       assert.deepEqual(question.options.map(({ position }) => position), ['a', 'b']);

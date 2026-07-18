@@ -92,7 +92,8 @@ Every Short question measures exactly one internal area. The area-to-canonical b
 | creativity and imagination (`creativity`) | `information` |
 | practicality, logic, and analytical thinking (`practicality`) | `structure` |
 
-The first 12 fixed questions include exactly three of each area. Six are reverse-keyed. Each area
+The first 12 fixed questions include exactly three of each area. They repeat this order three times:
+sociability, emotional intelligence, creativity, practicality. Six are reverse-keyed. Each area
 appears twice in the eight-question separator bank; four bank entries are reverse-keyed. The
 completed route uses three bank questions.
 

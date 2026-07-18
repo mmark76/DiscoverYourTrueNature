@@ -35,7 +35,7 @@ export const englishShortAssessmentQuestions = {
   'short-separator-emotional-upset-friend':
     'A friend seems upset but has not said why. How do you offer support?',
   'short-separator-emotional-fair-choice':
-    'Two people want different things and you need to make a fair choice. What guides you first?',
+    'Two people want different things, and both feel unheard. What do you do first to help?',
   'short-separator-creativity-unfamiliar-object':
     'You are given an ordinary object for a creative activity. What do you imagine first?',
   'short-separator-creativity-new-route':
@@ -64,13 +64,13 @@ export const englishShortAssessmentOptions = {
   'short-q04-noticing-feelings-b':
     'The words they use and their answers to calm, direct questions.',
   'short-q05-supporting-someone-a':
-    'Help them sort out the concern and see what they could do next.',
+    'Ask gentle questions to help them name what they are feeling and what they need.',
   'short-q05-supporting-someone-b':
-    'Listen carefully and give them room to talk about their feelings.',
+    'Listen carefully and give them time to express their feelings in their own way.',
   'short-q06-handling-tension-a':
     'Try to understand what each person feels and needs.',
   'short-q06-handling-tension-b':
-    'Calmly clarify what happened so that there is less misunderstanding.',
+    'Help both people slow down and take turns speaking, so each feels heard.',
   'short-q07-imagining-possibilities-a':
     'Think of many unexpected ideas.',
   'short-q07-imagining-possibilities-b':
@@ -109,15 +109,15 @@ export const englishShortAssessmentOptions = {
   'short-separator-emotional-upset-friend-b':
     'Stay close or do something calm together until they are ready to talk.',
   'short-separator-emotional-fair-choice-a':
-    'Use the same clear rule for both and explain it with care.',
+    'Listen to each person separately so both can explain how the situation feels to them.',
   'short-separator-emotional-fair-choice-b':
-    'Consider each person\'s needs and circumstances.',
+    'Help them talk together and notice what the other person feels and needs.',
   'short-separator-creativity-unfamiliar-object-a':
     'Many completely different ways the object could be used.',
   'short-separator-creativity-unfamiliar-object-b':
-    'A clever change that could improve the object\'s usual use.',
+    'One imaginative role for the object, developed with vivid details.',
   'short-separator-creativity-new-route-a':
-    'Arrange real examples into a new, clear pattern.',
+    'Combine familiar examples in a surprising new way.',
   'short-separator-creativity-new-route-b':
     'Use an unexpected story or image to show the main idea.',
   'short-separator-practicality-busy-day-a':

@@ -58,6 +58,8 @@ Focused Short model tests prove:
 - Long's exported completed-question count remains exactly 30;
 - the 12 fixed questions contain exactly 3 sociability, 3 emotional-intelligence, 3 creativity, and
   3 practicality questions;
+- those fixed questions repeat sociability, emotional intelligence, creativity, and practicality
+  in that exact order three times;
 - every question has exactly one area, maps to exactly one canonical dimension, and offers exactly
   two current A/B options spanning its two poles;
 - the separator bank has exactly 8 questions, 2 per area, and a completed route has 3 unique
@@ -68,6 +70,9 @@ Focused Short model tests prove:
 - question 15 produces a deterministic secondary that is always distinct from the lock;
 - the same complete answers produce byte-for-byte identical sessions and results across repeated
   runs and all 16 canonical primary fixtures;
+- all 32,768 combinations of 12 fixed answers and 3 separator answers retain the locked primary,
+  finish with exactly 15 answers, produce a distinct secondary, and reach all 16 primary and
+  secondary animals;
 - changing a fixed answer clears dependent separator progress and recomputes the route safely;
 - changing a separator answer preserves the route and locked primary.
 
