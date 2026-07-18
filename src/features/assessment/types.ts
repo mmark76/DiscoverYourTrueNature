@@ -63,13 +63,6 @@ export interface AssessmentResult extends LockedPrimaryResult {
   secondaryTypeId: PersonalityTypeId;
 }
 
-export interface AssessmentRanking {
-  poleTotals: PoleScoreMap;
-  profile: DimensionProfile;
-  matches: readonly PersonalityMatch[];
-  result: AssessmentResult;
-}
-
 export type ContextProfileDirection = 'first' | 'second' | 'balanced';
 export type ContextProfileKind =
   | 'personal-stronger'

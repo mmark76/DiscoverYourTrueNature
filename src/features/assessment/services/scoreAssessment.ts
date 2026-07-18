@@ -23,7 +23,6 @@ import type {
   AssessmentAnswer,
   AssessmentContext,
   AssessmentPhase,
-  AssessmentRanking,
   AssessmentResult,
   ContextProfileDirection,
   ContextProfileObservation,
@@ -177,17 +176,6 @@ export function calculateFinalAssessmentResult(
 }
 
 export const calculateAssessmentResult = calculateFinalAssessmentResult;
-
-export function calculateAssessmentRanking(
-  answers: readonly AssessmentAnswer[],
-  lockedPrimary: LockedPrimaryResult,
-): AssessmentRanking {
-  const poleTotals = calculatePoleTotals(answers);
-  const profile = calculateSignedDimensionProfile(poleTotals);
-  const matches = rankPersonalityTypes(profile, lockedPrimary.primaryTypeId);
-  const result = calculateFinalAssessmentResult(answers, lockedPrimary);
-  return { poleTotals, profile, matches, result };
-}
 
 export function calculateContextProfiles(
   answers: readonly AssessmentAnswer[],
