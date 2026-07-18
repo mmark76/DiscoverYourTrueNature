@@ -75,7 +75,8 @@ test('header keeps navigation, links, and controls in three explicit complete gr
   assert.match(navigationGroup, /navigationItems\.map/);
   assert.equal((headerSource.match(/screen: '(?:home|assessment|animals|how-it-works)'/g) ?? []).length, 4);
 
-  assert.match(linkGroup, /content\.header\.feedback/);
+  assert.match(linkGroup, /label="Feedback"/);
+  assert.match(linkGroup, /accessibilityLabel="Feedback μέσω email"/);
   assert.match(linkGroup, /content\.header\.ecosystemLink/);
   assert.doesNotMatch(linkGroup, /languageSelector|content\.header\.settings/);
 
@@ -86,14 +87,17 @@ test('header keeps navigation, links, and controls in three explicit complete gr
   assert.match(headerSource, /role="radiogroup"/);
 });
 
-test('Feedback and Markellos Ecosystem share one typography style', () => {
+test('Feedback remains English and highlighted while Markellos Ecosystem uses the standard link style', () => {
   const linkGroup = sourceBetween(
     headerSource,
     'testID="header-link-group"',
     '</View>',
   );
 
-  assert.equal((linkGroup.match(/textStyle=\{styles\.headerLinkLabel\}/g) ?? []).length, 2);
+  assert.equal((linkGroup.match(/textStyle=\{styles\.feedbackLinkLabel\}/g) ?? []).length, 1);
+  assert.equal((linkGroup.match(/textStyle=\{styles\.headerLinkLabel\}/g) ?? []).length, 1);
+  assert.match(headerSource, /feedbackLinkLabel:[^\n]*color:\s*colors\.accent/);
+  assert.match(headerSource, /feedbackLinkLabel:[^\n]*fontWeight:\s*'800'/);
   assert.doesNotMatch(linkGroup, /ecosystemLabel|fontSize/);
 });
 

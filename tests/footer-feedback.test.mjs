@@ -42,7 +42,7 @@ test('feedback draft accepts no assessment, animal, personality, or scoring cont
 
   assert.doesNotMatch(
     feedbackSource,
-    /features\/(?:assessment|personalities|animals|results)|questionId|optionId|rankings|adaptiveQuestion|primaryTypeId|secondaryTypeId|animalId|score|distance|confidence/i,
+    /features\/(?:assessment|personalities|animals|results)|questionId|optionId|selectedOptionId|rankings|adaptiveQuestion|adaptiveRoute|lockedPrimary|personalProfile|professionalProfile|contextProfile|primaryTypeId|secondaryTypeId|animalId|score|distance|confidence/i,
   );
   assert.doesNotMatch(
     publicDraft,
@@ -66,7 +66,9 @@ test('header and footer share the active centralized Feedback builder', () => {
   assert.match(footerSource, /https:\/\/markellosecosystem\.com/);
   assert.match(footerSource, /url=\{ecosystemUrl\}/);
   assert.match(footerSource, /\{buildVersion\}/);
-  assert.doesNotMatch(footerSource, /colors\.accent/);
+  assert.match(footerSource, /label="Feedback"/);
+  assert.match(footerSource, /textStyle=\{styles\.feedbackLinkLabel\}/);
+  assert.match(footerSource, /feedbackLinkLabel:[^\n]*color:\s*colors\.accent/);
 });
 
 test('footer renders a dynamic current-year copyright notice', () => {
@@ -88,7 +90,7 @@ test('footer has exactly two semantic rows in accessible content order', () => {
   assert.equal((footerSource.match(/testID="footer-row-/g) ?? []).length, 2);
   const order = [
     'testID="footer-row-copyright"',
-    'content.footer.feedbackAccessibilityLabel',
+    'accessibilityLabel="Feedback μέσω email"',
     'content.footer.analyticsChoicesAccessibilityLabel',
     'content.footer.ecosystemAccessibilityLabel',
     'content.footer.buildAccessibilityLabel',
