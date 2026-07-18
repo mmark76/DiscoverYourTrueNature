@@ -101,7 +101,11 @@ test('accessibility labels announce animal names and descriptions, never impleme
   const animalCard = readFileSync('src/features/animals/components/AnimalCard.tsx', 'utf8');
   const assessmentScreen = readFileSync('src/features/assessment/components/AssessmentScreen.tsx', 'utf8');
   const binaryCard = readFileSync('src/features/assessment/components/BinaryOptionCard.tsx', 'utf8');
-  const accessibilitySource = `${resultScreen}\n${animalCard}\n${assessmentScreen}\n${binaryCard}`;
+  const modeChooser = readFileSync(
+    'src/features/assessment/components/AssessmentModeChooser.tsx',
+    'utf8',
+  );
+  const accessibilitySource = `${resultScreen}\n${animalCard}\n${assessmentScreen}\n${binaryCard}\n${modeChooser}`;
 
   assert.match(resultScreen, /primary: primaryCopy\.name/);
   assert.match(resultScreen, /secondary: secondaryCopy\.name/);
@@ -110,6 +114,8 @@ test('accessibility labels announce animal names and descriptions, never impleme
   assert.match(animalCard, /indicator: indicators/);
   assert.match(binaryCard, /accessibilityRole="radio"/);
   assert.match(binaryCard, /accessibilityState=\{\{ checked: selected \}\}/);
+  assert.match(modeChooser, /accessibilityRole="button"/);
+  assert.match(modeChooser, /accessibilityLabel=\{`\$\{title\}/);
   assert.doesNotMatch(accessibilitySource, /primaryTypeId|secondaryTypeId|PersonalityTypeId|\.code\b|personalityTitle/i);
 
   for (const content of Object.values(translations)) {
@@ -149,6 +155,10 @@ test('page metadata, screen routes, and public navigation cannot reveal a person
 
 test('Home, How It Works, catalogue, and result source never render classification labels', () => {
   const publicSources = [
+    'src/features/assessment/components/AssessmentModeChooser.tsx',
+    'src/features/assessment/components/QuestionnaireSelectionScreen.tsx',
+    'src/features/assessment/components/AssessmentScreen.tsx',
+    'src/features/assessment/components/BinaryOptionCard.tsx',
     'src/features/home/components/HomeScreen.tsx',
     'src/features/home/components/HeroSection.tsx',
     'src/features/home/components/FeatureCard.tsx',
@@ -162,6 +172,39 @@ test('Home, How It Works, catalogue, and result source never render classificati
 
   assertAnimalFirstPublicText(publicSources, 'public component source');
   assert.doesNotMatch(publicSources, /personalityTitle|classificationTitle|typeCode|\.code\b/i);
+});
+
+test('public mode selection and assessment UI never render internal areas or dimensions', () => {
+  const assessmentScreen = readFileSync(
+    'src/features/assessment/components/AssessmentScreen.tsx',
+    'utf8',
+  );
+  const chooser = readFileSync(
+    'src/features/assessment/components/AssessmentModeChooser.tsx',
+    'utf8',
+  );
+  const selection = readFileSync(
+    'src/features/assessment/components/QuestionnaireSelectionScreen.tsx',
+    'utf8',
+  );
+  const publicComponentSource = `${assessmentScreen}\n${chooser}\n${selection}`;
+  const publicOverviewCopy = Object.values(translations)
+    .flatMap((content) => [
+      ...stringLeaves(content.home),
+      ...stringLeaves(content.questionnaires),
+      ...stringLeaves(content.howItWorks),
+      ...stringLeaves(content.results),
+    ])
+    .join('\n');
+
+  assert.doesNotMatch(
+    publicComponentSource,
+    /question\.area|question\.dimension|shortAssessmentArea|dimensionDefinitions|poleTotals/i,
+  );
+  assert.doesNotMatch(
+    publicOverviewCopy,
+    /sociability and social intelligence|emotional intelligence|creativity and imagination|practicality, logic and analytical thinking/i,
+  );
 });
 
 test('feedback and any future share surface contain no assessment classification context', () => {

@@ -48,7 +48,7 @@ test('catalogue distinguishes primary and secondary animals without relying only
 
 test('Home exposes only its three functional feature cards', () => {
   assert.deepEqual(homeFeatures, [
-    { id: 'discovery', screen: 'assessment' },
+    { id: 'discovery', screen: 'questionnaires' },
     { id: 'animals', screen: 'animals' },
     { id: 'how-it-works', screen: 'how-it-works' },
   ]);
@@ -85,16 +85,22 @@ test('Home hero presents sixteen symbolic animals in normal-flow layout areas', 
   assert.match(hero, /motifCaption:\s*\{\s*color:\s*colors\.text/);
 });
 
-test('Home explains the 30-question two-choice animal-first experience without internal detail', () => {
+test('Home explains both questionnaire lengths and the two-choice animal-first experience', () => {
   const english = JSON.stringify(translations.en.home);
   const greek = JSON.stringify(translations.el.home);
+  assert.match(english, /15|fifteen/i);
   assert.match(english, /30|thirty/i);
+  assert.match(english, /3|three/i);
+  assert.match(english, /6|six/i);
   assert.match(english, /16|sixteen/i);
   assert.match(english, /two-choice|A\/B/i);
   assert.match(english, /primary/i);
   assert.match(english, /secondary/i);
   assert.match(english, /local|device/i);
+  assert.match(greek, /15|δεκαπέντε/u);
   assert.match(greek, /30|τριάντα/u);
+  assert.match(greek, /3|τρία/u);
+  assert.match(greek, /6|έξι/u);
   assert.match(greek, /16|δεκαέξι/u);
   assert.doesNotMatch(
     `${english}\n${greek}`,
