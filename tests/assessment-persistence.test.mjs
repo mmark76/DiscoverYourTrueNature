@@ -76,6 +76,7 @@ test('storage keys, schema, and model version mark the incompatible binary bound
   assert.deepEqual(createAssessmentSession(), {
     schemaVersion: 3,
     modelVersion: '16-personality-binary-v2-30q',
+    assessmentMode: 'long',
     currentQuestionIndex: 0,
     answers: [],
     adaptiveQuestionIds: [],
@@ -192,6 +193,35 @@ test('normalization rejects unknown schema or model without mutating input', () 
   assert.equal(normalizeStoredAssessmentSession(wrongModel), null);
   assert.deepEqual(wrongSchema, snapshots[0]);
   assert.deepEqual(wrongModel, snapshots[1]);
+});
+
+test('legacy schema-3 Long progress without assessmentMode upgrades without data loss', () => {
+  const current = answerUntil(30);
+  const legacy = structuredClone(current);
+  delete legacy.assessmentMode;
+  delete legacy.result.assessmentMode;
+
+  assert.deepEqual(normalizeStoredAssessmentSession(legacy), current);
+
+  const storage = createMemoryStorage({
+    [assessmentStorageKey]: JSON.stringify(legacy),
+  });
+  assert.deepEqual(restoreAssessmentSession(storage), current);
+  assert.equal(storage.removed.includes(assessmentStorageKey), false);
+});
+
+test('Long normalization rejects the Short mode and inconsistent legacy/current mode shapes', () => {
+  const current = answerUntil(30);
+  const wrongMode = { ...structuredClone(current), assessmentMode: 'short' };
+  assert.equal(normalizeStoredAssessmentSession(wrongMode), null);
+
+  const missingTopLevelModeOnly = structuredClone(current);
+  delete missingTopLevelModeOnly.assessmentMode;
+  assert.equal(normalizeStoredAssessmentSession(missingTopLevelModeOnly), null);
+
+  const missingResultModeOnly = structuredClone(current);
+  delete missingResultModeOnly.result.assessmentMode;
+  assert.equal(normalizeStoredAssessmentSession(missingResultModeOnly), null);
 });
 
 test('normalization rejects malformed binary answers, duplicates, extra fields, and unknown IDs', () => {
@@ -332,6 +362,7 @@ test('persisted assessment uses an explicit allowlist with no scores or public c
   assert.deepEqual(Object.keys(stored).sort(), [
     'adaptiveQuestionIds',
     'answers',
+    'assessmentMode',
     'currentQuestionIndex',
     'lockedPrimary',
     'modelVersion',
@@ -344,6 +375,7 @@ test('persisted assessment uses an explicit allowlist with no scores or public c
     'primaryTypeId',
   ]);
   assert.deepEqual(Object.keys(stored.result).sort(), [
+    'assessmentMode',
     'balancedDimensionIds',
     'hasCloseMatch',
     'primaryTypeId',
