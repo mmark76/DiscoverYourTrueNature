@@ -1,5 +1,9 @@
 import type { TranslationContent } from '../translationTypes';
 import { englishAssessmentOptions, englishAssessmentQuestions } from './assessment.en.ts';
+import {
+  englishShortAssessmentOptions,
+  englishShortAssessmentQuestions,
+} from './shortAssessment.en.ts';
 
 const entertainmentDisclaimer = 'An entertainment self-discovery experience. The animals are used symbolically. This is not a psychological diagnosis or a scientifically validated assessment.';
 
@@ -25,27 +29,26 @@ export const englishContent = {
   },
   home: {
     heroEyebrow: 'AN ENTERTAINMENT SELF-DISCOVERY EXPERIENCE',
-    heroSubtitle: 'Discover your primary and secondary symbolic animals.',
+    heroSubtitle:
+      'Choose a Short or Long path to discover your primary and secondary symbolic animals.',
     heroDescription:
-      'Choose between familiar behaviours in a private self-discovery experience that runs locally on your device.',
-    heroAction: 'Start discovery',
-    heroActionHint: 'Starts the thirty-question Animals Within experience',
+      'Both questionnaires use simple A/B choices, keep their progress separately on your device, and lead to the same animal-first result experience.',
     motifCaption: 'symbolic animals',
     highlights: [
-      '30 two-choice questions explore familiar situations in personal and professional life.',
+      'The Short questionnaire has 15 questions and takes about 3 minutes.',
+      'The Long questionnaire has 30 questions and takes about 6 minutes.',
       'Choose the option that more closely describes what you usually do.',
-      'Across all 30 choices, the experience identifies your primary animal and a distinct secondary animal.',
       'Your choices stay on your device while 16 symbolic animal patterns are considered.',
     ],
     sectionEyebrow: 'EXPLORE THE EXPERIENCE',
     sectionTitle: 'Choose where you want to begin',
     features: {
       discovery: {
-        eyebrow: 'THE EXPERIENCE',
-        title: 'Find the animals within you',
+        eyebrow: 'YOUR CHOICE',
+        title: 'Choose Short or Long',
         description:
-          'Complete 30 simple A/B questions and meet your primary and secondary symbolic animals.',
-        actionLabel: 'Start now',
+          'Compare the 15-question and 30-question paths, then start or continue either one.',
+        actionLabel: 'View both choices',
       },
       animals: {
         eyebrow: 'THE ANIMALS',
@@ -62,6 +65,26 @@ export const englishContent = {
         actionLabel: 'Learn more',
       },
     },
+  },
+  questionnaires: {
+    eyebrow: 'CHOOSE YOUR QUESTIONNAIRE',
+    title: 'How much time would you like?',
+    description:
+      'Both choices use simple A/B questions and lead to a primary and secondary symbolic animal.',
+    groupLabel: 'Short and Long questionnaire choices',
+    shortTitle: 'Short questionnaire',
+    shortMeta: '15 questions · About 3 minutes',
+    shortDescription:
+      'A quick, independent path through familiar choices from everyday life.',
+    shortAction: 'Start or continue Short',
+    shortHint: 'Opens your separately saved 15-question Short questionnaire',
+    longTitle: 'Long questionnaire',
+    longMeta: '30 questions · About 6 minutes',
+    longDescription:
+      'The existing in-depth questionnaire with familiar personal and professional situations.',
+    longAction: 'Start or continue Long',
+    longHint: 'Opens your separately saved 30-question Long questionnaire',
+    persistenceNote: 'Short and Long progress are saved separately on this device.',
   },
   assessment: {
     eyebrow: 'DISCOVER YOUR ANIMAL PATTERNS',
@@ -89,9 +112,37 @@ export const englishContent = {
     questions: englishAssessmentQuestions,
     options: englishAssessmentOptions,
   },
+  shortAssessment: {
+    eyebrow: 'SHORT QUESTIONNAIRE',
+    counter: 'Question {current} of {total}',
+    progressLabel: 'Short questionnaire progress: question {current} of {total}',
+    personalContext: 'Everyday life',
+    professionalContext: 'Everyday life',
+    introduction:
+      'Choose the option that more closely describes what you usually do. Select one answer to continue.',
+    answerGroupLabel: 'Answer choices for this question',
+    optionA: 'A',
+    optionB: 'B',
+    optionAccessibilityLabel: 'Option {letter}: {statement}',
+    optionHint: 'Selects this answer',
+    selected: 'Selected',
+    selectionAnnouncement: 'Option {letter} selected. You can continue.',
+    selectionRequired: 'Choose one answer to continue.',
+    selectionComplete: 'One answer is selected. You can continue.',
+    back: 'Back',
+    backHint: 'Returns to the previous question and keeps your saved answer',
+    continue: 'Continue',
+    continueHint: 'Moves to the next question',
+    finish: 'See my animals',
+    finishHint: 'Shows your primary and secondary animals from the Short questionnaire',
+    questions: englishShortAssessmentQuestions,
+    options: englishShortAssessmentOptions,
+  },
   results: {
     eyebrow: 'YOUR ANIMALS WITHIN',
     title: 'Two related sides of your pattern',
+    shortQuestionnaireResult: 'Short questionnaire result',
+    longQuestionnaireResult: 'Long questionnaire result',
     primaryAnimal: 'Primary animal',
     secondaryAnimal: 'Secondary animal',
     typicalStrengths: 'Typical strengths',
@@ -343,7 +394,7 @@ export const englishContent = {
     eyebrow: 'HOW IT WORKS',
     title: 'A simple, local, and animal-first experience',
     introduction:
-      'Every completed run contains exactly 30 A/B questions. The calculation happens on your device, and the result presents two symbolic animals without scores or percentages.',
+      'Choose either 15 Short questions or 30 Long questions. Both are calculated on your device and present two symbolic animals without scores or percentages.',
     steps: [
       {
         title: 'Choose what is closer to you',
@@ -353,12 +404,12 @@ export const englishContent = {
       {
         title: 'Consider everyday situations',
         description:
-          'The first 20 questions use familiar situations from personal interests, learning, and professional life.',
+          'Both paths use familiar everyday situations. The Long path also explores more personal and professional settings.',
       },
       {
-        title: 'Complete all 30 questions',
+        title: 'Choose the depth that fits your time',
         description:
-          'The questions move from familiar situations to more focused comparisons across personal and professional life. Together, they shape a primary animal and a distinct secondary animal.',
+          'Short takes about 3 minutes. Long takes about 6 minutes and explores more personal and professional situations.',
       },
       {
         title: 'Meet two symbolic animals',
@@ -374,8 +425,8 @@ export const englishContent = {
       'Changing language or appearance does not change your answers or result.',
     ],
     disclaimer: entertainmentDisclaimer,
-    action: 'Start discovery',
-    actionHint: 'Starts the thirty-question Animals Within experience',
+    action: 'Choose a questionnaire',
+    actionHint: 'Opens the Short and Long questionnaire choices',
   },
   settings: {
     title: 'Appearance settings',

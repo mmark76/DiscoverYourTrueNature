@@ -3,6 +3,10 @@ import type {
   AssessmentOptionId,
   AssessmentQuestionId,
 } from '../features/assessment/data/questions';
+import type {
+  ShortAssessmentOptionId,
+  ShortAssessmentQuestionId,
+} from '../features/assessment/data/shortQuestions';
 import type { HomeFeatureId } from '../features/home/data/features';
 
 export interface HomeFeatureCopy {
@@ -34,6 +38,35 @@ export interface ProcessStepCopy {
   description: string;
 }
 
+export interface QuestionnaireInteractionCopy<
+  QuestionId extends string,
+  OptionId extends string,
+> {
+  eyebrow: string;
+  counter: string;
+  progressLabel: string;
+  personalContext: string;
+  professionalContext: string;
+  introduction: string;
+  answerGroupLabel: string;
+  optionA: string;
+  optionB: string;
+  optionAccessibilityLabel: string;
+  optionHint: string;
+  selected: string;
+  selectionAnnouncement: string;
+  selectionRequired: string;
+  selectionComplete: string;
+  back: string;
+  backHint: string;
+  continue: string;
+  continueHint: string;
+  finish: string;
+  finishHint: string;
+  questions: Record<QuestionId, string>;
+  options: Record<OptionId, string>;
+}
+
 export interface TranslationContent {
   common: {
     productName: string;
@@ -58,42 +91,39 @@ export interface TranslationContent {
     heroEyebrow: string;
     heroSubtitle: string;
     heroDescription: string;
-    heroAction: string;
-    heroActionHint: string;
     motifCaption: string;
     highlights: readonly [string, string, string, string];
     sectionEyebrow: string;
     sectionTitle: string;
     features: Record<HomeFeatureId, HomeFeatureCopy>;
   };
-  assessment: {
+  questionnaires: {
     eyebrow: string;
-    counter: string;
-    progressLabel: string;
-    personalContext: string;
-    professionalContext: string;
-    introduction: string;
-    answerGroupLabel: string;
-    optionA: string;
-    optionB: string;
-    optionAccessibilityLabel: string;
-    optionHint: string;
-    selected: string;
-    selectionAnnouncement: string;
-    selectionRequired: string;
-    selectionComplete: string;
-    back: string;
-    backHint: string;
-    continue: string;
-    continueHint: string;
-    finish: string;
-    finishHint: string;
-    questions: Record<AssessmentQuestionId, string>;
-    options: Record<AssessmentOptionId, string>;
+    title: string;
+    description: string;
+    groupLabel: string;
+    shortTitle: string;
+    shortMeta: string;
+    shortDescription: string;
+    shortAction: string;
+    shortHint: string;
+    longTitle: string;
+    longMeta: string;
+    longDescription: string;
+    longAction: string;
+    longHint: string;
+    persistenceNote: string;
   };
+  assessment: QuestionnaireInteractionCopy<AssessmentQuestionId, AssessmentOptionId>;
+  shortAssessment: QuestionnaireInteractionCopy<
+    ShortAssessmentQuestionId,
+    ShortAssessmentOptionId
+  >;
   results: {
     eyebrow: string;
     title: string;
+    shortQuestionnaireResult: string;
+    longQuestionnaireResult: string;
     primaryAnimal: string;
     secondaryAnimal: string;
     typicalStrengths: string;

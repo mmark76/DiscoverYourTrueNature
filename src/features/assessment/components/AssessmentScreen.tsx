@@ -10,26 +10,25 @@ import { AppText } from '../../../shared/components/AppText';
 import { FocusablePressable } from '../../../shared/components/FocusablePressable';
 import { PageContent } from '../../../shared/components/PageContent';
 import { theme } from '../../../shared/styles/theme';
-import type {
-  AssessmentOptionId,
-  AssessmentQuestionId,
-  AssessmentQuestionData,
-} from '../data/questions';
-import type { AssessmentOptionPosition } from '../types';
+import type { AssessmentQuestionData } from '../data/questions';
+import type { ShortAssessmentQuestionData } from '../data/shortQuestions';
+import type { AssessmentMode, AssessmentOptionPosition } from '../types';
 import { BinaryOptionCard } from './BinaryOptionCard';
 
 interface AssessmentScreenProps {
-  question: AssessmentQuestionData;
+  assessmentMode: AssessmentMode;
+  question: AssessmentQuestionData | ShortAssessmentQuestionData;
   questionNumber: number;
   totalQuestions: number;
   selectedOptionId: string | null;
   canGoBack: boolean;
-  onSelectOption: (optionId: AssessmentOptionId) => void;
+  onSelectOption: (optionId: string) => void;
   onBack: () => void;
   onContinue: () => void;
 }
 
 export function AssessmentScreen({
+  assessmentMode,
   question,
   questionNumber,
   totalQuestions,
@@ -42,7 +41,8 @@ export function AssessmentScreen({
   const questionHeadingRef = useRef<View>(null);
   const { colors } = useAppearance();
   const { content, language } = useTranslation();
-  const copy = content.assessment;
+  const copy = assessmentMode === 'short' ? content.shortAssessment : content.assessment;
+  const questionText = getRequiredCopy(copy.questions, question.id);
   const progress = questionNumber / totalQuestions;
   const counter = formatTranslation(copy.counter, { current: questionNumber, total: totalQuestions });
   const progressLabel = formatTranslation(copy.progressLabel, {
@@ -53,9 +53,11 @@ export function AssessmentScreen({
   const hasSelection = selectedOption !== null;
   const selectedLetter = selectedOption ? getOptionLetter(selectedOption.position, copy) : null;
   const isLastQuestion = questionNumber === totalQuestions;
-  const contextLabel = question.context === 'personal'
-    ? copy.personalContext
-    : copy.professionalContext;
+  const contextLabel = assessmentMode === 'short'
+    ? content.questionnaires.shortTitle
+    : 'context' in question && question.context === 'personal'
+      ? copy.personalContext
+      : copy.professionalContext;
   const styles = createStyles(colors);
 
   useEffect(() => {
@@ -83,14 +85,14 @@ export function AssessmentScreen({
             <AppText style={styles.contextLabel}>{contextLabel}</AppText>
             <View
               accessible
-              accessibilityLabel={copy.questions[question.id as AssessmentQuestionId]}
+              accessibilityLabel={questionText}
               accessibilityLiveRegion="polite"
               accessibilityRole="header"
               ref={questionHeadingRef}
               tabIndex={-1}
             >
               <AppText style={styles.question}>
-                {copy.questions[question.id as AssessmentQuestionId]}
+                {questionText}
               </AppText>
             </View>
           </View>
@@ -104,7 +106,7 @@ export function AssessmentScreen({
           >
             {question.options.map((option) => {
               const letter = getOptionLetter(option.position, copy);
-              const label = copy.options[option.id as AssessmentOptionId];
+              const label = getRequiredCopy(copy.options, option.id);
               return (
                 <BinaryOptionCard
                   accessibilityHint={copy.optionHint}
@@ -115,7 +117,7 @@ export function AssessmentScreen({
                   key={option.id}
                   label={label}
                   letter={letter}
-                  onSelect={() => onSelectOption(option.id as AssessmentOptionId)}
+                  onSelect={() => onSelectOption(option.id)}
                   selected={option.id === selectedOptionId}
                   selectedLabel={copy.selected}
                 />
@@ -191,6 +193,15 @@ function getOptionLetter(
   copy: { optionA: string; optionB: string },
 ): string {
   return position === 'a' ? copy.optionA : copy.optionB;
+}
+
+function getRequiredCopy(
+  values: Readonly<Record<string, string>>,
+  id: string,
+): string {
+  const value = values[id];
+  if (!value) throw new Error(`Missing questionnaire copy for ${id}.`);
+  return value;
 }
 
 function createStyles(colors: SemanticColors) {

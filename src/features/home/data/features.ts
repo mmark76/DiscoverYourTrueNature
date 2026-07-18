@@ -8,7 +8,7 @@ export interface HomeFeature {
 export const homeFeatures = [
   {
     id: 'discovery',
-    screen: 'assessment',
+    screen: 'questionnaires',
   },
   {
     id: 'animals',

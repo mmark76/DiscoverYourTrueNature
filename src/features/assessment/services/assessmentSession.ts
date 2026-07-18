@@ -28,6 +28,7 @@ export function createAssessmentSession(): AssessmentSession {
   return {
     schemaVersion: assessmentSchemaVersion,
     modelVersion: assessmentModelVersion,
+    assessmentMode: 'long',
     currentQuestionIndex: 0,
     answers: [],
     adaptiveQuestionIds: [],

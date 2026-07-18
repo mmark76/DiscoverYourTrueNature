@@ -171,6 +171,7 @@ export function calculateFinalAssessmentResult(
   if (!secondary) throw new Error('The assessment requires a distinct secondary match.');
   return {
     ...lockedPrimary,
+    assessmentMode: 'long',
     secondaryTypeId: secondary.personality.id,
   };
 }
