@@ -1,132 +1,137 @@
 # Architecture
 
 Animals Within is an Expo React Native TypeScript application targeting web and Android-compatible
-React Native surfaces. The product uses local deterministic assessment logic and has no assessment
-backend dependency.
+React Native surfaces. Assessment logic is local, deterministic, and independent of a backend.
 
 ## System boundaries
 
 | Layer | Responsibility |
 | --- | --- |
 | App composition | providers, safe-area root, screen routing, assessment initialization |
-| Shared shell | responsive header, page container, footer, focus utilities, theme tokens |
-| Settings | language and appearance state plus its independent persistence |
-| Assessment domain | stable IDs, ranking validation, session transitions, adaptive selection, scoring, persistence |
-| Personality-animal domain | 16 internal type corners and the one-to-one symbolic animal mapping |
-| Localization | Greek and English user-facing strings keyed by language-neutral IDs |
-| Presentation features | Home, ranked assessment, animal-first result, catalogue, How It Works, Settings |
+| Shared shell | responsive header, page container, fixed footer, focus utilities, theme tokens |
+| Settings | language and appearance state plus independent persistence |
+| Assessment domain | binary validation, session transitions, adaptive selection, scoring, context profiles, persistence |
+| Personality-animal domain | 16 internal canonical corners and one-to-one symbolic animal mapping |
+| Localization | Greek and English visible strings keyed by language-neutral IDs |
+| Presentation features | Home, binary assessment, animal-first result, catalogue, How It Works, Settings |
 | Analytics | independent consent state and isolated GA4 bootstrap |
 
-Business rules remain in pure typed functions inside their feature. Screen components consume those
-functions and presentation data; they do not reimplement scoring, adaptive selection, or migration.
+Business rules remain in small pure typed functions inside their feature. Screens consume those
+functions and public presentation data; they do not reimplement scoring, selection, or migration.
 
 ## Assessment data separation
 
-Language-neutral question metadata contains only:
+Language-neutral question metadata contains:
 
-- stable question, option, dimension, pole, and scenario IDs;
-- fixed or adaptive phase;
-- option intensity;
-- deterministic ordering metadata.
+- stable question, option, dimension, pole, phase, context, and scenario IDs;
+- one pole and one A/B position per option;
+- phase weight and reverse-key metadata;
+- deterministic source and adaptive-selection order.
 
-Greek and English dictionaries contain the question prompts, option statements, ranking guide,
-validation messages, animal descriptions, strengths, possible blind spots, behavioral tendencies,
-relationship copy, actions, accessibility copy, and disclaimer. They do not contain poles,
-intensities, phase weights, or distance metadata.
+Greek and English dictionaries contain prompts, two option statements, A/B labels, selection and
+validation messages, optional public context labels, animal descriptions, strengths, possible blind
+spots, behavioral tendencies, relationship/context copy, actions, accessibility copy, and disclaimer.
+They do not contain poles, weights, reverse-key flags, profiles, distances, or selection priorities.
 
-This separation lets a language change replace only rendered copy. It cannot alter answers,
-adaptive question selection, internal results, or scoring.
+This separation lets a language change replace rendered copy only. It cannot alter selected option
+IDs, current position, adaptive route, locked primary, final result, or score calculation.
 
 ## Assessment flow
 
-The assessment state machine follows this sequence:
+The state machine follows this sequence:
 
 ```text
-restore or create schema 2 session
-  -> collect 20 complete ranking permutations
-  -> calculate fixed-only dimension balances
-  -> deterministically select 5 adaptive IDs (2 + 2 + 1)
-  -> collect 5 complete ranking permutations
-  -> calculate final four-dimensional profile
-  -> rank all 16 canonical corners
-  -> retain primary, distinct secondary, and balanced dimensions
-  -> project internal result into animal-only localized presentation
+restore or create schema 3 session
+  -> collect 20 everyday binary answers
+  -> collect 5 structured binary answers
+  -> calculate the questions-1-to-25 base profile
+  -> lock the primary animal
+  -> rank nearby non-primary candidates
+  -> deterministically select 5 adaptive IDs (2 personal + 3 professional)
+  -> collect 5 adaptive binary answers
+  -> calculate the all-30 final profile
+  -> retain the locked primary and select a distinct secondary
+  -> derive optional context observation from questions 1–25 only
+  -> project internal results into animal-only localized presentation
 ```
 
-Every transition validates that the active question is current and that ranks 1, 2, 3, and 4 are
-used exactly once. Invalid or stale actions cannot advance the session. Navigation to another
-screen does not destroy the session.
+Every answer transition validates the active question and exactly one option belonging to it. Invalid,
+stale, or replayed actions cannot advance. Navigation to another screen does not destroy the session.
 
 ## Pure scoring and selection services
 
-The domain exposes separate pure operations for:
+The assessment domain exposes separate pure operations for:
 
-- assigning and swapping/moving ranks;
-- validating complete rankings;
-- accumulating pole contributions with fixed weight 1 and adaptive weight 0.75;
-- normalizing each pole pair to a signed preference;
-- ordering dimensions by closeness and stable dimension order;
-- selecting unique adaptive questions by the 2/2/1 rule and stable ID order;
-- calculating equal-weight normalized distance to all 16 type corners;
-- retaining exact balanced-dimension markers;
-- selecting the closest primary and next distinct secondary result.
+- creating and validating a single-option answer;
+- replacing a selected option without retaining both choices;
+- accumulating signed contributions with weights `1.0`, `1.25`, and `1.5`;
+- normalizing each dimension by its own answered weight and clamping to `[-1, 1]`;
+- ranking all 16 canonical corners with canonical-order tie-breaks;
+- locking the primary from questions 1–25;
+- selecting five unique adaptive questions from disagreements among nearby non-primary candidates;
+- enforcing exactly two personal and three professional adaptive contexts;
+- selecting a final secondary while excluding the locked primary;
+- deriving score-free personal-versus-professional observation metadata from questions 1–25.
 
-Randomness, translated text, locale comparison, object-property iteration, and appearance settings do
-not participate in these functions.
+Randomness, translated text, locale comparison, appearance state, and object-property iteration do
+not participate in these functions. The phase weights and context threshold are explicit
+product-design constants, not psychometric coefficients.
 
 ## Public presentation boundary
 
-Four-letter personality codes are internal identifiers. The UI projection resolves an internal
-result to:
+Four-letter personality codes are internal identifiers. The UI projection resolves internal state
+to:
 
 - primary animal and personality description;
 - strengths, possible blind spots, and behavioral tendencies;
 - secondary animal and personality description;
-- the relationship between the two animal patterns;
+- the relationship between the animal patterns;
+- optional cautious personal-versus-professional prose;
 - animal-first catalogue indicators and actions.
 
-The projection excludes internal codes, personality classification titles, scores, percentages,
-confidence, pole totals, normalized values, weights, distances, and candidate rankings. UI
-components, accessibility labels, URLs, document titles, Feedback, and any future sharing surface
-consume only the public projection. The application does not brand or describe itself as MBTI or an
-official MBTI assessment.
+The projection excludes internal codes, classification titles, scores, percentages, confidence,
+pole totals, normalized values, weights, distances, candidate rankings, selected option IDs,
+follow-up selection rationale, and raw context profiles. UI components, accessibility labels, URLs,
+document titles, Feedback, and future sharing surfaces consume public animal data only. The
+application does not brand or describe itself as MBTI or an official MBTI assessment.
 
 ## Persistence boundaries
 
-Assessment persistence uses `animals-within.assessment.v2`, schema version 2, and model version
-`16-personality-ranking-v1-25q`. The adapter stores only the current position, completed rankings,
-five selected adaptive IDs when applicable, final primary and secondary internal IDs, and balanced
-dimension IDs needed to restore a result.
+Assessment persistence uses `animals-within.assessment.v3`, schema version 3, and model version
+`16-personality-binary-v2-30q`. The adapter stores the current position, binary answers, five selected
+adaptive IDs when applicable, the locked primary after question 25, and the final distinct result
+after question 30.
 
-Restore validates the complete record. The incompatible legacy key `animals-within.assessment.v1`,
-an old schema/model, malformed JSON, or inconsistent content results in a clean assessment session.
-Migration discards only obsolete assessment data.
+Restore validates the complete record and phase relationships. Incompatible ranking data under
+`animals-within.assessment.v2`, older data under `animals-within.assessment.v1`, malformed JSON, an
+unknown schema/model, or inconsistent content yields a clean assessment session. Migration discards
+only assessment data.
 
-Language/appearance settings and analytics consent keep their existing separate stores. Assessment
-restart and migration never clear those records. Storage failure is non-fatal and falls back to an
-in-memory session. See [Persistence and Migration](../assessment/PERSISTENCE_AND_MIGRATION.md).
+Language/appearance settings and analytics consent retain their separate stores. Assessment restart
+and migration never clear those records. Storage failure is non-fatal and falls back to an in-memory
+session. See [Persistence and Migration](../assessment/PERSISTENCE_AND_MIGRATION.md).
 
 ## Analytics and external integrations
 
-Analytics modules remain isolated from the assessment and personality-animal domains. The existing
-GA4 bridge activates only after explicit consent and sends only its generic initial page view. It has
-no custom assessment events or payload path for rankings, questions, adaptive IDs, dimensions,
-personality identifiers, animals, or results.
+Analytics modules remain isolated from assessment and personality-animal domains. The existing GA4
+bridge activates only after explicit consent and sends only its generic initial page view. It has no
+custom assessment events or payload path for answers, selected options, dimensions, context profiles,
+adaptive routes, personality identifiers, animals, locked primary, or final results.
 
-Feedback builds a local mail draft from language and public build version only. Assessment state is
-not included in Feedback, cookies, URLs, page titles, console output in production, or remote
-requests.
+Feedback builds a local mail draft from interface language and public build version only. Assessment
+state is not included in Feedback, cookies, URLs, page titles, production console output, shareable
+content, or remote requests.
 
 ## Shared UI and accessibility
 
-The shared shell owns the aligned responsive page container, header, footer, safe-area handling,
-semantic palette, typography scaling, and keyboard focus policy. Feature screens do not duplicate
-those layout rules.
+The shared shell owns the aligned responsive page container, header, two-row fixed footer, safe-area
+handling, semantic palette, typography scaling, and keyboard focus policy. Feature screens do not
+duplicate those rules.
 
-Ranking controls use explicit pressable controls rather than drag-and-drop alone. The assessment
-screen owns logical focus order, live question and completion announcements, progress without score
-exposure, non-color selection indicators, minimum touch targets, and wrapping behavior for Greek,
-Extra Large text, mobile widths, and increased browser zoom.
+The assessment uses two explicit pressable answer cards. The screen owns logical focus order, live
+question/selection/error announcements, progress without score exposure, visible A/B labels,
+non-color selected indicators, minimum touch targets, and wrapping for Greek, Extra Large text,
+mobile widths, and increased browser zoom.
 
 ## Dependency direction
 

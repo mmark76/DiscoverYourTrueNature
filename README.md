@@ -10,21 +10,24 @@ product does not present itself as MBTI or as an official MBTI assessment.
 
 ## Current experience
 
-Every completed assessment run contains exactly 25 ranked questions:
+Every completed assessment contains exactly 30 binary questions. Each question presents two large
+alternatives, **A / Α** and **B / Β**, and requires exactly one selection:
 
-- 20 fixed questions, with five questions for each internal E-I, S-N, T-F, and J-P dimension;
-- five deterministic adaptive differentiators allocated 2, 2, and 1 to the three closest dimensions;
-- four behavioral statements per question, ranked with 4, 3, 2, and 1 exactly once;
-- one primary symbolic animal and one distinct secondary symbolic animal;
-- a natural-language explanation of the primary pattern, strengths, possible blind spots,
-  behavioral tendencies, the secondary pattern, and how the two patterns relate.
+- questions 1–20 cover everyday behavior: 10 personal-life questions, including five about hobbies,
+  interests, and learning, followed by 10 professional-life questions;
+- questions 21–25 are more direct structured preferences: three personal and two professional;
+- questions 26–30 are five deterministic follow-up questions selected from a 16-question bank, with
+  exactly two personal and three professional contexts;
+- one primary symbolic animal is calculated and locked after question 25;
+- one distinct secondary animal is calculated after question 30 without changing the primary.
 
-The catalogue contains 16 unique symbolic animals and is available without completing the
-assessment. All scoring runs locally. Scores, percentages, pole totals, confidence values,
-distances, internal codes, and adaptive calculations are not user-facing.
+The catalogue contains the existing 16 unique symbolic animals and is available without completing
+the assessment. Results lead with the animals and natural-language descriptions, strengths, possible
+blind spots, behavioral tendencies, and how the patterns relate. A cautious personal-versus-work
+observation may appear only when the internal difference is large enough to support it.
 
-The responsive application preserves its existing Greek/English language controls, appearance
-settings, shared shell, Feedback link, analytics consent controls, and fixed footer.
+All scoring runs locally. Scores, percentages, pole totals, confidence values, distances, internal
+codes, candidate comparisons, and follow-up selection logic are not user-facing.
 
 ## Run locally
 
@@ -49,74 +52,84 @@ Create a production-style web export with:
 npx expo export --platform web
 ```
 
-The balance script is an engineering check, not scientific validation. See
+The balance script is an engineering check, not scientific or psychometric validation. See
 [Automated Testing](docs/testing/AUTOMATED_TESTING.md) and the
 [Manual Test Plan](docs/testing/MANUAL_TEST_PLAN.md) for the intended verification coverage.
 
 ## Language and localization
 
-Greek (`el`) and English (`en`) cover the full user experience. The product name **Animals Within**,
-the proper name **Markellos Ecosystem**, and the shared product term **Feedback** remain unchanged
-where appropriate.
+Greek (`el`) and English (`en`) cover the full experience. The supplied Greek questions are the
+authoritative source; English copy preserves the same behavioral distinction and scoring direction
+in natural language.
 
-Language-neutral assessment data owns stable dimension, pole, question, option, personality, animal,
-and model identifiers plus scoring metadata. Typed dictionaries in `src/i18n/content/` own only the
-corresponding Greek and English user-facing content. Scoring metadata is not duplicated in the
-dictionaries.
+Language-neutral assessment data owns stable dimension, pole, phase, context, question, option,
+personality, animal, and model identifiers plus scoring metadata. Typed dictionaries under
+`src/i18n/content/` own visible copy only. They do not duplicate poles, weights, reverse-keying, or
+selection rules.
 
-Changing language does not restart an assessment, clear rankings, change selected adaptive
-questions, or recalculate a completed result. Animal names and descriptions are resolved in the
-newly selected language from stable internal identifiers. Four-letter codes and personality titles
-are excluded from visible copy and accessibility text in both languages.
+Changing language does not restart an assessment, clear selections, change the current question,
+change the five selected follow-up IDs, change the locked primary animal, or recalculate a completed
+result differently. Animal names and descriptions are resolved in the selected language from stable
+internal identifiers.
 
-## Ranking interaction
+## Binary interaction
 
-Each answer card provides explicit controls for assigning one of four ranks:
+Each question shows exactly two answer cards with visible **A / Α** and **B / Β** labels. Selecting
+one card deselects the other. A user may change the selection before continuing, but cannot continue
+without one valid selection. Back and forward navigation preserve committed answers.
 
-- **4 — Describes me most**
-- **3 — Describes me quite well**
-- **2 — Describes me somewhat**
-- **1 — Describes me least**
+Selection is communicated through text, a non-color indicator, border treatment, and accessibility
+state. The controls support mouse, touch, keyboard, and screen readers; touch targets remain large,
+and Greek copy wraps without clipping at narrow widths, browser zoom, and Extra Large text.
 
-Each value must be used exactly once before the user can continue. Selecting a rank already held by
-another statement behaves deterministically: if the selected statement already has a rank, the two
-statements swap ranks; if it has no rank yet, the rank moves to it and the previous statement becomes
-unranked. This interaction works without drag-and-drop and is designed for mouse, touch, keyboard,
-and screen readers. Numbers, labels, borders, and accessibility state communicate selection without
-depending on color alone.
+The displayed letter is not a score. Approximately half the questions reverse which pole appears as
+option A, and the option metadata—not the letter—determines the signed contribution.
 
 ## Assessment model
 
-The model identifier is `16-personality-ranking-v1-25q`. Internally, an option contributes:
+The model identifier is `16-personality-binary-v2-30q`. It retains the four internal dimensions and
+the one-to-one mapping between 16 internal personality identifiers and the existing 16 animals.
 
-`assigned rank × option intensity × question phase weight`
+Every answer contributes `+1` toward the dimension's first pole or `-1` toward its second pole,
+multiplied by a phase weight:
 
-Strong-pole options have intensity 2 and moderate-pole options intensity 1. Fixed questions have
-phase weight 1; adaptive questions have controlled phase weight 0.75. After the 20 fixed questions,
-the four normalized dimension balances are ordered deterministically. The adaptive allocation is two
-questions for the closest dimension, two for the next closest, and one for the third closest, with
-declared dimension order and stable question ID as tie-breakers.
+- everyday: `1.0`;
+- structured: `1.25`;
+- follow-up: `1.5`.
 
-The final signed four-dimensional profile is compared with all 16 canonical type corners. The closest
-supported internal type supplies the primary animal; the next distinct closest type supplies the
-secondary animal. Exact dimension ties remain marked as balanced and are resolved through the same
-whole-profile comparison, never randomness. Internal type identifiers do not cross into the public
-presentation.
+Each dimension is normalized independently by the total answered weight available for that
+dimension and clamped to `[-1, 1]`. These weights are deterministic product-design choices for this
+entertainment experience; they are not scientifically validated psychometric coefficients.
 
-The complete formula, mapping, deterministic tie rules, and privacy boundary are documented in the
+After question 25, the base profile is compared with all 16 canonical corners. The nearest candidate
+becomes the locked primary animal. The system then considers the nearest non-primary candidates and
+selects five follow-up questions whose dimensions help distinguish them, while giving priority to
+base dimensions near balance. Selection uses stable tie-breaks and enforces exactly two personal and
+three professional contexts.
+
+After question 30, the final profile includes the five weighted follow-up answers. The locked primary
+does not change. All remaining candidates are ranked deterministically, and the nearest distinct one
+becomes the secondary animal.
+
+Separate personal and professional descriptive profiles are derived only from questions 1–25.
+Follow-up answers are excluded because their selected measurement opportunities differ between
+users. The result may express a context difference only above a documented internal threshold and
+never exposes the underlying values.
+
+The complete formula, mapping, tie rules, and privacy boundary are documented in the
 [technical assessment model](docs/assessment/SIXTEEN_PERSONALITY_ANIMAL_MODEL.md).
 
 ## Persistence and migration
 
-Assessment persistence uses key `animals-within.assessment.v2`, schema version 2, and the explicit
-assessment model version. It stores the current position, completed ranking assignments, selected
-adaptive question IDs, primary and secondary internal result IDs, and only the internal metadata
-required to restore a balanced result.
+Assessment persistence uses key `animals-within.assessment.v3`, schema version 3, and the explicit
+model version. It stores only the current position, binary answers, selected follow-up question IDs,
+the locked primary result once available, the final result once available, and the minimum internal
+metadata required to restore safely.
 
-Legacy 12-animal data under `animals-within.assessment.v1` is incompatible. Restore logic discards
-only old answers, adaptive selections, and results, then starts a clean assessment session.
-Language, appearance, analytics consent, and unrelated preferences remain intact. Restarting follows
-the same assessment-only boundary. Details are in
+Ranking-based schema-2 data under `animals-within.assessment.v2` and older assessment data under
+`animals-within.assessment.v1` are incompatible. They are discarded rather than approximated.
+Migration resets assessment state only; language, appearance, analytics consent, and unrelated
+preferences remain intact. Details are in
 [Persistence and Migration](docs/assessment/PERSISTENCE_AND_MIGRATION.md).
 
 ## Appearance and responsive behavior
@@ -129,24 +142,18 @@ The header provides language and Settings controls. Supported appearance setting
 - Small, Normal, Large, or Extra Large text.
 
 Documented defaults remain English, Light appearance, Amber colors, System Sans, and Large text.
-Warm Ivory retains the internal persisted theme ID `forest` for settings compatibility. Every theme
-uses the same semantic color roles rather than feature-level hard-coded palette values.
+Warm Ivory retains the internal persisted theme ID `forest` for settings compatibility.
 
-The shared responsive page container aligns the header, main screens, and footer. Ranking controls
-wrap rather than forcing four answer cards into one horizontal row. Keyboard focus remains visible,
-touch targets remain large, and Greek copy is expected to wrap without clipping at mobile widths,
-increased zoom, and Extra Large text.
-
-The application shell measures the fixed footer, including bottom safe-area insets, and reserves its
-live rendered height below every screen that shows normal chrome. Language, text scale, viewport,
-zoom, and wrapping changes therefore do not require hard-coded screen padding.
+The shared responsive page container aligns the header, main screens, and fixed footer. The two
+answer cards wrap vertically when needed. The shell measures the footer, including bottom safe-area
+insets, and reserves its rendered height below normal application screens.
 
 ## Feedback, build information, and analytics
 
 Feedback opens a local email draft addressed to `markellos.markides@gmail.com`. The draft contains
 only the selected interface language, current public build identifier, and a blank feedback area. It
-does not include answers, rankings, internal personality identifiers, animal results, or scoring
-data.
+does not include answers, selected options, follow-up routes, context profiles, internal personality
+identifiers, animal results, or scoring data.
 
 The public build identifier uses `version_YYYYMMDD_HHmm_abcdefg`, with the timestamp prepared in the
 `Europe/Nicosia` timezone and the seven-character source revision supplied at build time.
@@ -154,23 +161,24 @@ The public build identifier uses `version_YYYYMMDD_HHmm_abcdefg`, with the times
 The existing GA4 integration remains consent-gated. Before acceptance, the application does not load
 the Google tag or send events. After acceptance, it sends only the existing initial page view with a
 generic page location and the generic **Animals Within** document title. It does not send question or
-option IDs, rankings, dimension values, adaptive IDs, personality codes, animal results, primary or
-secondary types, confidence, distances, appearance preferences, Feedback content, or build version.
-All assessment calculation remains local.
+option IDs, selected options, dimension values, personal or professional profiles, follow-up routes,
+locked or final animal results, internal codes, confidence, distances, appearance preferences,
+Feedback content, or build version. All assessment calculation remains local.
 
 ## Repository structure
 
-- `src/features/assessment/` — ranking metadata, session state, persistence, deterministic adaptive
-  selection, scoring, fixtures, and engineering analysis.
-- `src/features/personalities/` — internal personality identifiers, canonical corners, and the
-  one-to-one 16-animal mapping.
+- `src/features/assessment/` — binary metadata, session state, persistence, deterministic follow-up
+  selection, scoring, context profiles, fixtures, and engineering analysis.
+- `src/features/personalities/` — internal identifiers, canonical corners, and the one-to-one
+  16-animal mapping.
 - `src/features/animals/` — the public 16-animal catalogue.
-- `src/features/results/` — animal-first primary, secondary, and relationship presentation.
+- `src/features/results/` — animal-first primary, secondary, relationship, and optional context
+  presentation.
 - `src/features/home/` and `src/features/information/` — entry points and plain-language explanation.
 - `src/features/analytics/` — persisted consent controls and the isolated GA4 bootstrap.
 - `src/i18n/` — typed Greek and English dictionaries plus translation helpers.
-- `src/settings/` — appearance provider, presets, and preference persistence.
-- `src/shared/` — shared responsive shell, components, accessibility helpers, and theme tokens.
+- `src/settings/` — appearance provider, presets, and independent preference persistence.
+- `src/shared/` — shared shell, components, accessibility helpers, and theme tokens.
 - `docs/` — requirements, architecture, model, persistence, decisions, and test documentation.
 
 ## Entertainment disclaimer

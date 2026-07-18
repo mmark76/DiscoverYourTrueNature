@@ -18,43 +18,34 @@ export type {
   PoleScoreMap,
 };
 
-export const assessmentQuestionKinds = ['fixed', 'adaptive'] as const;
-export const assessmentRanks = [1, 2, 3, 4] as const;
-export const assessmentOptionIntensities = [1, 2] as const;
+export const assessmentPhases = ['everyday', 'structured', 'adaptive'] as const;
+export const assessmentContexts = ['personal', 'professional'] as const;
+export const assessmentOptionPositions = ['a', 'b'] as const;
 
-export type AssessmentQuestionKind = (typeof assessmentQuestionKinds)[number];
-export type AssessmentRank = (typeof assessmentRanks)[number];
-export type AssessmentOptionIntensity = (typeof assessmentOptionIntensities)[number];
+export type AssessmentPhase = (typeof assessmentPhases)[number];
+export type AssessmentContext = (typeof assessmentContexts)[number];
+export type AssessmentOptionPosition = (typeof assessmentOptionPositions)[number];
 
 export interface AssessmentOption {
   id: string;
   pole: PoleId;
-  intensity: AssessmentOptionIntensity;
+  position: AssessmentOptionPosition;
 }
 
 export interface AssessmentQuestion {
   id: string;
-  kind: AssessmentQuestionKind;
+  phase: AssessmentPhase;
+  context: AssessmentContext;
   scenarioId: string;
   dimension: DimensionId;
-  options: readonly [AssessmentOption, AssessmentOption, AssessmentOption, AssessmentOption];
+  weight: number;
+  reverseKeyed: boolean;
+  options: readonly [AssessmentOption, AssessmentOption];
 }
-
-export interface AssessmentRankAssignment {
-  optionId: string;
-  rank: AssessmentRank;
-}
-
-export type AssessmentRankingAssignments = readonly [
-  AssessmentRankAssignment,
-  AssessmentRankAssignment,
-  AssessmentRankAssignment,
-  AssessmentRankAssignment,
-];
 
 export interface AssessmentAnswer {
   questionId: string;
-  rankings: AssessmentRankingAssignments;
+  selectedOptionId: string;
 }
 
 export interface PersonalityMatch {
@@ -62,24 +53,39 @@ export interface PersonalityMatch {
   distance: number;
 }
 
-export interface AssessmentResult {
+export interface LockedPrimaryResult {
   primaryTypeId: PersonalityTypeId;
-  secondaryTypeId: PersonalityTypeId;
   balancedDimensionIds: readonly DimensionId[];
+  hasCloseMatch: boolean;
 }
 
-export interface AssessmentRanking {
-  poleTotals: PoleScoreMap;
-  profile: DimensionProfile;
-  matches: readonly PersonalityMatch[];
-  result: AssessmentResult;
+export interface AssessmentResult extends LockedPrimaryResult {
+  secondaryTypeId: PersonalityTypeId;
+}
+
+export type ContextProfileDirection = 'first' | 'second' | 'balanced';
+export type ContextProfileKind =
+  | 'personal-stronger'
+  | 'professional-stronger'
+  | 'context-dependent';
+
+/**
+ * Internal, score-free context insight. The UI must translate this into
+ * animal-centred prose and must never expose dimension or pole identifiers.
+ */
+export interface ContextProfileObservation {
+  dimension: DimensionId;
+  kind: ContextProfileKind;
+  personalDirection: ContextProfileDirection;
+  professionalDirection: ContextProfileDirection;
 }
 
 export interface AssessmentSession {
-  schemaVersion: 2;
-  modelVersion: '16-personality-ranking-v1-25q';
+  schemaVersion: 3;
+  modelVersion: '16-personality-binary-v2-30q';
   currentQuestionIndex: number;
   answers: readonly AssessmentAnswer[];
   adaptiveQuestionIds: readonly string[];
+  lockedPrimary: LockedPrimaryResult | null;
   result: AssessmentResult | null;
 }

@@ -5,30 +5,35 @@ import {
 import { isDimensionId } from '../../personalities/types.ts';
 import {
   assessmentQuestionById,
+  baseAssessmentQuestionCount,
   completedAssessmentQuestionCount,
-  fixedAssessmentQuestionCount,
   fixedAssessmentQuestions,
 } from '../data/questions.ts';
 import type {
   AssessmentAnswer,
-  AssessmentRankingAssignments,
   AssessmentResult,
   AssessmentSession,
+  LockedPrimaryResult,
 } from '../types.ts';
 import {
   assessmentSchemaVersion,
   createAssessmentSession,
   getAssessmentQuestionSequence,
 } from './assessmentSession.ts';
+import { isValidAssessmentAnswer } from './selection.ts';
 import {
-  isValidAssessmentAnswer,
-  normalizeRankAssignments,
-} from './ranking.ts';
-import { calculateAssessmentResult } from './scoreAssessment.ts';
+  calculateFinalAssessmentResult,
+  calculateLockedPrimaryResult,
+} from './scoreAssessment.ts';
 import { selectAdaptiveQuestionIds } from './selectAdaptiveQuestions.ts';
 
-export const assessmentStorageKey = 'animals-within.assessment.v2';
+export const assessmentStorageKey = 'animals-within.assessment.v3';
+export const legacyRankingAssessmentStorageKey = 'animals-within.assessment.v2';
 export const legacyAssessmentStorageKey = 'animals-within.assessment.v1';
+export const legacyAssessmentStorageKeys = [
+  legacyAssessmentStorageKey,
+  legacyRankingAssessmentStorageKey,
+] as const;
 
 export interface AssessmentStorageAdapter {
   getItem: (key: string) => string | null;
@@ -40,27 +45,25 @@ export function restoreAssessmentSession(
   storage: AssessmentStorageAdapter | null,
 ): AssessmentSession {
   if (!storage) return createAssessmentSession();
-
   try {
     const storedValue = storage.getItem(assessmentStorageKey);
-    if (storedValue) {
-      const normalized = normalizeStoredAssessmentSession(JSON.parse(storedValue));
+    if (storedValue !== null) {
+      let normalized: AssessmentSession | null = null;
+      try {
+        normalized = normalizeStoredAssessmentSession(JSON.parse(storedValue));
+      } catch {
+        // Malformed current assessment data is discarded below.
+      }
       if (normalized) {
-        if (storage.getItem(legacyAssessmentStorageKey) !== null) {
-          storage.removeItem?.(legacyAssessmentStorageKey);
-        }
+        removeLegacyAssessmentState(storage);
         return normalized;
       }
       storage.removeItem?.(assessmentStorageKey);
     }
-
-    if (storage.getItem(legacyAssessmentStorageKey) !== null) {
-      storage.removeItem?.(legacyAssessmentStorageKey);
-    }
+    removeLegacyAssessmentState(storage);
   } catch {
-    return createAssessmentSession();
+    // Storage is optional; fall back to a clean in-memory session.
   }
-
   return createAssessmentSession();
 }
 
@@ -69,36 +72,67 @@ export function persistAssessmentSession(
   session: AssessmentSession,
 ): void {
   try {
-    storage?.setItem(assessmentStorageKey, JSON.stringify(session));
+    const persisted = {
+      schemaVersion: session.schemaVersion,
+      modelVersion: session.modelVersion,
+      currentQuestionIndex: session.currentQuestionIndex,
+      answers: session.answers.map(({ questionId, selectedOptionId }) => ({
+        questionId,
+        selectedOptionId,
+      })),
+      adaptiveQuestionIds: [...session.adaptiveQuestionIds],
+      lockedPrimary: copyLockedPrimary(session.lockedPrimary),
+      result: copyResult(session.result),
+    } satisfies AssessmentSession;
+    storage?.setItem(assessmentStorageKey, JSON.stringify(persisted));
   } catch {
     // Assessment persistence is optional; the application remains usable in memory.
   }
 }
 
 export function normalizeStoredAssessmentSession(value: unknown): AssessmentSession | null {
-  if (!isRecord(value)) return null;
-  if (value.schemaVersion !== assessmentSchemaVersion) return null;
-  if (value.modelVersion !== assessmentModelVersion) return null;
-  if (!Number.isInteger(value.currentQuestionIndex)) return null;
-  if (!Array.isArray(value.answers) || !Array.isArray(value.adaptiveQuestionIds)) return null;
+  if (!isRecord(value)
+    || !hasExactKeys(value, [
+      'schemaVersion',
+      'modelVersion',
+      'currentQuestionIndex',
+      'answers',
+      'adaptiveQuestionIds',
+      'lockedPrimary',
+      'result',
+    ])) return null;
+  if (value.schemaVersion !== assessmentSchemaVersion
+    || value.modelVersion !== assessmentModelVersion
+    || !Number.isInteger(value.currentQuestionIndex)
+    || !Array.isArray(value.answers)
+    || !Array.isArray(value.adaptiveQuestionIds)) return null;
 
   const answers = normalizeAnswers(value.answers);
-  if (!answers) return null;
+  if (!answers || new Set(answers.map(({ questionId }) => questionId)).size !== answers.length) {
+    return null;
+  }
   if (!value.adaptiveQuestionIds.every((id) => typeof id === 'string')) return null;
-  const adaptiveQuestionIds = value.adaptiveQuestionIds as string[];
+  const adaptiveQuestionIds = [...value.adaptiveQuestionIds] as string[];
   if (new Set(adaptiveQuestionIds).size !== adaptiveQuestionIds.length) return null;
 
-  const fixedAnswers = fixedAssessmentQuestions
-    .map((question) => answers.find((answer) => answer.questionId === question.id))
-    .filter((answer): answer is AssessmentAnswer => answer !== undefined);
+  const basePrefixLength = Math.min(answers.length, baseAssessmentQuestionCount);
+  for (let index = 0; index < basePrefixLength; index += 1) {
+    if (answers[index]?.questionId !== fixedAssessmentQuestions[index]?.id) return null;
+  }
 
-  if (fixedAnswers.length < fixedAssessmentQuestionCount) {
-    if (adaptiveQuestionIds.length !== 0) return null;
-    if (answers.some((answer) => !fixedAssessmentQuestions.some(({ id }) => id === answer.questionId))) {
+  const baseAnswers = answers.slice(0, baseAssessmentQuestionCount);
+  let lockedPrimary: LockedPrimaryResult | null = null;
+  if (baseAnswers.length < baseAssessmentQuestionCount) {
+    if (adaptiveQuestionIds.length !== 0 || value.lockedPrimary !== null || value.result !== null) {
       return null;
     }
   } else {
-    const expectedAdaptiveIds = selectAdaptiveQuestionIds(fixedAnswers);
+    const normalizedLock = normalizeLockedPrimary(value.lockedPrimary);
+    if (!normalizedLock) return null;
+    const calculatedLock = calculateLockedPrimaryResult(baseAnswers);
+    if (!sameLockedPrimary(normalizedLock, calculatedLock)) return null;
+    lockedPrimary = normalizedLock;
+    const expectedAdaptiveIds = selectAdaptiveQuestionIds(baseAnswers, calculatedLock);
     if (!sameStrings(adaptiveQuestionIds, expectedAdaptiveIds)) return null;
   }
 
@@ -108,31 +142,26 @@ export function normalizeStoredAssessmentSession(value: unknown): AssessmentSess
     currentQuestionIndex: value.currentQuestionIndex as number,
     answers,
     adaptiveQuestionIds,
+    lockedPrimary,
     result: null,
   };
   const sequence = getAssessmentQuestionSequence(candidateSession);
-  const sequenceIds = new Set<string>(sequence.map(({ id }) => id));
-  if (answers.some(({ questionId }) => !sequenceIds.has(questionId))) return null;
-  if (new Set(answers.map(({ questionId }) => questionId)).size !== answers.length) return null;
-  const orderedAnswers = orderAnswers(answers, sequence.map(({ id }) => id));
-  if (orderedAnswers.some((answer, index) => answer.questionId !== sequence[index]?.id)) return null;
-  const maximumCurrentIndex = Math.min(orderedAnswers.length, sequence.length - 1);
+  if (answers.length > sequence.length) return null;
+  if (answers.some((answer, index) => answer.questionId !== sequence[index]?.id)) return null;
+
+  const maximumCurrentIndex = Math.min(answers.length, sequence.length - 1);
   if (candidateSession.currentQuestionIndex < 0
     || candidateSession.currentQuestionIndex > maximumCurrentIndex) return null;
 
-  const completed = sequence.length === completedAssessmentQuestionCount
-    && sequence.every((question) => answers.some(({ questionId }) => questionId === question.id));
   const storedResult = normalizeResult(value.result);
-  if (completed) {
-    if (!storedResult) return null;
-    const calculatedResult = calculateAssessmentResult(orderedAnswers);
+  if (value.result !== null && !storedResult) return null;
+  if (storedResult) {
+    if (!lockedPrimary || answers.length !== completedAssessmentQuestionCount
+      || candidateSession.currentQuestionIndex !== completedAssessmentQuestionCount - 1) return null;
+    const calculatedResult = calculateFinalAssessmentResult(answers, lockedPrimary);
     if (!sameResults(storedResult, calculatedResult)) return null;
     candidateSession.result = storedResult;
-  } else if (value.result !== null) {
-    return null;
   }
-
-  candidateSession.answers = orderedAnswers;
   return candidateSession;
 }
 
@@ -147,14 +176,15 @@ export function getBrowserAssessmentStorage(): AssessmentStorageAdapter | null {
 function normalizeAnswers(values: readonly unknown[]): AssessmentAnswer[] | null {
   const answers: AssessmentAnswer[] = [];
   for (const value of values) {
-    if (!isRecord(value) || typeof value.questionId !== 'string') return null;
+    if (!isRecord(value)
+      || !hasExactKeys(value, ['questionId', 'selectedOptionId'])
+      || typeof value.questionId !== 'string'
+      || typeof value.selectedOptionId !== 'string') return null;
     const question = assessmentQuestionById.get(value.questionId);
     if (!question) return null;
-    const rankings = normalizeRankAssignments(value.rankings);
-    if (!rankings) return null;
     const answer: AssessmentAnswer = {
       questionId: value.questionId,
-      rankings: rankings as AssessmentRankingAssignments,
+      selectedOptionId: value.selectedOptionId,
     };
     if (!isValidAssessmentAnswer(question, answer)) return null;
     answers.push(answer);
@@ -162,41 +192,86 @@ function normalizeAnswers(values: readonly unknown[]): AssessmentAnswer[] | null
   return answers;
 }
 
+function normalizeLockedPrimary(value: unknown): LockedPrimaryResult | null {
+  if (!isRecord(value)
+    || !hasExactKeys(value, ['primaryTypeId', 'balancedDimensionIds', 'hasCloseMatch'])
+    || !isPersonalityTypeId(value.primaryTypeId)
+    || !Array.isArray(value.balancedDimensionIds)
+    || !value.balancedDimensionIds.every(isDimensionId)
+    || new Set(value.balancedDimensionIds).size !== value.balancedDimensionIds.length
+    || typeof value.hasCloseMatch !== 'boolean') return null;
+  return {
+    primaryTypeId: value.primaryTypeId,
+    balancedDimensionIds: value.balancedDimensionIds,
+    hasCloseMatch: value.hasCloseMatch,
+  };
+}
+
 function normalizeResult(value: unknown): AssessmentResult | null {
   if (!isRecord(value)
+    || !hasExactKeys(value, [
+      'primaryTypeId',
+      'secondaryTypeId',
+      'balancedDimensionIds',
+      'hasCloseMatch',
+    ])
     || !isPersonalityTypeId(value.primaryTypeId)
     || !isPersonalityTypeId(value.secondaryTypeId)
     || value.primaryTypeId === value.secondaryTypeId
     || !Array.isArray(value.balancedDimensionIds)
     || !value.balancedDimensionIds.every(isDimensionId)
-    || new Set(value.balancedDimensionIds).size !== value.balancedDimensionIds.length) return null;
-
+    || new Set(value.balancedDimensionIds).size !== value.balancedDimensionIds.length
+    || typeof value.hasCloseMatch !== 'boolean') return null;
   return {
     primaryTypeId: value.primaryTypeId,
     secondaryTypeId: value.secondaryTypeId,
     balancedDimensionIds: value.balancedDimensionIds,
+    hasCloseMatch: value.hasCloseMatch,
   };
 }
 
-function orderAnswers(
-  answers: readonly AssessmentAnswer[],
-  questionIds: readonly string[],
-): AssessmentAnswer[] {
-  const order = new Map(questionIds.map((id, index) => [id, index]));
-  return [...answers].sort((left, right) =>
-    (order.get(left.questionId) ?? Number.MAX_SAFE_INTEGER)
-    - (order.get(right.questionId) ?? Number.MAX_SAFE_INTEGER),
-  );
+function copyLockedPrimary(result: LockedPrimaryResult | null): LockedPrimaryResult | null {
+  return result ? {
+    primaryTypeId: result.primaryTypeId,
+    balancedDimensionIds: [...result.balancedDimensionIds],
+    hasCloseMatch: result.hasCloseMatch,
+  } : null;
+}
+
+function copyResult(result: AssessmentResult | null): AssessmentResult | null {
+  return result ? {
+    primaryTypeId: result.primaryTypeId,
+    secondaryTypeId: result.secondaryTypeId,
+    balancedDimensionIds: [...result.balancedDimensionIds],
+    hasCloseMatch: result.hasCloseMatch,
+  } : null;
+}
+
+function sameLockedPrimary(left: LockedPrimaryResult, right: LockedPrimaryResult): boolean {
+  return left.primaryTypeId === right.primaryTypeId
+    && left.hasCloseMatch === right.hasCloseMatch
+    && sameStrings(left.balancedDimensionIds, right.balancedDimensionIds);
 }
 
 function sameResults(left: AssessmentResult, right: AssessmentResult): boolean {
-  return left.primaryTypeId === right.primaryTypeId
-    && left.secondaryTypeId === right.secondaryTypeId
-    && sameStrings(left.balancedDimensionIds, right.balancedDimensionIds);
+  return sameLockedPrimary(left, right)
+    && left.secondaryTypeId === right.secondaryTypeId;
+}
+
+function removeLegacyAssessmentState(storage: AssessmentStorageAdapter): void {
+  for (const key of legacyAssessmentStorageKeys) {
+    if (storage.getItem(key) !== null) storage.removeItem?.(key);
+  }
 }
 
 function sameStrings(left: readonly string[], right: readonly string[]): boolean {
   return left.length === right.length && left.every((value, index) => value === right[index]);
+}
+
+function hasExactKeys(value: Record<string, unknown>, keys: readonly string[]): boolean {
+  const actual = Object.keys(value).sort();
+  const expected = [...keys].sort();
+  return sameStrings(actual, expected);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

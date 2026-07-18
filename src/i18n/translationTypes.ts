@@ -3,7 +3,6 @@ import type {
   AssessmentOptionId,
   AssessmentQuestionId,
 } from '../features/assessment/data/questions';
-import type { AssessmentRank } from '../features/assessment/types';
 import type { HomeFeatureId } from '../features/home/data/features';
 
 export interface HomeFeatureCopy {
@@ -34,8 +33,6 @@ export interface ProcessStepCopy {
   title: string;
   description: string;
 }
-
-export type AssessmentRankCopy = Record<AssessmentRank, string>;
 
 export interface TranslationContent {
   common: {
@@ -73,18 +70,18 @@ export interface TranslationContent {
     eyebrow: string;
     counter: string;
     progressLabel: string;
+    personalContext: string;
+    professionalContext: string;
     introduction: string;
-    rankingGuideTitle: string;
-    rankingGuide: AssessmentRankCopy;
-    rankingGroupLabel: string;
-    rankControlLabel: string;
-    rankControlHint: string;
-    rankAssignedAnnouncement: string;
-    rankMovedAnnouncement: string;
-    rankSwappedAnnouncement: string;
-    rankingComplete: string;
-    rankingIncomplete: string;
-    incompleteError: string;
+    answerGroupLabel: string;
+    optionA: string;
+    optionB: string;
+    optionAccessibilityLabel: string;
+    optionHint: string;
+    selected: string;
+    selectionAnnouncement: string;
+    selectionRequired: string;
+    selectionComplete: string;
     back: string;
     backHint: string;
     continue: string;
@@ -106,9 +103,12 @@ export interface TranslationContent {
     informationStyle: string;
     decisionStyle: string;
     organizationStyle: string;
-    animalMetaphor: string;
     relationship: string;
     relationshipDescription: string;
+    contextObservationTitle: string;
+    personalContextObservation: string;
+    professionalContextObservation: string;
+    contextDependentObservation: string;
     closePatterns: string;
     catalogue: string;
     catalogueHint: string;

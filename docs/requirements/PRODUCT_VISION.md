@@ -3,8 +3,8 @@
 ## Product concept
 
 Animals Within is a bilingual Greek and English entertainment self-discovery experience. A person
-ranks observable behavioral statements and receives two related symbolic animals that provide a
-balanced, natural-language reflection on how they may interact, process information, decide, and
+chooses between paired descriptions of ordinary behavior and receives two related symbolic animals
+that provide a balanced reflection on how they may interact, process information, decide, and
 organize or adapt.
 
 ## Product promise
@@ -17,11 +17,12 @@ The public product title remains **Animals Within**, supported by **Markellos Ec
 
 ## Experience principles
 
-- **Animal-first:** the primary and secondary animals lead every result and catalogue presentation.
-- **Understandable:** descriptions, strengths, possible blind spots, tendencies, and the relationship
-  between the two animals replace technical scoring output.
+- **Animal-first:** primary and secondary animals lead every result and catalogue presentation.
+- **Understandable:** one A/B choice per question replaces technical scoring interaction.
 - **Balanced:** no pattern is framed as superior, diagnostic, absolute, or universally predictive.
-- **Deterministic:** the same ranked answers produce the same adaptive sequence and result.
+- **Deterministic:** the same answers produce the same locked primary, follow-up route, and secondary.
+- **Context-aware but cautious:** personal-versus-work wording appears only when a documented internal
+  difference is large enough, without showing scores.
 - **Private by design:** scoring runs locally and assessment information is excluded from analytics,
   Feedback, URLs, page titles, cookies, shareable content, and remote requests.
 - **Bilingual and accessible:** Greek and English share stable metadata while controls support touch,
@@ -31,15 +32,20 @@ The public product title remains **Animals Within**, supported by **Markellos Ec
 
 A completed run always contains:
 
-- 20 fixed ranking questions;
-- five deterministic adaptive differentiators;
-- four statements ranked 4, 3, 2, and 1 exactly once per question;
-- 16 possible internal personality patterns mapped one-to-one to 16 unique symbolic animals;
-- one primary animal and one distinct secondary animal.
+- 20 everyday questions: 10 personal and 10 professional;
+- five structured questions: three personal and two professional;
+- five deterministically selected follow-up questions: two personal and three professional;
+- exactly two alternatives and one answer per question;
+- 16 possible internal patterns mapped one-to-one to 16 unique symbolic animals;
+- a primary animal locked after question 25;
+- a distinct secondary animal selected after question 30.
 
 The internal dimensions and four-letter identifiers support implementation only. Four-letter codes
 and personality classification titles are never displayed. The application does not present itself
 as MBTI or imply that it is an official MBTI assessment.
+
+Phase weights and the context-observation threshold are deterministic product-design choices. They
+are not claims of psychometric precision or scientific validation.
 
 ## Product boundary
 
@@ -59,5 +65,5 @@ Required Greek disclaimer:
 
 **https://animalswithin.markellosecosystem.com**
 
-The URL remains generic and must not contain answers, animal results, internal personality IDs, or
-scoring information.
+The URL remains generic and must not contain answers, animal results, internal personality IDs,
+context observations, or scoring information.

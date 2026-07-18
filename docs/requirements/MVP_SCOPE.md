@@ -1,4 +1,4 @@
-# MVP Scope — Sixteen-animal ranked assessment
+# MVP Scope — Thirty-question binary animal assessment
 
 ## Goal
 
@@ -9,35 +9,45 @@ or app-store distribution.
 ## Included
 
 - Bilingual Greek and English Home, assessment, result, 16-animal catalogue, How It Works, Settings,
-  shared header, and shared footer.
-- Exactly 25 completed questions per run: 20 fixed and five deterministic adaptive differentiators.
-- Exactly five fixed questions for each internal E-I, S-N, T-F, and J-P dimension.
-- Four behavioral statements per question, ranked with 4, 3, 2, and 1 exactly once.
-- Explicit mouse, touch, keyboard, and screen-reader ranking controls.
-- Deterministic rank collision handling: swap when both statements are ranked; otherwise move the
-  chosen rank and clear its previous owner.
-- At least four adaptive candidate questions per dimension.
-- Adaptive allocation of 2, 2, and 1 to the three closest fixed-profile dimensions.
-- Rank-by-intensity scoring with fixed phase weight 1 and adaptive phase weight 0.75.
-- Equal-weight whole-profile distance to all 16 internal type corners.
-- Deterministic exact-tie handling with retained balanced-dimension markers.
-- One primary animal and one distinct second-closest secondary animal.
-- Exactly 16 unique symbolic animals with one-to-one internal type mappings.
+  shared header, and fixed two-row footer.
+- Exactly 30 completed questions per run, each with two visible A/B alternatives and one required
+  selection.
+- Questions 1–20: everyday behavior, exactly 10 personal and 10 professional, with questions 6–10
+  dedicated to hobbies, interests, and learning.
+- Exactly five everyday questions for each internal E-I, S-N, T-F, and J-P dimension.
+- Questions 21–25: structured preferences, exactly three personal and two professional.
+- Questions 26–30: five deterministic follow-up questions selected from a stable 16-question bank.
+- Adaptive bank coverage of four questions per dimension, each split two personal and two
+  professional.
+- Selected-route quota of exactly two personal and three professional questions.
+- Approximately half reverse-keyed A/B displays, with scoring determined by option metadata rather
+  than letter.
+- Signed weighted scoring with explicit phase weights `1.0`, `1.25`, and `1.5` and
+  dimension-specific normalization.
+- Primary animal calculated and locked after question 25.
+- Distinct secondary animal calculated after question 30 without changing the primary.
+- Personal and professional descriptive profiles derived only from questions 1–25, with cautious
+  result copy only above the documented threshold.
+- Exactly 16 unique symbolic animals with the existing one-to-one internal type mappings.
 - Animal-first result content: descriptions, strengths, possible blind spots, behavioral tendencies,
-  secondary description, and the relationship between both patterns.
-- Assessment persistence schema 2 and safe migration from the incompatible legacy assessment.
-- Existing local appearance/language persistence and consent-gated analytics architecture.
+  secondary description, relationship, and optional context observation.
+- Assessment persistence schema 3 and assessment-only reset of incompatible ranked/legacy state.
+- Existing independent appearance/language persistence and consent-gated analytics architecture.
 - Responsive Expo React Native foundation for web and Android-compatible surfaces.
+
+The weights and context threshold are product-design rules for an entertainment experience. They are
+not scientifically validated psychometric coefficients.
 
 ## Public presentation constraints
 
-The visible application presents animals and natural-language personality descriptions only. It does
-not show:
+The visible application presents animals and natural-language descriptions only. It does not show:
 
 - four-letter personality codes;
 - personality classification titles;
-- scores, percentages, pole totals, confidence, weights, or distances;
-- complete type rankings, raw answers, or adaptive-selection rationale;
+- scores, percentages, pole totals, confidence, weights, thresholds, or distances;
+- raw personal or professional profiles;
+- candidate rankings, selected option IDs, or follow-up-selection rationale;
+- public labels such as “psychometric questions,” “adaptive questions,” or “differentiators”;
 - MBTI branding or any claim that this is an official MBTI assessment.
 
 These exclusions cover result screens, catalogue cards, Home, How It Works, page titles,
@@ -58,38 +68,41 @@ developer documentation.
 
 ## State and migration constraints
 
-- A valid partial or completed assessment resumes after internal navigation and a supported web
-  refresh or close/reopen cycle.
-- Language and appearance changes preserve question position, rankings, adaptive IDs, and result.
-- Restart clears only assessment answers, adaptive IDs, current position, and result.
-- Loading schema/model data from the old 12-animal assessment starts a clean assessment session
-  without clearing language, appearance, analytics consent, or unrelated preferences.
-- Persisted assessment state excludes unnecessary totals, distances, debug records, and translated
-  copy.
+- A valid partial or completed assessment resumes after internal navigation and supported refresh or
+  close/reopen behavior.
+- Language and appearance changes preserve position, binary answers, adaptive IDs, locked primary,
+  and final result.
+- Restart clears only assessment answers, route, current position, locked primary, and final result.
+- Schema-2 ranked and schema-1 assessment data start a clean schema-3 session without clearing
+  language, appearance, analytics consent, or unrelated preferences.
+- Persisted assessment state excludes translated copy, derived scores, context profiles, distances,
+  candidate lists, and debug records.
 
 ## Privacy constraints
 
-All scoring remains local. Analytics receives no question IDs, option IDs, rankings, dimensions,
-adaptive IDs, internal type codes, primary or secondary types, animals, results, or scoring values.
-Feedback remains a language/build-only blank draft. Generic URLs and page titles do not change with
-assessment results.
+All scoring remains local. Analytics receives no question IDs, option IDs, selected options,
+dimensions, adaptive routes, context profiles, internal codes, locked primary, secondary animal,
+results, confidence, distances, or model scores. Feedback remains a language/build-only blank draft.
+Generic URLs and page titles do not change with assessment results.
 
 ## Validation questions
 
 The owner should assess:
 
-1. Is ranking four statements understandable and usable?
-2. Does deterministic swapping feel predictable?
-3. Is the 25-question length appropriate?
-4. Do any options feel repetitive, morally loaded, or obvious?
-5. Does the primary animal description feel useful without overstating certainty?
-6. Does the secondary animal and relationship explanation add value?
-7. Are strengths and possible blind spots balanced across all 16 animals?
-8. Is Greek wording natural and does it wrap cleanly with large text?
-9. Is the entertainment and symbolic-metaphor boundary clear?
+1. Is choosing one of two behavior descriptions understandable and quick?
+2. Does changing A/B selection feel predictable across mouse, touch, keyboard, and screen reader?
+3. Is the 30-question length appropriate?
+4. Do the personal, hobby/learning, professional, and direct-preference contexts feel balanced?
+5. Do any choices feel repetitive, morally loaded, obvious, or mismatched between Greek and English?
+6. Does the primary animal still feel stable when the last five answers vary?
+7. Does the secondary animal and relationship explanation add value?
+8. Is any personal-versus-work observation cautious and recognizably supported?
+9. Are strengths and possible blind spots balanced across all 16 animals?
+10. Does Greek wording wrap cleanly with zoom and Extra Large text?
+11. Is the entertainment and symbolic-metaphor boundary clear?
 
 ## Exit criterion
 
 Future AI interpretation, accounts, payments, or native distribution should be considered only after
-the ranked animal-first flow, persistence, accessibility, privacy, and bilingual content are judged
+the binary animal-first flow, persistence, accessibility, privacy, and bilingual content are judged
 worth continuing.

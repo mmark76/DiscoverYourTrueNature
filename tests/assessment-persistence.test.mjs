@@ -2,22 +2,27 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
-  fixedAssessmentQuestionCount,
   fixedAssessmentQuestions,
 } from '../src/features/assessment/data/questions.ts';
 import {
-  createRankingDraftFromRanks,
+  selectFirstPoleOptionId,
+  selectSecondPoleOptionId,
 } from '../src/features/assessment/services/assessmentFixtures.ts';
 import {
   answerCurrentAssessmentQuestion,
+  continueAssessment,
   createAssessmentSession,
+  getAssessmentAnswer,
   getCurrentAssessmentQuestion,
   goToPreviousAssessmentQuestion,
   restartAssessmentSession,
+  selectCurrentAssessmentOption,
 } from '../src/features/assessment/services/assessmentSession.ts';
 import {
   assessmentStorageKey,
   legacyAssessmentStorageKey,
+  legacyAssessmentStorageKeys,
+  legacyRankingAssessmentStorageKey,
   normalizeStoredAssessmentSession,
   persistAssessmentSession,
   restoreAssessmentSession,
@@ -42,100 +47,114 @@ function createMemoryStorage(initial = {}) {
   };
 }
 
-function completeRanking(question, reverse = false) {
-  return createRankingDraftFromRanks(question, reverse ? [2, 1, 3, 4] : [4, 3, 1, 2]);
+function currentQuestion(session) {
+  const question = getCurrentAssessmentQuestion(session);
+  assert.ok(question);
+  return question;
 }
 
 function answerUntil(answerCount) {
   let session = createAssessmentSession();
   while (session.answers.length < answerCount) {
-    const question = getCurrentAssessmentQuestion(session);
-    assert.ok(question);
-    session = answerCurrentAssessmentQuestion(
-      session,
-      question.id,
-      completeRanking(question, session.answers.length % 2 === 1),
-    );
+    const question = currentQuestion(session);
+    const optionId = session.answers.length % 2 === 0
+      ? selectFirstPoleOptionId(question)
+      : selectSecondPoleOptionId(question);
+    session = answerCurrentAssessmentQuestion(session, question.id, optionId);
   }
   return session;
 }
 
-test('assessment storage keys, schema, and model version are explicit', () => {
-  assert.equal(assessmentStorageKey, 'animals-within.assessment.v2');
+test('storage keys, schema, and model version mark the incompatible binary boundary', () => {
+  assert.equal(assessmentStorageKey, 'animals-within.assessment.v3');
   assert.equal(legacyAssessmentStorageKey, 'animals-within.assessment.v1');
+  assert.equal(legacyRankingAssessmentStorageKey, 'animals-within.assessment.v2');
+  assert.deepEqual(legacyAssessmentStorageKeys, [
+    'animals-within.assessment.v1',
+    'animals-within.assessment.v2',
+  ]);
   assert.deepEqual(createAssessmentSession(), {
-    schemaVersion: 2,
-    modelVersion: '16-personality-ranking-v1-25q',
+    schemaVersion: 3,
+    modelVersion: '16-personality-binary-v2-30q',
     currentQuestionIndex: 0,
     answers: [],
     adaptiveQuestionIds: [],
+    lockedPrimary: null,
     result: null,
   });
 });
 
-test('partial assessment rankings and current index round-trip exactly', () => {
-  let partial = answerUntil(7);
-  partial = goToPreviousAssessmentQuestion(partial);
-  assert.equal(partial.currentQuestionIndex, 6);
+test('an immediate binary selection round-trips without advancing', () => {
+  const initial = createAssessmentSession();
+  const question = currentQuestion(initial);
+  const selected = selectCurrentAssessmentOption(initial, question.options[0].id);
+  assert.equal(selected.currentQuestionIndex, 0);
+  assert.equal(selected.answers.length, 1);
   const storage = createMemoryStorage();
-  persistAssessmentSession(storage, partial);
+  persistAssessmentSession(storage, selected);
+  assert.deepEqual(restoreAssessmentSession(storage), selected);
 
   const stored = JSON.parse(storage.values.get(assessmentStorageKey));
-  assert.equal(stored.schemaVersion, 2);
-  assert.equal(stored.modelVersion, '16-personality-ranking-v1-25q');
-  assert.equal(stored.currentQuestionIndex, 6);
-  assert.equal(stored.answers.length, 7);
-  assert.ok(stored.answers.every(({ rankings }) => rankings.length === 4));
-  assert.deepEqual(restoreAssessmentSession(storage), partial);
+  assert.deepEqual(stored.answers, [{
+    questionId: question.id,
+    selectedOptionId: question.options[0].id,
+  }]);
+  assert.equal('rankings' in stored.answers[0], false);
 });
 
-test('the fixed-to-adaptive route and selected five IDs round-trip', () => {
-  const afterFixed = answerUntil(fixedAssessmentQuestionCount);
-  assert.equal(afterFixed.answers.length, 20);
-  assert.equal(afterFixed.adaptiveQuestionIds.length, 5);
-  assert.equal(new Set(afterFixed.adaptiveQuestionIds).size, 5);
+test('partial answers, current navigation index, and prior selections round-trip exactly', () => {
+  let partial = answerUntil(8);
+  partial = goToPreviousAssessmentQuestion(partial);
+  assert.equal(partial.currentQuestionIndex, 7);
   const storage = createMemoryStorage();
-  persistAssessmentSession(storage, afterFixed);
+  persistAssessmentSession(storage, partial);
   const restored = restoreAssessmentSession(storage);
-  assert.deepEqual(restored, afterFixed);
-  assert.equal(getCurrentAssessmentQuestion(restored).id, afterFixed.adaptiveQuestionIds[0]);
+  assert.deepEqual(restored, partial);
+  assert.deepEqual(
+    getAssessmentAnswer(restored, partial.answers[7].questionId),
+    partial.answers[7],
+  );
 });
 
-test('editing a fixed answer after adaptive progress clears dependent answers and still round-trips', () => {
-  let session = createAssessmentSession();
-  while (session.answers.length < 23) {
-    const question = getCurrentAssessmentQuestion(session);
-    assert.ok(question);
-    session = answerCurrentAssessmentQuestion(session, question.id, completeRanking(question));
-  }
-  assert.equal(session.answers.length, 23);
-
-  while (session.currentQuestionIndex > 5) {
-    session = goToPreviousAssessmentQuestion(session);
-  }
-  const editedFixedQuestion = getCurrentAssessmentQuestion(session);
-  assert.ok(editedFixedQuestion);
-  session = answerCurrentAssessmentQuestion(
-    session,
-    editedFixedQuestion.id,
-    completeRanking(editedFixedQuestion, true),
-  );
-
-  assert.equal(session.answers.length, fixedAssessmentQuestionCount);
-  assert.equal(session.currentQuestionIndex, 6);
+test('question 25 selection persists its locked primary and deterministic adaptive route before Continue', () => {
+  let session = answerUntil(24);
+  const question25 = currentQuestion(session);
+  session = selectCurrentAssessmentOption(session, selectFirstPoleOptionId(question25));
+  assert.equal(session.currentQuestionIndex, 24);
+  assert.equal(session.answers.length, 25);
+  assert.ok(session.lockedPrimary);
   assert.equal(session.adaptiveQuestionIds.length, 5);
-  assert.equal(session.result, null);
-  assert.deepEqual(normalizeStoredAssessmentSession(structuredClone(session)), session);
-
   const storage = createMemoryStorage();
   persistAssessmentSession(storage, session);
   assert.deepEqual(restoreAssessmentSession(storage), session);
+
+  const advanced = continueAssessment(restoreAssessmentSession(storage));
+  assert.equal(advanced.currentQuestionIndex, 25);
+  assert.equal(currentQuestion(advanced).id, session.adaptiveQuestionIds[0]);
 });
 
-test('completed primary, secondary, and balanced metadata round-trip without recalculation drift', () => {
-  const completed = answerUntil(25);
+test('question 30 selection can restore before Continue computes the final result', () => {
+  let session = answerUntil(29);
+  const question30 = currentQuestion(session);
+  session = selectCurrentAssessmentOption(session, question30.options[0].id);
+  assert.equal(session.answers.length, 30);
+  assert.equal(session.currentQuestionIndex, 29);
+  assert.equal(session.result, null);
+
+  const storage = createMemoryStorage();
+  persistAssessmentSession(storage, session);
+  const restored = restoreAssessmentSession(storage);
+  assert.deepEqual(restored, session);
+  const completed = continueAssessment(restored);
   assert.ok(completed.result);
+  assert.equal(completed.result.primaryTypeId, completed.lockedPrimary.primaryTypeId);
   assert.notEqual(completed.result.primaryTypeId, completed.result.secondaryTypeId);
+});
+
+test('completed primary, secondary, close, and balanced metadata round-trip exactly', () => {
+  const completed = answerUntil(30);
+  assert.ok(completed.result);
+  assert.ok(completed.lockedPrimary);
   const storage = createMemoryStorage();
   persistAssessmentSession(storage, completed);
   const restored = restoreAssessmentSession(storage);
@@ -144,102 +163,153 @@ test('completed primary, secondary, and balanced metadata round-trip without rec
   assert.equal(getCurrentAssessmentQuestion(restored), null);
 });
 
-test('normalization rejects unknown schema or model without mutating its input', () => {
-  const session = answerUntil(3);
-  const wrongSchema = { ...session, schemaVersion: 1 };
-  const wrongModel = { ...session, modelVersion: '12-archetype-v2-25q' };
-  assert.equal(normalizeStoredAssessmentSession(wrongSchema), null);
-  assert.equal(normalizeStoredAssessmentSession(wrongModel), null);
-  assert.equal(wrongSchema.schemaVersion, 1);
-  assert.equal(wrongModel.modelVersion, '12-archetype-v2-25q');
+test('editing a fixed answer after adaptive progress clears dependent answers and round-trips', () => {
+  let session = answerUntil(28);
+  while (session.currentQuestionIndex > 6) session = goToPreviousAssessmentQuestion(session);
+  const fixed = currentQuestion(session);
+  const existing = getAssessmentAnswer(session, fixed.id);
+  assert.ok(existing);
+  const replacement = fixed.options.find(({ id }) => id !== existing.selectedOptionId);
+  assert.ok(replacement);
+  session = selectCurrentAssessmentOption(session, replacement.id);
+  assert.equal(session.answers.length, 25);
+  assert.equal(session.adaptiveQuestionIds.length, 5);
+  assert.ok(session.lockedPrimary);
+  assert.equal(session.result, null);
+  assert.deepEqual(normalizeStoredAssessmentSession(structuredClone(session)), session);
+
+  const storage = createMemoryStorage();
+  persistAssessmentSession(storage, session);
+  assert.deepEqual(restoreAssessmentSession(storage), session);
 });
 
-test('normalization rejects malformed rankings, unknown IDs, duplicate answers, and illegal adaptive routes', () => {
+test('normalization rejects unknown schema or model without mutating input', () => {
+  const session = answerUntil(3);
+  const wrongSchema = { ...structuredClone(session), schemaVersion: 2 };
+  const wrongModel = { ...structuredClone(session), modelVersion: '16-personality-ranking-v1-25q' };
+  const snapshots = [structuredClone(wrongSchema), structuredClone(wrongModel)];
+  assert.equal(normalizeStoredAssessmentSession(wrongSchema), null);
+  assert.equal(normalizeStoredAssessmentSession(wrongModel), null);
+  assert.deepEqual(wrongSchema, snapshots[0]);
+  assert.deepEqual(wrongModel, snapshots[1]);
+});
+
+test('normalization rejects malformed binary answers, duplicates, extra fields, and unknown IDs', () => {
   const partial = answerUntil(3);
-  const duplicateRankings = structuredClone(partial);
-  duplicateRankings.answers[0].rankings[3].rank = duplicateRankings.answers[0].rankings[0].rank;
-  assert.equal(normalizeStoredAssessmentSession(duplicateRankings), null);
 
   const unknownQuestion = structuredClone(partial);
   unknownQuestion.answers[0].questionId = 'not-a-question';
   assert.equal(normalizeStoredAssessmentSession(unknownQuestion), null);
 
   const unknownOption = structuredClone(partial);
-  unknownOption.answers[0].rankings[0].optionId = 'not-an-option';
+  unknownOption.answers[0].selectedOptionId = 'not-an-option';
   assert.equal(normalizeStoredAssessmentSession(unknownOption), null);
 
-  const duplicateAnswer = structuredClone(partial);
-  duplicateAnswer.answers.push(structuredClone(duplicateAnswer.answers[0]));
-  assert.equal(normalizeStoredAssessmentSession(duplicateAnswer), null);
+  const duplicate = structuredClone(partial);
+  duplicate.answers.push(structuredClone(duplicate.answers[0]));
+  assert.equal(normalizeStoredAssessmentSession(duplicate), null);
 
-  const illegalAdaptive = structuredClone(partial);
-  illegalAdaptive.adaptiveQuestionIds = ['energy-adaptive-01-shared-journey'];
-  assert.equal(normalizeStoredAssessmentSession(illegalAdaptive), null);
+  const answerWithScore = structuredClone(partial);
+  answerWithScore.answers[0].score = 1;
+  assert.equal(normalizeStoredAssessmentSession(answerWithScore), null);
 
-  const afterFixed = answerUntil(20);
-  const wrongRoute = structuredClone(afterFixed);
-  wrongRoute.adaptiveQuestionIds = [...wrongRoute.adaptiveQuestionIds].reverse();
-  assert.equal(normalizeStoredAssessmentSession(wrongRoute), null);
+  const topLevelDebug = { ...structuredClone(partial), profile: { energy: 1 } };
+  assert.equal(normalizeStoredAssessmentSession(topLevelDebug), null);
 });
 
-test('normalization rejects missing, premature, or inconsistent completed results', () => {
-  const completed = answerUntil(25);
-  const missingResult = { ...completed, result: null };
-  assert.equal(normalizeStoredAssessmentSession(missingResult), null);
+test('crafted adaptive answers in the base prefix fail closed instead of throwing', () => {
+  const session = answerUntil(25);
+  const crafted = structuredClone(session);
+  crafted.answers[0] = {
+    questionId: session.adaptiveQuestionIds[0],
+    selectedOptionId: `${session.adaptiveQuestionIds[0]}-a`,
+  };
+  assert.doesNotThrow(() => normalizeStoredAssessmentSession(crafted));
+  assert.equal(normalizeStoredAssessmentSession(crafted), null);
+  assert.equal(fixedAssessmentQuestions.some(({ id }) => id === crafted.answers[0].questionId), false);
+});
 
+test('normalization rejects illegal routes and missing or inconsistent locked-primary data', () => {
+  const afterBase = answerUntil(25);
+
+  const wrongRoute = structuredClone(afterBase);
+  wrongRoute.adaptiveQuestionIds.reverse();
+  assert.equal(normalizeStoredAssessmentSession(wrongRoute), null);
+
+  const missingLock = { ...structuredClone(afterBase), lockedPrimary: null };
+  assert.equal(normalizeStoredAssessmentSession(missingLock), null);
+
+  const wrongLock = structuredClone(afterBase);
+  wrongLock.lockedPrimary.primaryTypeId = wrongLock.lockedPrimary.primaryTypeId === 'INTJ'
+    ? 'ENFP'
+    : 'INTJ';
+  assert.equal(normalizeStoredAssessmentSession(wrongLock), null);
+
+  const premature = answerUntil(4);
+  premature.lockedPrimary = afterBase.lockedPrimary;
+  assert.equal(normalizeStoredAssessmentSession(premature), null);
+});
+
+test('normalization rejects premature, malformed, or inconsistent final results', () => {
+  const completed = answerUntil(30);
   const premature = answerUntil(4);
   premature.result = completed.result;
   assert.equal(normalizeStoredAssessmentSession(premature), null);
 
   const inconsistent = structuredClone(completed);
-  [inconsistent.result.primaryTypeId, inconsistent.result.secondaryTypeId] = [
-    inconsistent.result.secondaryTypeId,
-    inconsistent.result.primaryTypeId,
-  ];
+  inconsistent.result.secondaryTypeId = inconsistent.result.primaryTypeId;
   assert.equal(normalizeStoredAssessmentSession(inconsistent), null);
+
+  const wrongSecondary = structuredClone(completed);
+  wrongSecondary.result.secondaryTypeId = wrongSecondary.result.secondaryTypeId === 'INTJ'
+    ? 'ENFP'
+    : 'INTJ';
+  if (wrongSecondary.result.secondaryTypeId === wrongSecondary.result.primaryTypeId) {
+    wrongSecondary.result.secondaryTypeId = 'ESFP';
+  }
+  assert.equal(normalizeStoredAssessmentSession(wrongSecondary), null);
+
+  const numericLeak = structuredClone(completed);
+  numericLeak.result.distance = 0.1;
+  assert.equal(normalizeStoredAssessmentSession(numericLeak), null);
 });
 
-test('legacy migration discards only obsolete assessment state', () => {
+test('migration removes only obsolete v1 and v2 assessment state', () => {
   const appearanceKey = 'animals-within.appearance.v1';
   const consentKey = 'animals-within.analytics-consent.v1';
   const unrelatedKey = 'unrelated.preference';
   const storage = createMemoryStorage({
-    [legacyAssessmentStorageKey]: JSON.stringify({
-      modelVersion: '12-archetype-v2-25q',
-      answers: [{ questionId: 'b01-new-group', optionId: 'b01-a' }],
-      adaptiveQuestionIds: ['a01-short-notice', 'a02-change-structure'],
-      result: { primaryId: 'wolf', secondaryId: 'owl' },
-    }),
+    [legacyAssessmentStorageKey]: JSON.stringify({ answers: [{ optionId: 'old' }] }),
+    [legacyRankingAssessmentStorageKey]: JSON.stringify({ rankings: [1, 2, 3, 4] }),
     [appearanceKey]: JSON.stringify({ language: 'el', mode: 'dark' }),
     [consentKey]: 'rejected',
     [unrelatedKey]: 'keep-me',
   });
 
   assert.deepEqual(restoreAssessmentSession(storage), createAssessmentSession());
+  assert.deepEqual(storage.removed, [legacyAssessmentStorageKey, legacyRankingAssessmentStorageKey]);
   assert.equal(storage.values.has(legacyAssessmentStorageKey), false);
-  assert.deepEqual(storage.removed, [legacyAssessmentStorageKey]);
+  assert.equal(storage.values.has(legacyRankingAssessmentStorageKey), false);
   assert.equal(storage.values.get(appearanceKey), JSON.stringify({ language: 'el', mode: 'dark' }));
   assert.equal(storage.values.get(consentKey), 'rejected');
   assert.equal(storage.values.get(unrelatedKey), 'keep-me');
 });
 
-test('malformed current storage fails clean and preserves appearance, consent, and unrelated preferences', () => {
-  const appearanceKey = 'animals-within.appearance.v1';
-  const consentKey = 'animals-within.analytics-consent.v1';
-  const unrelatedKey = 'unrelated.preference';
+test('malformed current storage fails clean and preserves non-assessment preferences', () => {
   const storage = createMemoryStorage({
     [assessmentStorageKey]: '{not-json',
-    [appearanceKey]: 'appearance',
-    [consentKey]: 'accepted',
-    [unrelatedKey]: 'keep-me',
+    'animals-within.appearance.v1': 'appearance',
+    'animals-within.analytics-consent.v1': 'accepted',
+    unrelated: 'keep',
   });
   assert.deepEqual(restoreAssessmentSession(storage), createAssessmentSession());
-  assert.equal(storage.values.get(appearanceKey), 'appearance');
-  assert.equal(storage.values.get(consentKey), 'accepted');
-  assert.equal(storage.values.get(unrelatedKey), 'keep-me');
+  assert.deepEqual(storage.removed, [assessmentStorageKey]);
+  assert.equal(storage.values.get('animals-within.appearance.v1'), 'appearance');
+  assert.equal(storage.values.get('animals-within.analytics-consent.v1'), 'accepted');
+  assert.equal(storage.values.get('unrelated'), 'keep');
 });
 
-test('unavailable or throwing storage remains optional and fails safely to memory', () => {
+test('unavailable or throwing storage remains optional and safe', () => {
   const throwingStorage = {
     getItem() {
       throw new Error('blocked');
@@ -254,7 +324,56 @@ test('unavailable or throwing storage remains optional and fails safely to memor
   assert.doesNotThrow(() => persistAssessmentSession(throwingStorage, answerUntil(2)));
 });
 
-test('restart and persistence touch only the assessment key', () => {
+test('persisted assessment uses an explicit allowlist with no scores or public copy', () => {
+  const storage = createMemoryStorage();
+  persistAssessmentSession(storage, answerUntil(30));
+  const storedText = storage.values.get(assessmentStorageKey);
+  const stored = JSON.parse(storedText);
+  assert.deepEqual(Object.keys(stored).sort(), [
+    'adaptiveQuestionIds',
+    'answers',
+    'currentQuestionIndex',
+    'lockedPrimary',
+    'modelVersion',
+    'result',
+    'schemaVersion',
+  ]);
+  assert.deepEqual(Object.keys(stored.lockedPrimary).sort(), [
+    'balancedDimensionIds',
+    'hasCloseMatch',
+    'primaryTypeId',
+  ]);
+  assert.deepEqual(Object.keys(stored.result).sort(), [
+    'balancedDimensionIds',
+    'hasCloseMatch',
+    'primaryTypeId',
+    'secondaryTypeId',
+  ]);
+  assert.ok(stored.answers.every((answer) =>
+    Object.keys(answer).sort().join(',') === 'questionId,selectedOptionId'));
+  assert.doesNotMatch(
+    storedText,
+    /poleTotals|contextProfile|matches|distance|score|percentage|confidence|translated|description|strength|blindSpot|title/i,
+  );
+});
+
+test('language and appearance changes retain the exact assessment object', () => {
+  const assessment = answerUntil(27);
+  const state = {
+    appearance: { language: 'en', mode: 'light', colorTheme: 'amber' },
+    assessment,
+  };
+  const next = {
+    ...state,
+    appearance: { ...state.appearance, language: 'el', mode: 'dark', colorTheme: 'plum' },
+  };
+  assert.strictEqual(next.assessment, assessment);
+  assert.strictEqual(next.assessment.answers, assessment.answers);
+  assert.strictEqual(next.assessment.adaptiveQuestionIds, assessment.adaptiveQuestionIds);
+  assert.strictEqual(next.assessment.lockedPrimary, assessment.lockedPrimary);
+});
+
+test('restart persistence touches only the current assessment key', () => {
   const storage = createMemoryStorage({
     'animals-within.appearance.v1': 'appearance',
     'animals-within.analytics-consent.v1': 'accepted',
@@ -266,70 +385,4 @@ test('restart and persistence touch only the assessment key', () => {
   assert.equal(storage.values.get('animals-within.appearance.v1'), 'appearance');
   assert.equal(storage.values.get('animals-within.analytics-consent.v1'), 'accepted');
   assert.equal(storage.values.get('unrelated'), 'keep');
-  assert.deepEqual([...storage.values.keys()].sort(), [
-    assessmentStorageKey,
-    'animals-within.analytics-consent.v1',
-    'animals-within.appearance.v1',
-    'unrelated',
-  ].sort());
-});
-
-test('persisted assessment has an explicit allowlist and no debug or public-copy fields', () => {
-  const storage = createMemoryStorage();
-  persistAssessmentSession(storage, answerUntil(25));
-  const storedText = storage.values.get(assessmentStorageKey);
-  const stored = JSON.parse(storedText);
-  assert.deepEqual(Object.keys(stored).sort(), [
-    'adaptiveQuestionIds',
-    'answers',
-    'currentQuestionIndex',
-    'modelVersion',
-    'result',
-    'schemaVersion',
-  ]);
-  assert.deepEqual(Object.keys(stored.result).sort(), [
-    'balancedDimensionIds',
-    'primaryTypeId',
-    'secondaryTypeId',
-  ]);
-  assert.doesNotMatch(
-    storedText,
-    /poleTotals|profile|matches|distance|score|percentage|confidence|translated|description|strength|blindSpot|title/i,
-  );
-});
-
-test('language and appearance changes retain the exact persisted assessment object', () => {
-  const assessment = answerUntil(22);
-  const state = {
-    appearance: {
-      language: 'en',
-      mode: 'light',
-      colorTheme: 'amber',
-      fontFamily: 'system-sans',
-      textSize: 'large',
-    },
-    assessment,
-  };
-  const next = {
-    ...state,
-    appearance: {
-      ...state.appearance,
-      language: 'el',
-      mode: 'dark',
-      colorTheme: 'plum',
-      textSize: 'extra-large',
-    },
-  };
-  assert.strictEqual(next.assessment, assessment);
-  assert.strictEqual(next.assessment.answers, assessment.answers);
-  assert.strictEqual(next.assessment.adaptiveQuestionIds, assessment.adaptiveQuestionIds);
-});
-
-test('pre-adaptive persistence rejects adaptive answers disguised as fixed progress', () => {
-  const partial = answerUntil(2);
-  const firstAdaptiveQuestionId = 'energy-adaptive-01-shared-journey';
-  const poisoned = structuredClone(partial);
-  poisoned.answers[0].questionId = firstAdaptiveQuestionId;
-  assert.equal(normalizeStoredAssessmentSession(poisoned), null);
-  assert.equal(fixedAssessmentQuestions.some(({ id }) => id === firstAdaptiveQuestionId), false);
 });

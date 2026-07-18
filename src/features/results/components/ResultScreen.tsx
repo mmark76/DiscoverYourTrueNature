@@ -11,10 +11,13 @@ import { PageContent } from '../../../shared/components/PageContent';
 import { theme } from '../../../shared/styles/theme';
 import type { AnimalData } from '../../animals/data/animals';
 
+export type PublicContextObservation = 'personal' | 'professional' | 'context-dependent';
+
 interface ResultScreenProps {
   primaryAnimal: AnimalData;
   secondaryAnimal: AnimalData;
-  hasBalancedDimensions: boolean;
+  contextObservation: PublicContextObservation | null;
+  hasCloseMatch: boolean;
   onOpenCatalogue: () => void;
   onRestart: () => void;
 }
@@ -22,7 +25,8 @@ interface ResultScreenProps {
 export function ResultScreen({
   primaryAnimal,
   secondaryAnimal,
-  hasBalancedDimensions,
+  contextObservation,
+  hasCloseMatch,
   onOpenCatalogue,
   onRestart,
 }: ResultScreenProps) {
@@ -42,6 +46,11 @@ export function ResultScreen({
     primaryStrength: primaryCopy.strengths[0],
     secondaryStrength: secondaryCopy.strengths[0],
   });
+  const contextObservationText = contextObservation === 'personal'
+    ? copy.personalContextObservation
+    : contextObservation === 'professional'
+      ? copy.professionalContextObservation
+      : contextObservation === 'context-dependent' ? copy.contextDependentObservation : null;
   const styles = createStyles(colors);
 
   useEffect(() => {
@@ -77,6 +86,25 @@ export function ResultScreen({
             </View>
             <AppText style={styles.tagline}>{primaryCopy.tagline}</AppText>
             <AppText style={styles.description}>{primaryCopy.description}</AppText>
+          </View>
+
+          <View style={styles.secondaryCard}>
+            <AppText style={styles.sectionLabel}>{copy.secondaryAnimal}</AppText>
+            <View style={styles.animalHeading}>
+              <AppText accessibilityElementsHidden style={styles.secondarySymbol}>
+                {secondaryAnimal.symbol}
+              </AppText>
+              <AppText accessibilityRole="header" style={styles.secondaryName}>
+                {secondaryCopy.name}
+              </AppText>
+            </View>
+            <AppText style={styles.secondaryTagline}>{secondaryCopy.tagline}</AppText>
+            <AppText style={styles.bodyText}>{secondaryCopy.description}</AppText>
+          </View>
+
+          <View style={styles.relationshipCard}>
+            <AppText accessibilityRole="header" style={styles.detailTitle}>{copy.relationship}</AppText>
+            <AppText style={styles.bodyText}>{relationshipDescription}</AppText>
           </View>
 
           <View style={styles.twoColumnGrid}>
@@ -116,34 +144,20 @@ export function ResultScreen({
             </View>
           </View>
 
-          <View style={styles.metaphorCard}>
-            <AppText accessibilityRole="header" style={styles.detailTitle}>
-              {copy.animalMetaphor}
-            </AppText>
-            <AppText style={styles.bodyText}>{primaryCopy.metaphor}</AppText>
-          </View>
-
-          <View style={styles.secondaryCard}>
-            <AppText style={styles.sectionLabel}>{copy.secondaryAnimal}</AppText>
-            <View style={styles.animalHeading}>
-              <AppText accessibilityElementsHidden style={styles.secondarySymbol}>
-                {secondaryAnimal.symbol}
+          {contextObservationText && (
+            <View style={styles.contextCard}>
+              <AppText accessibilityRole="header" style={styles.detailTitle}>
+                {copy.contextObservationTitle}
               </AppText>
-              <AppText accessibilityRole="header" style={styles.secondaryName}>
-                {secondaryCopy.name}
-              </AppText>
+              <AppText style={styles.bodyText}>{contextObservationText}</AppText>
             </View>
-            <AppText style={styles.secondaryTagline}>{secondaryCopy.tagline}</AppText>
-            <AppText style={styles.bodyText}>{secondaryCopy.description}</AppText>
-          </View>
+          )}
 
-          <View style={styles.relationshipCard}>
-            <AppText accessibilityRole="header" style={styles.detailTitle}>{copy.relationship}</AppText>
-            <AppText style={styles.bodyText}>{relationshipDescription}</AppText>
-            {hasBalancedDimensions && (
+          {hasCloseMatch && (
+            <View style={styles.closePatternCard}>
               <AppText style={styles.closePatternNote}>{copy.closePatterns}</AppText>
-            )}
-          </View>
+            </View>
+          )}
 
           <AppText style={styles.disclaimer}>{copy.disclaimer}</AppText>
 
@@ -198,7 +212,7 @@ function createStyles(colors: SemanticColors) {
       minWidth: 0,
       width: '100%',
     },
-    introduction: { alignItems: 'center', gap: theme.spacing.xs },
+    introduction: { alignItems: 'center', gap: theme.spacing.xs, minWidth: 0 },
     eyebrow: { color: colors.primary, fontSize: 12, fontWeight: '900', letterSpacing: 1.2 },
     pageTitle: { color: colors.heading, fontSize: 30, fontWeight: '900', lineHeight: 38, textAlign: 'center' },
     primaryHero: {
@@ -208,7 +222,8 @@ function createStyles(colors: SemanticColors) {
       borderRadius: theme.radius.lg,
       borderWidth: 1,
       gap: theme.spacing.md,
-      padding: theme.spacing.xl,
+      minWidth: 0,
+      padding: theme.spacing.lg,
     },
     sectionLabel: { color: colors.primary, fontSize: 13, fontWeight: '900', letterSpacing: 1 },
     animalHeading: {
@@ -217,61 +232,42 @@ function createStyles(colors: SemanticColors) {
       flexWrap: 'wrap',
       gap: theme.spacing.md,
       justifyContent: 'center',
+      minWidth: 0,
+      width: '100%',
     },
-    primarySymbol: { fontSize: 58, lineHeight: 70 },
-    primaryName: { color: colors.heading, fontSize: 48, fontWeight: '900', lineHeight: 58, textAlign: 'center' },
+    primarySymbol: { flexShrink: 0, fontSize: 58, lineHeight: 70 },
+    primaryName: {
+      color: colors.heading,
+      flexShrink: 1,
+      fontSize: 48,
+      fontWeight: '900',
+      lineHeight: 58,
+      maxWidth: '100%',
+      minWidth: 0,
+      textAlign: 'center',
+    },
     tagline: { color: colors.heading, fontSize: 21, fontWeight: '800', lineHeight: 30, maxWidth: 700, textAlign: 'center' },
     description: { color: colors.text, fontSize: 17, lineHeight: 27, maxWidth: 760, textAlign: 'center' },
-    twoColumnGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md },
-    detailCard: {
-      backgroundColor: colors.surface,
-      borderColor: colors.border,
-      borderRadius: theme.radius.md,
-      borderWidth: 1,
-      flexBasis: 300,
-      flexGrow: 1,
-      gap: theme.spacing.sm,
-      minWidth: 0,
-      padding: theme.spacing.lg,
-    },
-    detailTitle: { color: colors.heading, fontSize: 20, fontWeight: '900', lineHeight: 27 },
-    bulletRow: { alignItems: 'flex-start', flexDirection: 'row', gap: theme.spacing.xs },
-    bullet: { color: colors.primary, fontSize: 16, fontWeight: '900', lineHeight: 23 },
-    bulletText: { color: colors.text, flex: 1, fontSize: 15, lineHeight: 23 },
-    section: { gap: theme.spacing.md },
-    sectionTitle: { color: colors.heading, fontSize: 25, fontWeight: '900', lineHeight: 33 },
-    tendencyGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md },
-    tendencyCard: {
-      backgroundColor: colors.surface,
-      borderColor: colors.border,
-      borderRadius: theme.radius.md,
-      borderWidth: 1,
-      flexBasis: 280,
-      flexGrow: 1,
-      gap: theme.spacing.xs,
-      minWidth: 0,
-      padding: theme.spacing.md,
-    },
-    tendencyLabel: { color: colors.primary, fontSize: 14, fontWeight: '900', lineHeight: 20 },
-    bodyText: { color: colors.text, fontSize: 15, lineHeight: 24 },
-    metaphorCard: {
-      backgroundColor: colors.surfaceMuted,
-      borderColor: colors.border,
-      borderRadius: theme.radius.md,
-      borderWidth: 1,
-      gap: theme.spacing.sm,
-      padding: theme.spacing.lg,
-    },
     secondaryCard: {
       backgroundColor: colors.surface,
       borderColor: colors.borderStrong,
       borderRadius: theme.radius.lg,
       borderWidth: 1,
       gap: theme.spacing.sm,
-      padding: theme.spacing.xl,
+      minWidth: 0,
+      padding: theme.spacing.lg,
     },
-    secondarySymbol: { fontSize: 38, lineHeight: 48 },
-    secondaryName: { color: colors.heading, fontSize: 34, fontWeight: '900', lineHeight: 43, textAlign: 'center' },
+    secondarySymbol: { flexShrink: 0, fontSize: 38, lineHeight: 48 },
+    secondaryName: {
+      color: colors.heading,
+      flexShrink: 1,
+      fontSize: 34,
+      fontWeight: '900',
+      lineHeight: 43,
+      maxWidth: '100%',
+      minWidth: 0,
+      textAlign: 'center',
+    },
     secondaryTagline: { color: colors.heading, fontSize: 18, fontWeight: '800', lineHeight: 26 },
     relationshipCard: {
       backgroundColor: colors.successSurface,
@@ -279,7 +275,59 @@ function createStyles(colors: SemanticColors) {
       borderRadius: theme.radius.md,
       borderWidth: 1,
       gap: theme.spacing.sm,
+      minWidth: 0,
       padding: theme.spacing.lg,
+    },
+    twoColumnGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md, minWidth: 0 },
+    detailCard: {
+      backgroundColor: colors.surface,
+      borderColor: colors.border,
+      borderRadius: theme.radius.md,
+      borderWidth: 1,
+      flexBasis: 280,
+      flexGrow: 1,
+      flexShrink: 1,
+      gap: theme.spacing.sm,
+      minWidth: 0,
+      padding: theme.spacing.lg,
+    },
+    detailTitle: { color: colors.heading, fontSize: 20, fontWeight: '900', lineHeight: 27 },
+    bulletRow: { alignItems: 'flex-start', flexDirection: 'row', gap: theme.spacing.xs, minWidth: 0 },
+    bullet: { color: colors.primary, flexShrink: 0, fontSize: 16, fontWeight: '900', lineHeight: 23 },
+    bulletText: { color: colors.text, flex: 1, fontSize: 15, lineHeight: 23, minWidth: 0 },
+    section: { gap: theme.spacing.md, minWidth: 0 },
+    sectionTitle: { color: colors.heading, fontSize: 25, fontWeight: '900', lineHeight: 33 },
+    tendencyGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md, minWidth: 0 },
+    tendencyCard: {
+      backgroundColor: colors.surface,
+      borderColor: colors.border,
+      borderRadius: theme.radius.md,
+      borderWidth: 1,
+      flexBasis: 260,
+      flexGrow: 1,
+      flexShrink: 1,
+      gap: theme.spacing.xs,
+      minWidth: 0,
+      padding: theme.spacing.md,
+    },
+    tendencyLabel: { color: colors.primary, fontSize: 14, fontWeight: '900', lineHeight: 20 },
+    bodyText: { color: colors.text, fontSize: 15, lineHeight: 24 },
+    contextCard: {
+      backgroundColor: colors.surfaceMuted,
+      borderColor: colors.border,
+      borderRadius: theme.radius.md,
+      borderWidth: 1,
+      gap: theme.spacing.sm,
+      minWidth: 0,
+      padding: theme.spacing.lg,
+    },
+    closePatternCard: {
+      backgroundColor: colors.surfaceMuted,
+      borderColor: colors.borderStrong,
+      borderRadius: theme.radius.md,
+      borderWidth: 1,
+      minWidth: 0,
+      padding: theme.spacing.md,
     },
     closePatternNote: { color: colors.heading, fontSize: 15, fontWeight: '800', lineHeight: 23 },
     disclaimer: {
@@ -292,7 +340,7 @@ function createStyles(colors: SemanticColors) {
       lineHeight: 22,
       padding: theme.spacing.md,
     },
-    actions: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
+    actions: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm, minWidth: 0 },
     catalogueButton: {
       alignItems: 'center',
       backgroundColor: colors.surface,
@@ -301,8 +349,10 @@ function createStyles(colors: SemanticColors) {
       borderWidth: 1,
       flexBasis: 220,
       flexGrow: 1,
+      flexShrink: 1,
       justifyContent: 'center',
       minHeight: 52,
+      minWidth: 0,
       paddingHorizontal: theme.spacing.md,
       paddingVertical: theme.spacing.sm,
     },
@@ -314,8 +364,10 @@ function createStyles(colors: SemanticColors) {
       borderWidth: 1,
       flexBasis: 220,
       flexGrow: 1,
+      flexShrink: 1,
       justifyContent: 'center',
       minHeight: 52,
+      minWidth: 0,
       paddingHorizontal: theme.spacing.md,
       paddingVertical: theme.spacing.sm,
     },

@@ -10,29 +10,30 @@ import type { AnimalData, AnimalId } from './src/features/animals/data/animals';
 import { AssessmentScreen } from './src/features/assessment/components/AssessmentScreen';
 import { completedAssessmentQuestionCount } from './src/features/assessment/data/questions';
 import {
-  answerCurrentAssessmentQuestion,
-  createAssessmentSession,
+  canContinueAssessment,
+  continueAssessment,
   getAssessmentAnswer,
   getCurrentAssessmentQuestion,
   goToPreviousAssessmentQuestion,
   restartAssessmentSession,
+  selectCurrentAssessmentOption,
 } from './src/features/assessment/services/assessmentSession';
 import {
   getBrowserAssessmentStorage,
   persistAssessmentSession,
   restoreAssessmentSession,
 } from './src/features/assessment/services/assessmentStorage';
-import {
-  answerToRankingDraft,
-  type RankingDraft,
-} from './src/features/assessment/services/ranking';
+import { getContextProfileObservation } from './src/features/assessment/services/scoreAssessment';
 import { HomeScreen } from './src/features/home/components/HomeScreen';
 import { HowItWorksScreen } from './src/features/information/components/HowItWorksScreen';
 import {
   getPersonalityAnimal,
   type PersonalityTypeId,
 } from './src/features/personalities/data/personalityAnimals';
-import { ResultScreen } from './src/features/results/components/ResultScreen';
+import {
+  ResultScreen,
+  type PublicContextObservation,
+} from './src/features/results/components/ResultScreen';
 import { AppearanceProvider, useAppearance } from './src/settings/AppearanceProvider';
 import { SettingsScreen } from './src/settings/components/SettingsScreen';
 import { AppHeader } from './src/shared/components/AppHeader';
@@ -74,21 +75,13 @@ function AppContent() {
       : null,
     [assessmentSession, currentQuestion],
   );
-  const [rankingDraft, setRankingDraft] = useState<RankingDraft>(() =>
-    answerToRankingDraft(currentAnswer),
-  );
 
   useEffect(() => {
     persistAssessmentSession(assessmentStorage, assessmentSession);
   }, [assessmentSession, assessmentStorage]);
 
-  useEffect(() => {
-    setRankingDraft(answerToRankingDraft(currentAnswer));
-  }, [currentAnswer, currentQuestion?.id]);
-
   function resetAndStartAssessment() {
     setAssessmentSession(restartAssessmentSession());
-    setRankingDraft({});
     setScreen('assessment');
   }
 
@@ -112,13 +105,14 @@ function AppContent() {
     }
   }
 
-  function submitQuestionRanking() {
-    if (!currentQuestion) return;
-    const nextSession = answerCurrentAssessmentQuestion(
-      assessmentSession,
-      currentQuestion.id,
-      rankingDraft,
-    );
+  function selectOption(optionId: string) {
+    const nextSession = selectCurrentAssessmentOption(assessmentSession, optionId);
+    setAssessmentSession(nextSession);
+  }
+
+  function continueToNextQuestion() {
+    if (!canContinueAssessment(assessmentSession)) return;
+    const nextSession = continueAssessment(assessmentSession);
     setAssessmentSession(nextSession);
 
     if (nextSession.result) setScreen('result');
@@ -133,6 +127,9 @@ function AppContent() {
     : null;
   const secondaryAnimal = assessmentSession.result
     ? toPublicAnimal(assessmentSession.result.secondaryTypeId)
+    : null;
+  const contextObservation = assessmentSession.result
+    ? toPublicContextObservation(getContextProfileObservation(assessmentSession.answers))
     : null;
   const showAppChrome = shouldShowAppChrome(screen);
 
@@ -153,18 +150,19 @@ function AppContent() {
           <AssessmentScreen
             canGoBack={assessmentSession.currentQuestionIndex > 0}
             onBack={goBackOneQuestion}
-            onContinue={submitQuestionRanking}
-            onRankingsChange={setRankingDraft}
+            onContinue={continueToNextQuestion}
+            onSelectOption={selectOption}
             question={currentQuestion}
             questionNumber={assessmentSession.currentQuestionIndex + 1}
-            rankings={rankingDraft}
+            selectedOptionId={currentAnswer?.selectedOptionId ?? null}
             totalQuestions={completedAssessmentQuestionCount}
           />
         )}
 
         {screen === 'result' && assessmentSession.result && primaryAnimal && secondaryAnimal && (
           <ResultScreen
-            hasBalancedDimensions={assessmentSession.result.balancedDimensionIds.length > 0}
+            contextObservation={contextObservation}
+            hasCloseMatch={assessmentSession.result.hasCloseMatch}
             onOpenCatalogue={() => setScreen('animals')}
             onRestart={resetAndStartAssessment}
             primaryAnimal={primaryAnimal}
@@ -192,6 +190,15 @@ function AppContent() {
 function toPublicAnimal(typeId: PersonalityTypeId): AnimalData {
   const { animalId, symbol } = getPersonalityAnimal(typeId);
   return { id: animalId as AnimalId, symbol };
+}
+
+function toPublicContextObservation(
+  observation: ReturnType<typeof getContextProfileObservation>,
+): PublicContextObservation | null {
+  if (!observation) return null;
+  if (observation.kind === 'personal-stronger') return 'personal';
+  if (observation.kind === 'professional-stronger') return 'professional';
+  return 'context-dependent';
 }
 
 const styles = StyleSheet.create({

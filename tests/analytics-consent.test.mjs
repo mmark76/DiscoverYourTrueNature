@@ -134,6 +134,6 @@ test('consent UI and storage remain isolated from analytics transport and assess
   assert.doesNotMatch(consentFeatureSource, /googletagmanager|google-analytics|\bgtag\b|fetch\s*\(|XMLHttpRequest|sendBeacon|document\.cookie|<script|https?:\/\//i);
   assert.doesNotMatch(
     consentFeatureSource,
-    /assessmentQuestions|AssessmentAnswer|AssessmentResult|DimensionProfile|PoleScoreMap|RankingDraft|adaptiveQuestion|primaryTypeId|secondaryTypeId|balancedDimension|animalId|feedbackRecipient/i,
+    /assessmentQuestions|AssessmentAnswer|AssessmentResult|DimensionProfile|PoleScoreMap|selectedOptionId|adaptiveQuestion|adaptiveRoute|lockedPrimary|primaryTypeId|secondaryTypeId|personalProfile|professionalProfile|contextProfile|balancedDimension|animalId|feedbackRecipient/i,
   );
 });
