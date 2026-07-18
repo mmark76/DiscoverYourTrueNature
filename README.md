@@ -10,16 +10,19 @@ product does not present itself as MBTI or as an official MBTI assessment.
 
 ## Current experience
 
-Every completed assessment contains exactly 30 binary questions. Each question presents two large
-alternatives, **A / Α** and **B / Β**, and requires exactly one selection:
+Home offers two independent binary questionnaires. Each question presents two large alternatives,
+**A / Α** and **B / Β**, and requires exactly one selection:
 
-- questions 1–20 cover everyday behavior: 10 personal-life questions, including five about hobbies,
-  interests, and learning, followed by 10 professional-life questions;
-- questions 21–25 are more direct structured preferences: three personal and two professional;
-- questions 26–30 are five deterministic follow-up questions selected from a 16-question bank, with
-  exactly two personal and three professional contexts;
-- one primary symbolic animal is calculated and locked after question 25;
-- one distinct secondary animal is calculated after question 30 without changing the primary.
+- **Short questionnaire:** 15 questions, about 3 minutes. Questions 1–12 contain exactly three
+  questions in each of four internal areas. They lock the primary animal. Questions 13–15 are three
+  deterministic separator questions that select a distinct secondary without changing the primary.
+- **Long questionnaire:** the existing 30-question experience, about 6 minutes. Questions 1–20 cover
+  everyday behavior, questions 21–25 use more direct preferences, and questions 26–30 are five
+  deterministic follow-ups. The primary locks after question 25 and the distinct secondary is
+  calculated after question 30.
+
+Short and Long progress coexist locally. Starting, continuing, refreshing, or restarting one does
+not overwrite the other.
 
 The catalogue contains the existing 16 unique symbolic animals and is available without completing
 the assessment. Results lead with the animals and natural-language descriptions, strengths, possible
@@ -58,19 +61,20 @@ The balance script is an engineering check, not scientific or psychometric valid
 
 ## Language and localization
 
-Greek (`el`) and English (`en`) cover the full experience. The supplied Greek questions are the
-authoritative source; English copy preserves the same behavioral distinction and scoring direction
-in natural language.
+Greek (`el`) and English (`en`) cover both questionnaires and the full experience. Short Greek uses
+simple lower-secondary-school wording. English copy preserves each behavioral distinction and
+metadata-owned scoring direction in natural language.
 
-Language-neutral assessment data owns stable dimension, pole, phase, context, question, option,
-personality, animal, and model identifiers plus scoring metadata. Typed dictionaries under
+Language-neutral assessment data owns stable mode, Short-area, dimension, pole, phase, context,
+question, option, personality, animal, and model identifiers plus scoring metadata. Typed
+dictionaries under
 `src/i18n/content/` own visible copy only. They do not duplicate poles, weights, reverse-keying, or
 selection rules.
 
-Changing language does not restart an assessment, clear selections, change the current question,
-change the five selected follow-up IDs, change the locked primary animal, or recalculate a completed
-result differently. Animal names and descriptions are resolved in the selected language from stable
-internal identifiers.
+Changing language does not restart either questionnaire, clear selections, change a current
+question, change a deterministic follow-up route, change a locked primary animal, or recalculate a
+completed result differently. Animal names and descriptions are resolved in the selected language
+from stable internal identifiers.
 
 ## Binary interaction
 
@@ -85,10 +89,34 @@ and Greek copy wraps without clipping at narrow widths, browser zoom, and Extra 
 The displayed letter is not a score. Approximately half the questions reverse which pole appears as
 option A, and the option metadata—not the letter—determines the signed contribution.
 
-## Assessment model
+## Questionnaire models
 
-The model identifier is `16-personality-binary-v2-30q`. It retains the four internal dimensions and
-the one-to-one mapping between 16 internal personality identifiers and the existing 16 animals.
+Both modes retain the four canonical internal dimensions and the one-to-one mapping between 16
+internal personality identifiers and the existing 16 animals. The result records whether it came
+from `assessmentMode: 'short' | 'long'`, but public results stay animal-only.
+
+### Short questionnaire
+
+The Short model identifier is `animals-within-short-binary-v1-15q`:
+
+- 12 fixed questions, weighted `1.0`, with exactly three in each internal area;
+- sociability and social intelligence maps internally to `energy`;
+- emotional intelligence maps internally to `decisions`;
+- creativity and imagination maps internally to `information`;
+- practicality, logic, and analytical thinking maps internally to `structure`;
+- the primary is calculated and locked from questions 1–12;
+- three questions, weighted `1.5`, are selected deterministically from an eight-question separator
+  bank using nearby-candidate disagreement and fixed tie-breaks;
+- the final secondary uses all 15 answers, excludes the locked primary, and is always distinct.
+
+The three separator questions come from three different areas. They can influence only the
+secondary. Each fixed or separator question measures one area and offers two acceptable tendencies
+within it.
+
+### Long questionnaire
+
+The existing Long model identifier remains `16-personality-binary-v2-30q` and its 30-question
+structure is unchanged.
 
 Every answer contributes `+1` toward the dimension's first pole or `-1` toward its second pole,
 multiplied by a phase weight:
@@ -121,10 +149,19 @@ The complete formula, mapping, tie rules, and privacy boundary are documented in
 
 ## Persistence and migration
 
-Assessment persistence uses key `animals-within.assessment.v3`, schema version 3, and the explicit
-model version. It stores only the current position, binary answers, selected follow-up question IDs,
-the locked primary result once available, the final result once available, and the minimum internal
-metadata required to restore safely.
+The two questionnaire records and the active chooser mode use separate keys:
+
+- Long: `animals-within.assessment.v3`, schema 3;
+- Short: `animals-within.assessment.short.v1`, schema 1;
+- active mode: `animals-within.assessment.active-mode`.
+
+Each questionnaire stores only its current position, binary answers, selected follow-up question
+IDs, locked primary once available, final result once available, `assessmentMode`, and the minimum
+internal metadata required to restore safely. Restart resets only the active mode's record.
+
+Existing valid Long schema-3 records that predate `assessmentMode` upgrade in place to mode `long`
+without losing progress. The Long key, 30-question model, and result calculation are otherwise
+unchanged.
 
 Ranking-based schema-2 data under `animals-within.assessment.v2` and older assessment data under
 `animals-within.assessment.v1` are incompatible. They are discarded rather than approximated.
@@ -167,8 +204,9 @@ Feedback content, or build version. All assessment calculation remains local.
 
 ## Repository structure
 
-- `src/features/assessment/` — binary metadata, session state, persistence, deterministic follow-up
-  selection, scoring, context profiles, fixtures, and engineering analysis.
+- `src/features/assessment/` — independent Short and Long binary metadata, session state,
+  persistence, deterministic follow-up selection, scoring, context profiles, fixtures, and
+  engineering analysis.
 - `src/features/personalities/` — internal identifiers, canonical corners, and the one-to-one
   16-animal mapping.
 - `src/features/animals/` — the public 16-animal catalogue.

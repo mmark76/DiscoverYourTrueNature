@@ -19,7 +19,7 @@ npx expo export --platform web
 All commands must succeed before the work is reported as validated. Run outcomes belong in the pull
 request verification notes rather than this evergreen contract.
 
-## Question metadata invariants
+## Long question metadata invariants
 
 Automated tests cover:
 
@@ -48,7 +48,30 @@ The displayed first-pole/second-pole ordering is balanced so the reverse-keyed c
 forward-keyed count by no more than one. Tests prove that option metadata, not A/B position,
 determines contribution.
 
-## Binary answer and session invariants
+## Short questionnaire invariants
+
+Focused Short model tests prove:
+
+- `assessmentMode` is `short`, schema is `1`, and model is
+  `animals-within-short-binary-v1-15q`;
+- the completed route is exactly 15 questions: 12 fixed plus 3 separators;
+- Long's exported completed-question count remains exactly 30;
+- the 12 fixed questions contain exactly 3 sociability, 3 emotional-intelligence, 3 creativity, and
+  3 practicality questions;
+- every question has exactly one area, maps to exactly one canonical dimension, and offers exactly
+  two current A/B options spanning its two poles;
+- the separator bank has exactly 8 questions, 2 per area, and a completed route has 3 unique
+  questions from 3 distinct areas;
+- fixed and separator weights are exactly `1.0` and `1.5`, with balanced reverse-keying;
+- question 12 creates the primary lock and deterministic separator route atomically;
+- every possible separator answer pattern preserves the same locked primary;
+- question 15 produces a deterministic secondary that is always distinct from the lock;
+- the same complete answers produce byte-for-byte identical sessions and results across repeated
+  runs and all 16 canonical primary fixtures;
+- changing a fixed answer clears dependent separator progress and recomputes the route safely;
+- changing a separator answer preserves the route and locked primary.
+
+## Long binary answer and session invariants
 
 Tests exercise selection behavior independently from rendering:
 
@@ -89,7 +112,11 @@ Focused numeric fixtures verify:
 
 The weights are product-design constants, not psychometric coefficients.
 
-## Primary, adaptive, and secondary invariants
+Short numeric fixtures verify the same signed one-dimension contribution and normalization rules
+with weights `1.0` and `1.5`. Area IDs are asserted to bridge one-to-one to all four canonical
+dimensions; no question can contribute to a second area.
+
+## Long primary, adaptive, and secondary invariants
 
 ### Locked primary
 
@@ -121,7 +148,7 @@ The weights are product-design constants, not psychometric coefficients.
 - adaptive weight can influence the secondary but never the primary;
 - exact profile and distance ties use fixed canonical order.
 
-## Context-profile invariants
+## Long context-profile invariants
 
 Personal and professional profiles use questions 1–25 only and normalize each context/dimension by
 its own answered weight. Tests verify:
@@ -155,17 +182,24 @@ text, accessibility labels, URLs, page titles, Feedback, or analytics.
 
 ## Localization
 
-Greek and English dictionaries must have identical populated structures and complete entries for all
-41 question prompts and 82 option statements (25 fixed plus 16 adaptive candidates), A/B labels,
-selection instructions/errors, optional context labels, animals, result sections, relationship and
-context copy, catalogue state, How It Works content, accessibility text, and disclaimers.
+Greek and English dictionaries must have identical populated structures and complete entries for:
+
+- all 41 Long prompts and 82 Long option statements (25 fixed plus 16 adaptive candidates);
+- all 20 Short prompts and 40 Short option statements (12 fixed plus 8 separator-bank candidates);
+- the Home/chooser titles, descriptions, 15-question/about-3-minute and
+  30-question/about-6-minute metadata, actions, and accessibility hints;
+- mode-correct progress, selection, error, finish, and result-provenance copy;
+- animals, result sections, relationship/context copy, catalogue state, How It Works content,
+  accessibility text, and disclaimers.
 
 Tests also verify:
 
 - Greek source questions match the authoritative product wording;
 - English entries preserve the same metadata-driven pole direction;
 - question and option IDs remain language-neutral;
-- Home and How It Works describe 30 one-choice questions without rank copy;
+- Home and How It Works describe both 15- and 30-question one-choice routes without rank copy;
+- simple Greek Short wording and natural English Short wording remain complete and aligned with the
+  same metadata-owned direction;
 - visible copy does not call the later phases psychometric, adaptive, or differentiators;
 - switching language preserves answers, position, route, locked primary, and final result;
 - the exact entertainment disclaimers remain unchanged.
@@ -174,8 +208,16 @@ Tests also verify:
 
 Storage tests use an in-memory adapter and cover:
 
-- partial base, exactly-25, partial-adaptive, and completed schema-3 round trips under
+- Long partial base, exactly-25, partial-adaptive, and completed schema-3 round trips under
   `animals-within.assessment.v3`;
+- Short partial fixed, exactly-12, partial-separator, final-selection-before-Continue, and completed
+  schema-1 round trips under `animals-within.assessment.short.v1`;
+- `assessmentMode: 'long'` and `assessmentMode: 'short'` on the correct sessions and results;
+- concurrent Short and Long progress restoring independently and either restart leaving the other
+  byte-for-byte unchanged;
+- active-mode persistence under `animals-within.assessment.active-mode`, accepting only `short` or
+  `long`;
+- valid pre-mode Long schema-3 sessions/results upgrading to `long` without data loss;
 - scalar selected options, current index, route, locked primary, final result, and close/tie markers;
 - phase-boundary consistency at answer counts 0–24, 25, 26–29, and 30;
 - malformed JSON, unavailable storage, invalid IDs/options, duplicate/out-of-order answers, illegal
@@ -183,7 +225,7 @@ Storage tests use an in-memory adapter and cover:
 - incompatible ranked key `animals-within.assessment.v2` and older key
   `animals-within.assessment.v1` resetting only assessment data;
 - language and appearance changes preserving the exact assessment object;
-- restart clearing only assessment state;
+- restart clearing only the selected questionnaire state;
 - a persisted-field allowlist excluding translations, scores, context profiles, weights, distances,
   candidates, debug data, analytics consent, and appearance preferences.
 
@@ -227,6 +269,8 @@ Before review, inspect the diff and run scoped searches for:
   `RankingOptionCard` in active source;
 - obsolete 2/2/1 dimension allocation and `0.75` adaptive weight;
 - personality codes or classification titles in public output paths;
+- Short internal area IDs, canonical dimensions, mode/model IDs, raw question/option IDs, or scores
+  in public result/accessibility paths;
 - public `adaptive`, `differentiator`, or `psychometric` labels;
 - accidental secrets or assessment console logging.
 

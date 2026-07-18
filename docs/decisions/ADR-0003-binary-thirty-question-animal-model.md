@@ -3,6 +3,8 @@
 - **Status:** Accepted
 - **Date:** 2026-07-18
 - **Supersedes:** [ADR-0002](ADR-0002-ranked-personality-animal-model.md), model `16-personality-ranking-v1-25q`
+- **Related:** [ADR-0004](ADR-0004-independent-short-questionnaire.md), which adds a separate Short
+  questionnaire without changing this Long model
 
 ## Context
 

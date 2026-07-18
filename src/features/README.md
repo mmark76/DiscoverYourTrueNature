@@ -2,9 +2,10 @@
 
 Product capabilities are organized by feature:
 
-- `assessment` owns binary answer validation, the 25-base-plus-5-adaptive session, deterministic
-  follow-up selection, local scoring, context profiles, persistence, migration, fixtures, and
-  engineering analysis;
+- `assessment` owns two independent binary modes: the Short 12-fixed-plus-3-separator session and the
+  unchanged Long 25-base-plus-5-adaptive session. It also owns deterministic follow-up selection,
+  local scoring, context profiles, separate persistence, migration, fixtures, and engineering
+  analysis;
 - `personalities` owns the 16 internal personality IDs, canonical corners, unique animal symbols, and
   one-to-one type-to-animal mapping;
 - `animals` exposes the animal-first 16-entry catalogue used by presentation;
@@ -19,9 +20,16 @@ accessibility, and style utilities remain in `src/shared`.
 ## Domain and localization boundary
 
 Assessment and personality-animal modules use stable language-neutral IDs and contain no translated
-copy. Question metadata owns phase, personal/professional context, dimension, option pole, A/B
-position, weight, reverse-keying, and deterministic order. Greek and English content under
+copy. Question metadata owns mode, phase, Short area or Long personal/professional context,
+dimension, option pole, A/B position, weight, reverse-keying, and deterministic order. Greek and
+English content under
 `src/i18n/content` is keyed by those IDs and does not duplicate scoring or selection metadata.
+
+Short maps its four internal areas one-to-one to the canonical dimensions, locks its primary after
+12 fixed answers, and uses three deterministic separators only for a distinct secondary. Long keeps
+its existing 30-question model and locks its primary after 25. Sessions and results carry
+`assessmentMode: 'short' | 'long'`; presentation receives only localized animal data and permitted
+mode provenance.
 
 Four-letter personality codes are internal implementation identifiers. They may remain in domain
 models, scoring, adaptive selection, distance calculations, persistence, migration, tests, and
@@ -35,5 +43,6 @@ the entertainment disclaimer. Personality classification titles are not public l
 - Assessment services do not import translations or appearance state.
 - Analytics does not import assessment, personality, animal-result, context-profile, or persistence
   state.
+- Short and Long use separate storage records; restarting or restoring one does not mutate the other.
 - Restart and migration do not mutate settings or analytics consent.
 - No feature sends assessment information to a remote service.

@@ -1,7 +1,8 @@
-# Manual Test Plan — Animals Within Binary Assessment
+# Manual Test Plan — Animals Within Short and Long Questionnaires
 
-This plan validates the public behavior of model `16-personality-binary-v2-30q` and schema 3. Manual
-observations are product and engineering checks, not scientific or psychometric validation.
+This plan validates the public behavior of Short model `animals-within-short-binary-v1-15q` / schema
+1 and Long model `16-personality-binary-v2-30q` / schema 3. Manual observations are product and
+engineering checks, not scientific or psychometric validation.
 
 ## Setup
 
@@ -10,7 +11,9 @@ Record browser/device, viewport, language, appearance, text size, zoom, model ve
 
 Know the independent local keys:
 
-- `animals-within.assessment.v3` — current binary assessment;
+- `animals-within.assessment.v3` — Long questionnaire;
+- `animals-within.assessment.short.v1` — Short questionnaire;
+- `animals-within.assessment.active-mode` — scalar active chooser mode;
 - `animals-within.assessment.v2` — incompatible ranked assessment;
 - `animals-within.assessment.v1` — older incompatible assessment;
 - appearance/language key;
@@ -32,23 +35,25 @@ Exercise at minimum:
 ## Home and navigation
 
 1. Open Home in English and Greek.
-2. Verify it describes 30 questions with one choice between two alternatives, the 16 symbolic
-   animals, primary/secondary results, local calculation, and entertainment purpose.
+2. Verify it offers Short (15 questions, about 3 minutes) and Long (30 questions, about 6 minutes),
+   each with one choice between two alternatives, the 16 symbolic animals, primary/secondary
+   results, local calculation, and entertainment purpose.
 3. Verify Home does not describe four statements, ranks 4/3/2/1, swapping, or moving ranks.
 4. Verify public copy does not label later questions “psychometric,” “adaptive,” or “differentiators.”
-5. Confirm Home offers exactly the active assessment, 16-animal catalogue, and How It Works entries.
+5. Confirm Home/chooser offers both questionnaires, the 16-animal catalogue, and How It Works.
 6. Open each destination and return through the shared header without losing assessment state.
 7. Verify the generic URL and document title never contain an answer, internal code, or animal result.
 
-## Starting a clean assessment
+## Starting clean questionnaire sessions
 
-1. Clear only `animals-within.assessment.v3` and reload.
-2. Start the assessment.
-3. Verify progress announces **Question 1 of 30** / **Ερώτηση 1 από 30**.
+1. Clear the Short, Long, and active-mode keys, then reload.
+2. Choose Short. Verify progress announces **Question 1 of 15** / **Ερώτηση 1 από 15**.
+3. Return to the chooser and choose Long. Verify progress announces **Question 1 of 30** /
+   **Ερώτηση 1 από 30**.
 4. Verify the screen shows one question, exactly two large answer cards, and visible **A / B** or
    **Α / Β** labels.
-5. If the context label is visible, verify it says Personal life / Professional life naturally and
-   does not expose internal phase, dimension, pole, weight, or question ID.
+5. In Long, if the context label is visible, verify it says Personal life / Professional life
+   naturally and does not expose internal phase, dimension, pole, weight, or question ID.
 6. Verify the instruction asks for the option that more closely describes usual behavior.
 7. Confirm no question or answer names an animal, personality code, classification title, dimension,
    score, or selection rule.
@@ -66,7 +71,7 @@ Exercise at minimum:
 8. Confirm no rank guide, rank number, collision message, drag-and-drop instruction, or completion
    permutation appears.
 
-## Question structure and context sequence
+## Long question structure and context sequence
 
 Complete a representative run while recording only context labels and question numbers:
 
@@ -81,6 +86,28 @@ Complete a representative run while recording only context labels and question n
 
 For a source-assisted review, verify questions 1–20 contain five questions for each internal
 dimension and the adaptive bank contains four per dimension, split two personal/two professional.
+
+## Short structure and primary lock
+
+Use a source-assisted build or storage inspection without exposing identifiers in public UI:
+
+1. Verify a completed Short route contains exactly 15 questions.
+2. Verify questions 1–12 contain exactly three questions in each internal area: sociability and
+   social intelligence, emotional intelligence, creativity and imagination, and practicality,
+   logic, and analytical thinking.
+3. Verify every question measures one area only and each A/B alternative is an acceptable tendency
+   within that same area.
+4. Before question 12 is answered, verify no separator route, lock, or result exists.
+5. Select question 12 and verify the primary locks immediately and exactly three unique separator
+   IDs are selected from three distinct areas.
+6. Verify the UI continues to question 13 without revealing the lock, area, canonical dimension,
+   candidate comparison, score, or separator label.
+7. Repeat the same first 12 answers in a clean Short session and verify the same lock and route.
+8. Vary every combination of questions 13–15 in controlled runs and verify the primary never
+   changes.
+9. Complete question 15 and verify the secondary is distinct, deterministic, and the result records
+   mode `short` internally.
+10. Confirm the Long session remains at its earlier position throughout this Short run.
 
 ## A/B order and bilingual alignment
 
@@ -104,7 +131,7 @@ Use a developer/source-assisted checklist for several forward-keyed and reverse-
 6. Verify position, answers, route, and any locked/final result are unchanged.
 7. Refresh the browser and verify the same valid state restores.
 
-## Phase transitions and primary lock
+## Long phase transitions and primary lock
 
 ### Questions 20 to 21
 
@@ -132,7 +159,7 @@ Use a developer/source-assisted checklist for several forward-keyed and reverse-
 4. Verify the primary is identical in both runs even if the secondary changes.
 5. Confirm no public copy reveals the lock timing or adaptive logic.
 
-## Editing after adaptive progress
+## Editing after Long adaptive progress
 
 ### Edit a base answer
 
@@ -153,7 +180,7 @@ Use a developer/source-assisted checklist for several forward-keyed and reverse-
 
 ## Completion and result
 
-After question 30, verify the result hierarchy:
+After Short question 15 and again after Long question 30, verify the shared result hierarchy:
 
 1. primary animal name and symbol;
 2. identifying sentence and primary description;
@@ -166,12 +193,16 @@ After question 30, verify the result hierarchy:
 9. animal metaphor;
 10. secondary animal name, symbol, and description;
 11. explanation of how the two patterns relate;
-12. optional cautious personal-versus-professional observation when supported;
+12. optional cautious personal-versus-professional observation when supported in Long only;
 13. catalogue and retake actions;
 14. the exact entertainment disclaimer.
 
 Verify the secondary is distinct and not framed as inferior. If a close-pattern message appears, it
 must be cautious and must not imply a confidence percentage.
+
+Verify the mode-provenance text identifies Short or Long naturally without exposing model names,
+schemas, internal identifiers, or scores. The internal completed record must carry the matching
+`assessmentMode`.
 
 The result must not show:
 
@@ -182,7 +213,7 @@ The result must not show:
 - selected options, question IDs, context-profile values, adaptive IDs, or debug data;
 - result-bearing share text or URL.
 
-## Personal-versus-professional observation
+## Long personal-versus-professional observation
 
 Use deterministic test fixtures or developer controls rather than interpreting a real person's
 answers:
@@ -210,9 +241,12 @@ The threshold is a product/editorial rule, not a scientific cutoff.
 
 Verify both languages explain:
 
-- 30 questions with exactly one of two alternatives;
-- 20 everyday, five more direct, and five final focused questions without public technical labels;
-- primary after the shared first 25 and secondary after all 30 in plain language;
+- the Short 15-question/about-3-minute and Long 30-question/about-6-minute choices;
+- exactly one of two acceptable alternatives per question;
+- Short as 12 initial choices plus three final focused choices, with the primary kept fixed;
+- Long as 20 everyday, five more direct, and five final focused questions without public technical
+  labels;
+- primary/secondary timing for both routes in plain language;
 - local calculation and symbolic animal results;
 - no displayed scores or percentages;
 - the exact entertainment disclaimer.
@@ -221,26 +255,46 @@ No text may present the experience as psychometric, scientifically validated, MB
 
 ## Persistence and refresh
 
-### Partial base session
+### Independent Short and Long sessions
+
+1. Complete several Short questions, switch to Long, and complete a different number there.
+2. Refresh and switch between modes.
+3. Verify each mode restores its own progress, current selection, position, route/lock when
+   applicable, and result.
+4. Restart Short and verify Long is byte-for-byte unchanged; recreate Short progress, restart Long,
+   and verify Short is unchanged.
+5. Verify the active-mode scalar restores the last selected mode and contains no assessment data.
+
+### Short phase boundaries
+
+1. Refresh with 7 Short answers and verify the selected option and position restore with no route or
+   lock.
+2. Select question 12, refresh, and verify the same three separator IDs and lock restore.
+3. Refresh after 13 or 14 answers and verify the same route/lock with no result.
+4. Select question 15 but refresh before activating the final Continue action; verify the selection
+   restores without a premature result.
+5. Finish, refresh, and verify the same distinct animal pair and mode project to localized copy.
+
+### Long partial base session
 
 1. Complete at least seven questions and note the position/selections.
 2. Refresh or close/reopen.
 3. Verify the same valid position and selected option IDs restore.
 4. Verify no route, lock, or result exists before question 25.
 
-### Exactly 25 answers
+### Long exactly 25 answers
 
 1. Complete question 25 and refresh.
 2. Verify the five IDs and locked primary restore exactly and final result is absent.
 3. Change language and verify the same question 26, route, and lock.
 
-### Partial adaptive session
+### Long partial adaptive session
 
 1. Complete 27 or 28 questions and refresh.
 2. Verify all answers, the same route, and the locked primary restore.
 3. Verify no premature final result exists.
 
-### Completed result
+### Long completed result
 
 1. Complete question 30 and record both public animals.
 2. Refresh and change language.
@@ -250,13 +304,22 @@ No text may present the experience as psychometric, scientifically validated, MB
 ### Unavailable or corrupt storage
 
 1. Block storage or simulate adapter failure and verify the application remains usable in memory.
-2. Store malformed JSON under the v3 key and reload.
-3. Verify a clean assessment starts and unrelated settings/consent remain.
+2. Store malformed JSON under each questionnaire key independently and reload.
+3. Verify only the affected questionnaire starts clean; the other session and unrelated
+   settings/consent remain.
 4. Repeat with wrong schema/model, out-of-order/duplicate answers, missing/array/unknown/cross-question
    option ID, illegal route/quota, premature lock/result, and inconsistent secondary.
-5. Every invalid record must fail closed without a crash.
+5. Repeat with a wrong `assessmentMode` and confirm Short cannot restore as Long or Long as Short.
+6. Every invalid record must fail closed without a crash.
 
 ## Migration from incompatible assessment state
+
+### Pre-mode Long schema 3
+
+1. Store a valid Long schema-3 session created before `assessmentMode` existed.
+2. Load the application and verify all answers, position, route, lock, and completed result remain.
+3. Verify the restored session and result now identify mode `long` internally.
+4. Verify existing Short progress remains unchanged.
 
 ### Ranked schema 2
 
@@ -266,7 +329,8 @@ No text may present the experience as psychometric, scientifically validated, MB
 3. Load the application.
 4. Verify no ranked answer, route, primary, secondary, or balance marker is converted.
 5. Verify a clean schema-3 binary session starts.
-6. Verify all independent settings, consent, and unrelated values are byte-for-byte unchanged.
+6. Verify Short progress, all independent settings, consent, and unrelated values are byte-for-byte
+   unchanged.
 
 ### Older schema 1
 
@@ -275,11 +339,13 @@ ignored. The implementation must not scan or clear unrelated keys.
 
 ## Restart behavior
 
-1. Create a partial or completed v3 assessment.
-2. Record language, appearance, consent, and one unrelated preference.
-3. Activate Retake/Restart.
-4. Verify question 1 opens with no answers, adaptive IDs, lock, result, or context metadata.
-5. Verify language, appearance, consent, and unrelated preference remain unchanged.
+1. Create partial or completed Short and Long sessions.
+2. Record both sessions, language, appearance, consent, and one unrelated preference.
+3. Select Short and activate Retake/Restart.
+4. Verify Short question 1 opens with no answers, separator IDs, lock, or result; verify Long is
+   unchanged.
+5. Recreate Short progress, select Long, and restart. Verify Long is clean and Short is unchanged.
+6. Verify language, appearance, consent, and unrelated preference remain unchanged in both cases.
 
 ## Keyboard-only completion
 
@@ -288,15 +354,15 @@ ignored. The implementation must not scan or clear unrelated keys.
 3. Verify focus is visibly indicated and never clipped.
 4. Select A, switch to B, trigger an incomplete error on another question, and continue.
 5. Verify selected state, error focus/announcement, and question-heading focus after navigation.
-6. Complete a representative run through question 30.
+6. Complete a representative Short run through question 15 and Long run through question 30.
 7. Verify catalogue/result actions and consent controls remain keyboard accessible.
 
 ## Screen-reader verification
 
 For English and Greek, verify announcements include:
 
-- question heading and **Question n of 30** progress;
-- optional personal/professional context label;
+- question heading and mode-correct **Question n of 15** or **Question n of 30** progress;
+- optional personal/professional context label in Long;
 - question text;
 - A/Α and B/Β plus full alternative text;
 - exactly one selected/checked state;
@@ -308,13 +374,15 @@ For English and Greek, verify announcements include:
 - disclaimer, Feedback, analytics choices, and build-version labels.
 
 No accessibility label or hint may contain a personality code, classification title, selected option
-ID, raw context profile, score, percentage, distance, hidden dimension, or adaptive ID.
+ID, raw context profile, score, percentage, distance, Short area, hidden dimension, separator ID, or
+adaptive ID.
 
 ## Responsive, zoom, language, and appearance matrix
 
 At each required width/zoom/text-size combination, verify:
 
 - no horizontal page scroll is required for core content;
+- Home/chooser cards for both questionnaire modes remain readable and operable;
 - A/B cards stack or wrap without clipping and never depend on a single forced row;
 - Greek words and sentences wrap naturally;
 - long context/result copy remains readable;
@@ -372,7 +440,7 @@ At each required width/zoom/text-size combination, verify:
 
 Record:
 
-- tested build/revision and model/schema identifiers;
+- tested build/revision, both model/schema identifiers, and all three storage keys;
 - browsers/devices, widths, zoom, language, appearance, and text sizes;
 - automated command results;
 - any deviations with reproducible steps and screenshots that contain no real assessment data;
