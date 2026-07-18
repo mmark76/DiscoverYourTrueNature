@@ -5,11 +5,8 @@ import {
 import { dimensionDefinitions } from '../../personalities/types.ts';
 import type { DimensionProfile, PoleId } from '../../personalities/types.ts';
 import type { AssessmentQuestionData } from '../data/questions.ts';
-import type { AssessmentRank, AssessmentSession } from '../types.ts';
-import {
-  completeAssessmentWithRankingSelector,
-} from './assessmentSession.ts';
-import type { RankingDraft } from './ranking.ts';
+import type { AssessmentSession } from '../types.ts';
+import { completeAssessmentWithOptionSelector } from './assessmentSession.ts';
 
 const representativeSessionCache = new Map<PersonalityTypeId, AssessmentSession>();
 
@@ -19,13 +16,11 @@ export function createRepresentativeAssessmentSession(
   const cached = representativeSessionCache.get(typeId);
   if (cached) return cached;
   const target = getPersonalityAnimal(typeId);
-  const session = completeAssessmentWithRankingSelector((question) => {
-    const { firstPole } = dimensionDefinitions[question.dimension];
-    return createRankingDraftForPole(
+  const session = completeAssessmentWithOptionSelector((question) => {
+    const { firstPole, secondPole } = dimensionDefinitions[question.dimension];
+    return selectOptionIdForPole(
       question,
-      target.profile[question.dimension] > 0
-        ? firstPole
-        : dimensionDefinitions[question.dimension].secondPole,
+      target.profile[question.dimension] > 0 ? firstPole : secondPole,
     );
   });
   representativeSessionCache.set(typeId, session);
@@ -34,42 +29,30 @@ export function createRepresentativeAssessmentSession(
 
 export function createSeededAssessmentSession(seed: number): AssessmentSession {
   const random = createSeededRandom(seed);
-  return completeAssessmentWithRankingSelector((question) => {
-    const ranks: AssessmentRank[] = [1, 2, 3, 4];
-    for (let index = ranks.length - 1; index > 0; index -= 1) {
-      const swapIndex = Math.floor(random() * (index + 1));
-      const temporary = ranks[index];
-      ranks[index] = ranks[swapIndex] as AssessmentRank;
-      ranks[swapIndex] = temporary as AssessmentRank;
-    }
-    return createRankingDraftFromRanks(question, ranks);
-  });
+  return completeAssessmentWithOptionSelector((question) =>
+    question.options[random() < 0.5 ? 0 : 1].id);
 }
 
-export function createRankingDraftForPole(
+export function selectOptionIdForPole(
   question: AssessmentQuestionData,
   preferredPole: PoleId,
-): RankingDraft {
-  const { firstPole, secondPole } = dimensionDefinitions[question.dimension];
-  if (preferredPole !== firstPole && preferredPole !== secondPole) {
-    throw new Error(`Pole ${preferredPole} does not belong to ${question.dimension}.`);
-  }
+): string {
+  const option = question.options.find(({ pole }) => pole === preferredPole);
+  if (!option) throw new Error(`Pole ${preferredPole} does not belong to ${question.dimension}.`);
+  return option.id;
+}
 
-  return createRankingDraftFromRanks(
+export function selectFirstPoleOptionId(question: AssessmentQuestionData): string {
+  return selectOptionIdForPole(
     question,
-    preferredPole === firstPole ? [4, 3, 1, 2] : [2, 1, 3, 4],
+    dimensionDefinitions[question.dimension].firstPole,
   );
 }
 
-export function createRankingDraftFromRanks(
-  question: AssessmentQuestionData,
-  ranks: readonly AssessmentRank[],
-): RankingDraft {
-  if (ranks.length !== question.options.length || new Set(ranks).size !== 4) {
-    throw new Error('A ranking fixture requires ranks 1, 2, 3, and 4 exactly once.');
-  }
-  return Object.fromEntries(
-    question.options.map(({ id }, index) => [id, ranks[index]]),
+export function selectSecondPoleOptionId(question: AssessmentQuestionData): string {
+  return selectOptionIdForPole(
+    question,
+    dimensionDefinitions[question.dimension].secondPole,
   );
 }
 

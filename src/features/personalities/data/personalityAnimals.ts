@@ -1,6 +1,6 @@
 import type { DimensionProfile } from '../types.ts';
 
-export const assessmentModelVersion = '16-personality-ranking-v1-25q' as const;
+export const assessmentModelVersion = '16-personality-binary-v2-30q' as const;
 
 export const personalityTypeIds = [
   'INTJ',

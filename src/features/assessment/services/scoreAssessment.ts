@@ -9,27 +9,34 @@ import {
   dimensionIds,
   type DimensionId,
   type DimensionProfile,
+  type PoleId,
   type PoleScoreMap,
 } from '../../personalities/types.ts';
 import {
+  assessmentPhaseWeights,
   assessmentQuestionById,
+  baseAssessmentQuestionCount,
+  isFixedAssessmentQuestionId,
   type AssessmentQuestionData,
 } from '../data/questions.ts';
 import type {
   AssessmentAnswer,
-  AssessmentOptionIntensity,
-  AssessmentQuestionKind,
-  AssessmentRank,
+  AssessmentContext,
+  AssessmentPhase,
   AssessmentRanking,
   AssessmentResult,
+  ContextProfileDirection,
+  ContextProfileObservation,
+  LockedPrimaryResult,
   PersonalityMatch,
 } from '../types.ts';
-import { isValidAssessmentAnswer } from './ranking.ts';
+import { isValidAssessmentAnswer } from './selection.ts';
 
-export const assessmentPhaseWeights = {
-  fixed: 1,
-  adaptive: 0.75,
-} as const satisfies Record<AssessmentQuestionKind, number>;
+export { assessmentPhaseWeights };
+
+/** Product-design thresholds, not validated psychometric coefficients. */
+export const closeMatchDistanceGapThreshold = 0.08;
+export const contextProfileDifferenceThreshold = 0.4;
 
 export const matchingDimensionWeights: DimensionProfile = {
   energy: 1,
@@ -38,43 +45,38 @@ export const matchingDimensionWeights: DimensionProfile = {
   structure: 1,
 };
 
-export function calculateBaseContribution(
-  rank: AssessmentRank,
-  intensity: AssessmentOptionIntensity,
+export function calculateWeightedContribution(
+  direction: 1 | -1,
+  phaseOrWeight: AssessmentPhase | number,
 ): number {
-  return rank * intensity;
+  const weight = typeof phaseOrWeight === 'number'
+    ? phaseOrWeight
+    : assessmentPhaseWeights[phaseOrWeight];
+  return direction * weight;
 }
 
-export function calculateWeightedContribution(
-  rank: AssessmentRank,
-  intensity: AssessmentOptionIntensity,
-  questionKind: AssessmentQuestionKind,
+export function calculateAnswerContribution(
+  question: AssessmentQuestionData,
+  selectedOptionId: string,
 ): number {
-  return calculateBaseContribution(rank, intensity) * assessmentPhaseWeights[questionKind];
+  const option = question.options.find(({ id }) => id === selectedOptionId);
+  if (!option) throw new Error(`Unknown option ${selectedOptionId} for question ${question.id}.`);
+  const { firstPole } = dimensionDefinitions[question.dimension];
+  return calculateWeightedContribution(option.pole === firstPole ? 1 : -1, question.weight);
 }
 
 export function calculatePoleTotals(answers: readonly AssessmentAnswer[]): PoleScoreMap {
   const totals = createEmptyPoleScoreMap();
-
   for (const answer of answers) {
-    const question = getAssessmentQuestion(answer.questionId);
+    const questionId = answer.questionId;
+    const question = getAssessmentQuestion(questionId);
     if (!isValidAssessmentAnswer(question, answer)) {
-      throw new Error(`Invalid ranking answer for question ${answer.questionId}.`);
+      throw new Error(`Invalid binary answer for question ${questionId}.`);
     }
-
-    for (const assignment of answer.rankings) {
-      const option = question.options.find(({ id }) => id === assignment.optionId);
-      if (!option) {
-        throw new Error(`Unknown option ${assignment.optionId} for question ${answer.questionId}.`);
-      }
-      totals[option.pole] += calculateWeightedContribution(
-        assignment.rank,
-        option.intensity,
-        question.kind,
-      );
-    }
+    const option = question.options.find(({ id }) => id === answer.selectedOptionId);
+    if (!option) throw new Error(`Unknown option for question ${answer.questionId}.`);
+    totals[option.pole] += question.weight;
   }
-
   return totals;
 }
 
@@ -82,17 +84,15 @@ export function calculateSignedDimensionProfile(
   poleTotals: PoleScoreMap,
 ): DimensionProfile {
   const profile = createEmptyDimensionProfile();
-
   for (const dimension of dimensionIds) {
     const { firstPole, secondPole } = dimensionDefinitions[dimension];
     const firstTotal = poleTotals[firstPole];
     const secondTotal = poleTotals[secondPole];
-    const opportunity = firstTotal + secondTotal;
-    profile[dimension] = opportunity === 0
+    const answeredWeight = firstTotal + secondTotal;
+    profile[dimension] = answeredWeight === 0
       ? 0
-      : clamp((firstTotal - secondTotal) / opportunity, -1, 1);
+      : clamp((firstTotal - secondTotal) / answeredWeight, -1, 1);
   }
-
   return profile;
 }
 
@@ -102,11 +102,10 @@ export function calculateAssessmentProfile(
   return calculateSignedDimensionProfile(calculatePoleTotals(answers));
 }
 
-export function findBalancedDimensions(poleTotals: PoleScoreMap): readonly DimensionId[] {
-  return dimensionIds.filter((dimension) => {
-    const { firstPole, secondPole } = dimensionDefinitions[dimension];
-    return poleTotals[firstPole] === poleTotals[secondPole];
-  });
+export function findBalancedDimensions(
+  profile: DimensionProfile,
+): readonly DimensionId[] {
+  return dimensionIds.filter((dimension) => profile[dimension] === 0);
 }
 
 export function calculateNormalizedDistance(
@@ -115,7 +114,6 @@ export function calculateNormalizedDistance(
 ): number {
   let weightedSquaredDistance = 0;
   let totalWeight = 0;
-
   for (const dimension of dimensionIds) {
     const value = profile[dimension];
     if (!Number.isFinite(value)) throw new Error(`Invalid dimension score: ${dimension}.`);
@@ -124,12 +122,12 @@ export function calculateNormalizedDistance(
     weightedSquaredDistance += difference * difference * weight;
     totalWeight += weight;
   }
-
   return Math.sqrt(weightedSquaredDistance / totalWeight);
 }
 
 export function rankPersonalityTypes(
   profile: DimensionProfile,
+  excludedTypeId?: LockedPrimaryResult['primaryTypeId'],
 ): readonly PersonalityMatch[] {
   return canonicalPersonalityAnimals
     .map((personality, canonicalIndex) => ({
@@ -137,46 +135,138 @@ export function rankPersonalityTypes(
       canonicalIndex,
       distance: calculateNormalizedDistance(profile, personality),
     }))
+    .filter(({ personality }) => personality.id !== excludedTypeId)
     .sort((left, right) =>
       (left.distance - right.distance) || (left.canonicalIndex - right.canonicalIndex),
     )
     .map(({ personality, distance }) => ({ personality, distance }));
 }
 
-export function calculateAssessmentRanking(
-  answers: readonly AssessmentAnswer[],
-): AssessmentRanking {
-  const poleTotals = calculatePoleTotals(answers);
-  const profile = calculateSignedDimensionProfile(poleTotals);
+export function calculateLockedPrimaryResult(
+  baseAnswers: readonly AssessmentAnswer[],
+): LockedPrimaryResult {
+  assertCompleteBaseAnswers(baseAnswers);
+  const profile = calculateAssessmentProfile(baseAnswers);
   const matches = rankPersonalityTypes(profile);
   const primary = matches[0];
-  const secondary = matches[1];
-  if (!primary || !secondary || primary.personality.id === secondary.personality.id) {
-    throw new Error('The assessment requires two distinct personality matches.');
-  }
-
+  const runnerUp = matches[1];
+  if (!primary || !runnerUp) throw new Error('The assessment requires at least two matches.');
   return {
-    poleTotals,
-    profile,
-    matches,
-    result: {
-      primaryTypeId: primary.personality.id,
-      secondaryTypeId: secondary.personality.id,
-      balancedDimensionIds: findBalancedDimensions(poleTotals),
-    },
+    primaryTypeId: primary.personality.id,
+    balancedDimensionIds: findBalancedDimensions(profile),
+    hasCloseMatch: runnerUp.distance - primary.distance <= closeMatchDistanceGapThreshold,
   };
 }
 
-export function calculateAssessmentResult(
+export const lockPrimaryAssessmentResult = calculateLockedPrimaryResult;
+
+export function calculateFinalAssessmentResult(
   answers: readonly AssessmentAnswer[],
+  lockedPrimary: LockedPrimaryResult,
 ): AssessmentResult {
-  return calculateAssessmentRanking(answers).result;
+  if (answers.length !== baseAssessmentQuestionCount + 5) {
+    throw new Error('Final assessment scoring requires all 30 answers.');
+  }
+  const profile = calculateAssessmentProfile(answers);
+  const secondary = rankPersonalityTypes(profile, lockedPrimary.primaryTypeId)[0];
+  if (!secondary) throw new Error('The assessment requires a distinct secondary match.');
+  return {
+    ...lockedPrimary,
+    secondaryTypeId: secondary.personality.id,
+  };
+}
+
+export const calculateAssessmentResult = calculateFinalAssessmentResult;
+
+export function calculateAssessmentRanking(
+  answers: readonly AssessmentAnswer[],
+  lockedPrimary: LockedPrimaryResult,
+): AssessmentRanking {
+  const poleTotals = calculatePoleTotals(answers);
+  const profile = calculateSignedDimensionProfile(poleTotals);
+  const matches = rankPersonalityTypes(profile, lockedPrimary.primaryTypeId);
+  const result = calculateFinalAssessmentResult(answers, lockedPrimary);
+  return { poleTotals, profile, matches, result };
+}
+
+export function calculateContextProfiles(
+  answers: readonly AssessmentAnswer[],
+): Readonly<Record<AssessmentContext, DimensionProfile>> {
+  const baseAnswers = answers.filter(({ questionId }) => isFixedAssessmentQuestionId(questionId));
+  return {
+    personal: calculateAssessmentProfile(baseAnswers.filter(({ questionId }) =>
+      getAssessmentQuestion(questionId).context === 'personal')),
+    professional: calculateAssessmentProfile(baseAnswers.filter(({ questionId }) =>
+      getAssessmentQuestion(questionId).context === 'professional')),
+  };
+}
+
+export function getContextProfileObservation(
+  answers: readonly AssessmentAnswer[],
+): ContextProfileObservation | null {
+  const profiles = calculateContextProfiles(answers);
+  const differences = dimensionIds
+    .map((dimension, index) => ({
+      dimension,
+      index,
+      difference: profiles.personal[dimension] - profiles.professional[dimension],
+    }))
+    .sort((left, right) =>
+      (Math.abs(right.difference) - Math.abs(left.difference)) || (left.index - right.index),
+    );
+  const strongest = differences[0];
+  if (!strongest || Math.abs(strongest.difference) < contextProfileDifferenceThreshold) {
+    return null;
+  }
+  return {
+    dimension: strongest.dimension,
+    kind: contextProfileKind(
+      profiles.personal[strongest.dimension],
+      profiles.professional[strongest.dimension],
+    ),
+    personalDirection: profileDirection(profiles.personal[strongest.dimension]),
+    professionalDirection: profileDirection(profiles.professional[strongest.dimension]),
+  };
 }
 
 export function getAssessmentQuestion(questionId: string): AssessmentQuestionData {
   const question = assessmentQuestionById.get(questionId);
   if (!question) throw new Error(`Unknown assessment question: ${questionId}.`);
   return question;
+}
+
+function assertCompleteBaseAnswers(baseAnswers: readonly AssessmentAnswer[]): void {
+  if (baseAnswers.length !== baseAssessmentQuestionCount) {
+    throw new Error('Primary scoring requires all 25 base answers.');
+  }
+  const expectedIds = new Set<string>(
+    [...assessmentQuestionById.values()]
+      .filter(({ phase }) => phase !== 'adaptive')
+      .map(({ id }) => id),
+  );
+  if (new Set(baseAnswers.map(({ questionId }) => questionId)).size !== baseAssessmentQuestionCount
+    || baseAnswers.some(({ questionId }) => !expectedIds.has(questionId))) {
+    throw new Error('Primary scoring requires 25 distinct base-question answers.');
+  }
+}
+
+function profileDirection(value: number): ContextProfileDirection {
+  if (value > 0) return 'first';
+  if (value < 0) return 'second';
+  return 'balanced';
+}
+
+function contextProfileKind(
+  personalValue: number,
+  professionalValue: number,
+): ContextProfileObservation['kind'] {
+  if (personalValue !== 0 && professionalValue !== 0
+    && Math.sign(personalValue) !== Math.sign(professionalValue)) {
+    return 'context-dependent';
+  }
+  return Math.abs(personalValue) >= Math.abs(professionalValue)
+    ? 'personal-stronger'
+    : 'professional-stronger';
 }
 
 function clamp(value: number, minimum: number, maximum: number): number {

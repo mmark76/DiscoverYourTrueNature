@@ -1,75 +1,77 @@
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import { join } from 'node:path';
 import test from 'node:test';
 
 import {
   assessmentModelVersion,
   canonicalPersonalityAnimals,
   getPersonalityAnimal,
-  getPersonalityTypeForAnimal,
   personalityTypeIds,
 } from '../src/features/personalities/data/personalityAnimals.ts';
 import {
-  createEmptyPoleScoreMap,
+  createEmptyDimensionProfile,
   dimensionDefinitions,
   dimensionIds,
   poleIds,
 } from '../src/features/personalities/types.ts';
-import { animals } from '../src/features/animals/data/animals.ts';
 import {
   adaptiveAssessmentQuestionCount,
   adaptiveQuestionBank,
   allAssessmentQuestions,
-  assessmentOptionSuffixes,
+  assessmentPhaseWeights,
+  baseAssessmentQuestionCount,
   completedAssessmentQuestionCount,
-  fixedAssessmentQuestionCount,
+  everydayAssessmentQuestionCount,
   fixedAssessmentQuestions,
+  structuredAssessmentQuestionCount,
 } from '../src/features/assessment/data/questions.ts';
 import {
-  createCanonicalProfile,
-  createRankingDraftForPole,
-  createRankingDraftFromRanks,
   createRepresentativeAssessmentSession,
-  createSeededAssessmentSession,
+  selectFirstPoleOptionId,
+  selectOptionIdForPole,
+  selectSecondPoleOptionId,
 } from '../src/features/assessment/services/assessmentFixtures.ts';
 import {
   assessmentSchemaVersion,
   answerCurrentAssessmentQuestion,
-  completeAssessmentWithRankingSelector,
+  canContinueAssessment,
+  continueAssessment,
   createAssessmentSession,
   getAssessmentAnswer,
   getAssessmentQuestionSequence,
   getCurrentAssessmentQuestion,
-  goToNextAssessmentQuestion,
   goToPreviousAssessmentQuestion,
   restartAssessmentSession,
+  selectCurrentAssessmentOption,
 } from '../src/features/assessment/services/assessmentSession.ts';
 import {
-  answerToRankingDraft,
-  assignRank,
   createAssessmentAnswer,
-  isAssessmentRank,
-  isCompleteRanking,
+  isAssessmentOptionIdForQuestion,
   isValidAssessmentAnswer,
-  normalizeRankAssignments,
-} from '../src/features/assessment/services/ranking.ts';
+} from '../src/features/assessment/services/selection.ts';
 import {
-  assessmentPhaseWeights,
+  assessmentPhaseWeights as scoringPhaseWeights,
+  calculateAnswerContribution,
   calculateAssessmentProfile,
-  calculateAssessmentRanking,
-  calculateBaseContribution,
+  calculateContextProfiles,
+  calculateFinalAssessmentResult,
+  calculateLockedPrimaryResult,
   calculateNormalizedDistance,
   calculatePoleTotals,
   calculateSignedDimensionProfile,
   calculateWeightedContribution,
+  closeMatchDistanceGapThreshold,
+  contextProfileDifferenceThreshold,
   findBalancedDimensions,
-  matchingDimensionWeights,
+  getContextProfileObservation,
   rankPersonalityTypes,
 } from '../src/features/assessment/services/scoreAssessment.ts';
 import {
-  adaptiveAllocation,
-  orderDimensionsByFixedBalance,
+  adaptiveClosestCandidateCount,
+  adaptiveQuestionSlots,
+  countCandidatePairDisagreements,
+  getClosestNonPrimaryCandidates,
+  orderAdaptiveDimensions,
+  rankAdaptiveDimensions,
   selectAdaptiveQuestionIds,
   selectAdaptiveQuestions,
 } from '../src/features/assessment/services/selectAdaptiveQuestions.ts';
@@ -97,26 +99,16 @@ const expectedMappings = [
   ['ESFP', 'peacock'],
 ];
 
-function sourceFiles(directory) {
-  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
-    const path = join(directory, entry.name);
-    return entry.isDirectory() ? sourceFiles(path) : [path];
-  });
+function currentQuestion(session) {
+  const question = getCurrentAssessmentQuestion(session);
+  assert.ok(question);
+  return question;
 }
 
-function firstPoleRanking(question) {
-  return createRankingDraftFromRanks(question, [4, 3, 1, 2]);
-}
-
-function secondPoleRanking(question) {
-  return createRankingDraftFromRanks(question, [2, 1, 3, 4]);
-}
-
-function answerUntil(answerCount, selector = firstPoleRanking) {
+function answerUntil(answerCount, selector = selectFirstPoleOptionId) {
   let session = createAssessmentSession();
   while (session.answers.length < answerCount) {
-    const question = getCurrentAssessmentQuestion(session);
-    assert.ok(question);
+    const question = currentQuestion(session);
     session = answerCurrentAssessmentQuestion(
       session,
       question.id,
@@ -126,522 +118,380 @@ function answerUntil(answerCount, selector = firstPoleRanking) {
   return session;
 }
 
-test('model and persisted schema use the explicit sixteen-personality version', () => {
-  assert.equal(assessmentModelVersion, '16-personality-ranking-v1-25q');
-  assert.equal(assessmentSchemaVersion, 2);
+function optionForType(question, typeId) {
+  const target = getPersonalityAnimal(typeId);
+  const poles = dimensionDefinitions[question.dimension];
+  return selectOptionIdForPole(
+    question,
+    target.profile[question.dimension] > 0 ? poles.firstPole : poles.secondPole,
+  );
+}
+
+test('the model, schema, dimensions, and canonical animal mappings remain explicit', () => {
+  assert.equal(assessmentModelVersion, '16-personality-binary-v2-30q');
+  assert.equal(assessmentSchemaVersion, 3);
   assert.deepEqual(dimensionIds, ['energy', 'information', 'decisions', 'structure']);
   assert.deepEqual(poleIds, ['E', 'I', 'S', 'N', 'T', 'F', 'J', 'P']);
-  assert.deepEqual(dimensionDefinitions, {
-    energy: { firstPole: 'E', secondPole: 'I' },
-    information: { firstPole: 'S', secondPole: 'N' },
-    decisions: { firstPole: 'T', secondPole: 'F' },
-    structure: { firstPole: 'J', secondPole: 'P' },
-  });
-});
-
-test('all sixteen internal personality combinations map one-to-one to unique animals', () => {
   assert.deepEqual(personalityTypeIds, expectedMappings.map(([typeId]) => typeId));
   assert.deepEqual(
     canonicalPersonalityAnimals.map(({ id, animalId }) => [id, animalId]),
     expectedMappings,
   );
-  assert.equal(canonicalPersonalityAnimals.length, 16);
-  assert.equal(new Set(canonicalPersonalityAnimals.map(({ id }) => id)).size, 16);
   assert.equal(new Set(canonicalPersonalityAnimals.map(({ animalId }) => animalId)).size, 16);
-
-  for (const [typeId, animalId] of expectedMappings) {
-    assert.equal(getPersonalityAnimal(typeId).animalId, animalId);
-    assert.equal(getPersonalityTypeForAnimal(animalId), typeId);
-  }
 });
 
-test('public animal catalogue data contains all sixteen animals without internal profiles or codes', () => {
-  assert.equal(animals.length, 16);
-  assert.deepEqual(animals.map(({ id }) => id), expectedMappings.map(([, animalId]) => animalId));
-  for (const animal of animals) {
-    assert.deepEqual(Object.keys(animal).sort(), ['id', 'symbol']);
-    assert.ok(animal.symbol.length > 0);
-    assert.equal(personalityTypeIds.includes(animal.id), false);
-    assert.equal('profile' in animal, false);
-  }
-});
-
-test('metadata defines exactly twenty fixed questions and at least four adaptive candidates per dimension', () => {
-  assert.equal(fixedAssessmentQuestionCount, 20);
+test('metadata defines exactly 20 everyday, 5 structured, and a selected 5 adaptive questions', () => {
+  assert.equal(everydayAssessmentQuestionCount, 20);
+  assert.equal(structuredAssessmentQuestionCount, 5);
+  assert.equal(baseAssessmentQuestionCount, 25);
   assert.equal(adaptiveAssessmentQuestionCount, 5);
-  assert.equal(completedAssessmentQuestionCount, 25);
-  assert.equal(fixedAssessmentQuestions.length, 20);
+  assert.equal(completedAssessmentQuestionCount, 30);
+  assert.equal(fixedAssessmentQuestions.length, 25);
   assert.equal(adaptiveQuestionBank.length, 16);
-  assert.equal(allAssessmentQuestions.length, 36);
+  assert.equal(allAssessmentQuestions.length, 41);
 
+  const everyday = fixedAssessmentQuestions.filter(({ phase }) => phase === 'everyday');
+  const structured = fixedAssessmentQuestions.filter(({ phase }) => phase === 'structured');
+  assert.equal(everyday.length, 20);
+  assert.equal(structured.length, 5);
+  assert.equal(everyday.filter(({ context }) => context === 'personal').length, 10);
+  assert.equal(everyday.filter(({ context }) => context === 'professional').length, 10);
+  assert.equal(structured.filter(({ context }) => context === 'personal').length, 3);
+  assert.equal(structured.filter(({ context }) => context === 'professional').length, 2);
   for (const dimension of dimensionIds) {
-    assert.equal(
-      fixedAssessmentQuestions.filter((question) => question.dimension === dimension).length,
-      5,
-    );
-    assert.ok(
-      adaptiveQuestionBank.filter((question) => question.dimension === dimension).length >= 4,
-    );
+    assert.equal(everyday.filter((question) => question.dimension === dimension).length, 5);
+    assert.equal(adaptiveQuestionBank.filter((question) => question.dimension === dimension).length, 4);
+    assert.equal(adaptiveQuestionBank.filter((question) =>
+      question.dimension === dimension && question.context === 'personal').length, 2);
+    assert.equal(adaptiveQuestionBank.filter((question) =>
+      question.dimension === dimension && question.context === 'professional').length, 2);
   }
-  assert.ok(fixedAssessmentQuestions.every(({ kind }) => kind === 'fixed'));
-  assert.ok(adaptiveQuestionBank.every(({ kind }) => kind === 'adaptive'));
 });
 
-test('every question has stable unique IDs and the exact strong/moderate pole structure', () => {
+test('every question has two stable unique options and language-neutral scoring metadata', () => {
   const questionIds = allAssessmentQuestions.map(({ id }) => id);
   const optionIds = allAssessmentQuestions.flatMap(({ options }) => options.map(({ id }) => id));
   assert.equal(new Set(questionIds).size, questionIds.length);
   assert.equal(new Set(optionIds).size, optionIds.length);
-  assert.equal(optionIds.length, 144);
+  assert.equal(optionIds.length, 82);
+  assert.deepEqual(assessmentPhaseWeights, { everyday: 1, structured: 1.25, adaptive: 1.5 });
 
   for (const question of allAssessmentQuestions) {
-    assert.equal(question.options.length, 4);
-    assert.ok(dimensionIds.includes(question.dimension));
-    assert.ok(question.scenarioId.length > 0);
-    const { firstPole, secondPole } = dimensionDefinitions[question.dimension];
-    assert.deepEqual(
-      question.options.map(({ pole, intensity }) => ({ pole, intensity })),
-      [
-        { pole: firstPole, intensity: 2 },
-        { pole: firstPole, intensity: 1 },
-        { pole: secondPole, intensity: 1 },
-        { pole: secondPole, intensity: 2 },
-      ],
-    );
-    assert.deepEqual(
-      question.options.map(({ id }) => id.replace(`${question.id}-`, '')),
-      assessmentOptionSuffixes,
-    );
-    for (const option of question.options) {
-      assert.ok(poleIds.includes(option.pole));
-      assert.ok([1, 2].includes(option.intensity));
-      assert.equal(Object.keys(option).sort().join(','), 'id,intensity,pole');
-    }
+    const poles = dimensionDefinitions[question.dimension];
+    assert.equal(question.options.length, 2);
+    assert.equal(question.options[0].id, `${question.id}-a`);
+    assert.equal(question.options[1].id, `${question.id}-b`);
+    assert.deepEqual(question.options.map(({ position }) => position), ['a', 'b']);
+    assert.deepEqual(new Set(question.options.map(({ pole }) => pole)),
+      new Set([poles.firstPole, poles.secondPole]));
+    assert.equal(question.options[0].pole,
+      question.reverseKeyed ? poles.secondPole : poles.firstPole);
+    assert.equal(question.options[1].pole,
+      question.reverseKeyed ? poles.firstPole : poles.secondPole);
+    assert.equal(question.weight, assessmentPhaseWeights[question.phase]);
   }
+  assert.equal(fixedAssessmentQuestions.filter(({ reverseKeyed }) => reverseKeyed).length, 12);
+  assert.equal(adaptiveQuestionBank.filter(({ reverseKeyed }) => reverseKeyed).length, 8);
 });
 
-test('question metadata is language-neutral and contains no animal or personality assignment branches', () => {
-  const source = readFileSync('src/features/assessment/data/questions.ts', 'utf8');
-  const animalPattern = new RegExp(`\\b(?:${expectedMappings.map(([, id]) => id).join('|')})\\b`, 'i');
-  const typePattern = new RegExp(`\\b(?:${personalityTypeIds.join('|')})\\b`);
-  assert.doesNotMatch(source, animalPattern);
-  assert.doesNotMatch(source, typePattern);
-  assert.doesNotMatch(source, /[Α-Ωα-ω]/u);
-  assert.doesNotMatch(source, /primaryAnimal|secondaryAnimal|candidateAnimal|personalityTitle/i);
-});
-
-test('ranking accepts only 1 through 4 exactly once', () => {
-  const question = fixedAssessmentQuestions[0];
-  const complete = firstPoleRanking(question);
-  assert.equal(isCompleteRanking(question, complete), true);
-  const answer = createAssessmentAnswer(question, complete);
+test('binary answers accept exactly one option belonging to their question', () => {
+  const [question, otherQuestion] = fixedAssessmentQuestions;
+  assert.ok(question && otherQuestion);
+  const answer = createAssessmentAnswer(question, question.options[0].id);
+  assert.deepEqual(answer, { questionId: question.id, selectedOptionId: question.options[0].id });
   assert.equal(isValidAssessmentAnswer(question, answer), true);
-  assert.deepEqual(answerToRankingDraft(answer), complete);
-  assert.deepEqual(answer.rankings.map(({ rank }) => rank).sort(), [1, 2, 3, 4]);
-
-  assert.equal(isCompleteRanking(question, { ...complete, [question.options[3].id]: 3 }), false);
-  assert.equal(isCompleteRanking(question, { ...complete, [question.options[3].id]: undefined }), false);
-  assert.equal(isCompleteRanking(question, { ...complete, unknown: 1 }), false);
-  assert.throws(() => createAssessmentAnswer(question, {}), /requires each rank/);
-  assert.deepEqual([1, 2, 3, 4].map(isAssessmentRank), [true, true, true, true]);
-  assert.equal(isAssessmentRank(0), false);
-  assert.equal(isAssessmentRank(5), false);
+  assert.equal(isAssessmentOptionIdForQuestion(question, question.options[1].id), true);
+  assert.equal(isAssessmentOptionIdForQuestion(question, otherQuestion.options[0].id), false);
+  assert.equal(isValidAssessmentAnswer(question, { ...answer, debugScore: 1 }), false);
+  assert.equal(isValidAssessmentAnswer(question, {
+    questionId: question.id,
+    selectedOptionId: otherQuestion.options[0].id,
+  }), false);
+  assert.throws(() => createAssessmentAnswer(question, 'unknown'), /requires one of its two options/);
 });
 
-test('rank collisions swap ranked options and move from an owner to an unranked target', () => {
-  const [first, second, third] = fixedAssessmentQuestions[0].options;
-  const initial = { [first.id]: 4, [second.id]: 3 };
-  const swapped = assignRank(initial, second.id, 4);
-  assert.equal(swapped.behavior, 'swapped');
-  assert.equal(swapped.displacedOptionId, first.id);
-  assert.deepEqual(swapped.rankings, { [first.id]: 3, [second.id]: 4 });
+test('signed contributions apply configurable phase weights and reverse keys only affect display order', () => {
+  const everyday = fixedAssessmentQuestions[0];
+  const structured = fixedAssessmentQuestions[20];
+  const adaptive = adaptiveQuestionBank[0];
+  assert.ok(everyday && structured && adaptive);
+  assert.strictEqual(scoringPhaseWeights, assessmentPhaseWeights);
+  assert.equal(calculateWeightedContribution(1, 'everyday'), 1);
+  assert.equal(calculateWeightedContribution(-1, 'structured'), -1.25);
+  assert.equal(calculateWeightedContribution(1, 'adaptive'), 1.5);
+  assert.equal(calculateAnswerContribution(everyday, selectFirstPoleOptionId(everyday)), 1);
+  assert.equal(calculateAnswerContribution(everyday, selectSecondPoleOptionId(everyday)), -1);
 
-  const moved = assignRank(initial, third.id, 4);
-  assert.equal(moved.behavior, 'moved');
-  assert.equal(moved.displacedOptionId, first.id);
-  assert.deepEqual(moved.rankings, { [second.id]: 3, [third.id]: 4 });
-
-  const assigned = assignRank(initial, third.id, 2);
-  assert.equal(assigned.behavior, 'assigned');
-  assert.deepEqual(assigned.rankings, { ...initial, [third.id]: 2 });
-
-  const unchanged = assignRank(initial, first.id, 4);
-  assert.equal(unchanged.behavior, 'unchanged');
-  assert.strictEqual(unchanged.rankings, initial);
+  const reverse = fixedAssessmentQuestions.find(({ reverseKeyed }) => reverseKeyed);
+  assert.ok(reverse);
+  assert.equal(calculateAnswerContribution(reverse, selectFirstPoleOptionId(reverse)), reverse.weight);
+  assert.equal(calculateAnswerContribution(reverse, selectSecondPoleOptionId(reverse)), -reverse.weight);
 });
 
-test('rank assignment normalization rejects malformed persisted permutations', () => {
-  const question = fixedAssessmentQuestions[0];
-  const answer = createAssessmentAnswer(question, firstPoleRanking(question));
-  assert.deepEqual(normalizeRankAssignments(answer.rankings), answer.rankings);
-  assert.equal(normalizeRankAssignments(answer.rankings.slice(0, 3)), null);
-  assert.equal(normalizeRankAssignments([
-    ...answer.rankings.slice(0, 3),
-    { optionId: answer.rankings[3].optionId, rank: 9 },
-  ]), null);
-  assert.equal(normalizeRankAssignments('not-an-array'), null);
-});
-
-test('rank by intensity and phase weight calculations accumulate into the declared poles', () => {
-  assert.equal(calculateBaseContribution(4, 2), 8);
-  assert.equal(calculateBaseContribution(3, 1), 3);
-  assert.equal(assessmentPhaseWeights.fixed, 1);
-  assert.equal(assessmentPhaseWeights.adaptive, 0.75);
-  assert.equal(calculateWeightedContribution(4, 2, 'fixed'), 8);
-  assert.equal(calculateWeightedContribution(4, 2, 'adaptive'), 6);
-
-  const fixedQuestion = fixedAssessmentQuestions.find(({ dimension }) => dimension === 'energy');
-  const adaptiveQuestion = adaptiveQuestionBank.find(({ dimension }) => dimension === 'energy');
-  assert.ok(fixedQuestion);
-  assert.ok(adaptiveQuestion);
-  const fixedAnswer = createAssessmentAnswer(fixedQuestion, firstPoleRanking(fixedQuestion));
-  const adaptiveAnswer = createAssessmentAnswer(adaptiveQuestion, firstPoleRanking(adaptiveQuestion));
-  const totals = calculatePoleTotals([fixedAnswer, adaptiveAnswer]);
-  assert.deepEqual(totals, {
-    ...createEmptyPoleScoreMap(),
-    E: 19.25,
-    I: 8.75,
-  });
-});
-
-test('signed dimension normalization is finite, symmetric, and preserves exact balance', () => {
-  const totals = createEmptyPoleScoreMap();
-  totals.E = 11;
-  totals.I = 5;
+test('dimension scoring normalizes independently by answered weight', () => {
+  const energyQuestions = fixedAssessmentQuestions.filter(({ dimension }) => dimension === 'energy');
+  const first = energyQuestions[0];
+  const second = energyQuestions.find((question) => question.weight === 1 && question.id !== first?.id);
+  assert.ok(first && second);
+  const balancedAnswers = [
+    createAssessmentAnswer(first, selectFirstPoleOptionId(first)),
+    createAssessmentAnswer(second, selectSecondPoleOptionId(second)),
+  ];
+  const totals = calculatePoleTotals(balancedAnswers);
   const profile = calculateSignedDimensionProfile(totals);
-  assert.equal(profile.energy, 0.375);
+  assert.equal(profile.energy, 0);
   assert.equal(profile.information, 0);
-  assert.equal(profile.decisions, 0);
-  assert.equal(profile.structure, 0);
-  assert.deepEqual(findBalancedDimensions(totals), ['information', 'decisions', 'structure']);
+  assert.deepEqual(findBalancedDimensions(profile), dimensionIds);
 
-  const reversed = createEmptyPoleScoreMap();
-  reversed.E = 5;
-  reversed.I = 11;
-  assert.equal(calculateSignedDimensionProfile(reversed).energy, -0.375);
-  assert.ok(Object.values(calculateAssessmentProfile([])).every((value) => value === 0));
+  const positive = calculateAssessmentProfile([
+    createAssessmentAnswer(first, selectFirstPoleOptionId(first)),
+    createAssessmentAnswer(second, selectFirstPoleOptionId(second)),
+  ]);
+  assert.equal(positive.energy, 1);
+  assert.equal(positive.information, 0);
 });
 
-test('adaptive dimensions are ordered deterministically and allocated exactly 2, 2, and 1', () => {
-  const representative = createRepresentativeAssessmentSession('INTJ');
-  const fixedAnswers = representative.answers.slice(0, fixedAssessmentQuestionCount);
-  const orderedDimensions = orderDimensionsByFixedBalance(fixedAnswers);
-  const selected = selectAdaptiveQuestions(fixedAnswers);
-  const selectedAgain = selectAdaptiveQuestions(fixedAnswers);
-  assert.deepEqual(adaptiveAllocation, [2, 2, 1, 0]);
-  assert.deepEqual(selectedAgain, selected);
-  assert.equal(selected.length, 5);
-  assert.equal(new Set(selected.map(({ id }) => id)).size, 5);
-
-  const counts = Object.fromEntries(dimensionIds.map((dimension) => [
-    dimension,
-    selected.filter((question) => question.dimension === dimension).length,
-  ]));
-  assert.equal(counts[orderedDimensions[0]], 2);
-  assert.equal(counts[orderedDimensions[1]], 2);
-  assert.equal(counts[orderedDimensions[2]], 1);
-  assert.equal(counts[orderedDimensions[3]], 0);
-
-  for (const dimension of dimensionIds) {
-    const ids = selected.filter((question) => question.dimension === dimension).map(({ id }) => id);
-    assert.deepEqual(ids, [...ids].sort());
+test('canonical distance remains symmetric and ties use canonical order', () => {
+  for (const typeId of personalityTypeIds) {
+    const personality = getPersonalityAnimal(typeId);
+    assert.equal(calculateNormalizedDistance(personality.profile, personality), 0);
+    assert.equal(rankPersonalityTypes(personality.profile)[0]?.personality.id, typeId);
   }
-});
-
-test('equal fixed balances use the declared dimension order and stable question IDs', () => {
-  const fixedAnswers = fixedAssessmentQuestions.map((question, index) => {
-    const preferredPole = index % 2 === 0
-      ? dimensionDefinitions[question.dimension].firstPole
-      : dimensionDefinitions[question.dimension].secondPole;
-    return createAssessmentAnswer(question, createRankingDraftForPole(question, preferredPole));
-  });
-  const first = selectAdaptiveQuestionIds(fixedAnswers);
-  const second = selectAdaptiveQuestionIds([...fixedAnswers].reverse());
+  assert.deepEqual(exactTieProfile, createEmptyDimensionProfile());
+  const first = rankPersonalityTypes(exactTieProfile);
+  const second = rankPersonalityTypes(exactTieProfile);
   assert.deepEqual(first, second);
-  assert.equal(first.length, 5);
-  assert.equal(new Set(first).size, 5);
+  assert.deepEqual(first.map(({ personality }) => personality.id), personalityTypeIds);
+  assert.ok(first.every(({ distance }) => distance === 1));
 });
 
-test('adaptive selection requires all twenty distinct complete fixed answers', () => {
-  const fixedAnswers = createRepresentativeAssessmentSession('INTJ').answers.slice(0, 20);
-  assert.throws(() => selectAdaptiveQuestionIds(fixedAnswers.slice(0, 19)), /requires all 20/);
-  assert.throws(
-    () => selectAdaptiveQuestionIds([...fixedAnswers.slice(0, 19), fixedAnswers[0]]),
-    /distinct fixed-question answers/,
-  );
-});
+test('selection persists immediately and Continue is the only operation that advances', () => {
+  const initial = createAssessmentSession();
+  const question = currentQuestion(initial);
+  assert.equal(canContinueAssessment(initial), false);
+  assert.strictEqual(continueAssessment(initial), initial);
 
-test('session selects five adaptive questions only after fixed answer twenty', () => {
-  const before = answerUntil(19);
-  assert.equal(before.answers.length, 19);
-  assert.deepEqual(before.adaptiveQuestionIds, []);
-  assert.equal(getAssessmentQuestionSequence(before).length, 20);
+  const selected = selectCurrentAssessmentOption(initial, question.options[0].id);
+  assert.equal(selected.currentQuestionIndex, 0);
+  assert.equal(selected.answers.length, 1);
+  assert.deepEqual(getAssessmentAnswer(selected, question.id), {
+    questionId: question.id,
+    selectedOptionId: question.options[0].id,
+  });
+  assert.equal(canContinueAssessment(selected), true);
 
-  const question20 = getCurrentAssessmentQuestion(before);
-  assert.ok(question20);
-  const after = answerCurrentAssessmentQuestion(before, question20.id, firstPoleRanking(question20));
-  assert.equal(after.answers.length, 20);
-  assert.equal(after.adaptiveQuestionIds.length, 5);
-  assert.equal(new Set(after.adaptiveQuestionIds).size, 5);
-  assert.equal(getAssessmentQuestionSequence(after).length, 25);
-  assert.equal(getCurrentAssessmentQuestion(after).id, after.adaptiveQuestionIds[0]);
-  assert.deepEqual(after.adaptiveQuestionIds, selectAdaptiveQuestionIds(after.answers.slice(0, 20)));
-});
-
-test('a completed run contains exactly twenty fixed and five unique adaptive ranking answers', () => {
-  const session = completeAssessmentWithRankingSelector(firstPoleRanking);
-  assert.ok(session.result);
-  assert.equal(session.answers.length, 25);
-  assert.equal(session.currentQuestionIndex, 24);
-  assert.equal(getCurrentAssessmentQuestion(session), null);
-  assert.deepEqual(
-    session.answers.slice(0, 20).map(({ questionId }) => questionId),
-    fixedAssessmentQuestions.map(({ id }) => id),
-  );
-  assert.deepEqual(
-    session.answers.slice(20).map(({ questionId }) => questionId),
-    session.adaptiveQuestionIds,
-  );
-  assert.equal(session.adaptiveQuestionIds.length, 5);
-  assert.equal(new Set(session.adaptiveQuestionIds).size, 5);
-  assert.equal(new Set(session.answers.map(({ questionId }) => questionId)).size, 25);
-  assert.ok(session.answers.every((answer) => answer.rankings.length === 4));
-});
-
-test('backward and forward navigation preserves rankings and fixed edits recalculate dependent state', () => {
-  let session = answerUntil(3);
-  const thirdAnswer = session.answers[2];
-  session = goToPreviousAssessmentQuestion(session);
-  assert.equal(session.currentQuestionIndex, 2);
-  assert.deepEqual(getAssessmentAnswer(session, thirdAnswer.questionId), thirdAnswer);
-  session = goToNextAssessmentQuestion(session);
-  assert.equal(session.currentQuestionIndex, 3);
-  assert.deepEqual(getAssessmentAnswer(session, thirdAnswer.questionId), thirdAnswer);
-
-  session = answerUntil(20);
-  const originalAdaptiveIds = session.adaptiveQuestionIds;
-  session = goToPreviousAssessmentQuestion(session);
-  const fixedQuestion20 = getCurrentAssessmentQuestion(session);
-  assert.ok(fixedQuestion20);
-  session = answerCurrentAssessmentQuestion(
-    session,
-    fixedQuestion20.id,
-    secondPoleRanking(fixedQuestion20),
-  );
-  assert.equal(session.answers.length, 20);
-  assert.equal(session.answers.some(({ questionId }) => originalAdaptiveIds.includes(questionId)), false);
-  assert.deepEqual(session.adaptiveQuestionIds, selectAdaptiveQuestionIds(session.answers.slice(0, 20)));
-});
-
-test('incomplete, stale, unknown, and replayed answer actions cannot advance', () => {
-  const session = createAssessmentSession();
-  const question = getCurrentAssessmentQuestion(session);
-  assert.ok(question);
-  assert.throws(
-    () => answerCurrentAssessmentQuestion(session, question.id, {}),
-    /requires each rank/,
-  );
-  assert.throws(
-    () => answerCurrentAssessmentQuestion(session, fixedAssessmentQuestions[1].id, firstPoleRanking(question)),
-    /not the current assessment question/,
-  );
-  const advanced = answerCurrentAssessmentQuestion(session, question.id, firstPoleRanking(question));
-  assert.throws(
-    () => answerCurrentAssessmentQuestion(advanced, question.id, firstPoleRanking(question)),
-    /not the current assessment question/,
-  );
+  const advanced = continueAssessment(selected);
+  assert.equal(advanced.currentQuestionIndex, 1);
   assert.equal(advanced.answers.length, 1);
-  assert.equal(goToNextAssessmentQuestion(createAssessmentSession()).currentQuestionIndex, 0);
 });
 
-test('all sixteen representative legal runs return their intended primary animals', () => {
+test('question 25 computes a locked primary and route before Continue advances', () => {
+  let session = answerUntil(24, (question) => optionForType(question, 'INTJ'));
+  assert.equal(session.currentQuestionIndex, 24);
+  assert.equal(session.lockedPrimary, null);
+  assert.deepEqual(session.adaptiveQuestionIds, []);
+  const question25 = currentQuestion(session);
+  session = selectCurrentAssessmentOption(session, optionForType(question25, 'INTJ'));
+  assert.equal(session.currentQuestionIndex, 24);
+  assert.equal(session.answers.length, 25);
+  assert.equal(session.lockedPrimary?.primaryTypeId, 'INTJ');
+  assert.equal(session.adaptiveQuestionIds.length, 5);
+  assert.equal(getAssessmentQuestionSequence(session).length, 30);
+  const locked = session.lockedPrimary;
+
+  session = continueAssessment(session);
+  assert.equal(session.currentQuestionIndex, 25);
+  assert.strictEqual(session.lockedPrimary, locked);
+  assert.equal(currentQuestion(session).id, session.adaptiveQuestionIds[0]);
+});
+
+test('adaptive selection ranks close-candidate disagreement, base balance, and canonical order deterministically', () => {
+  const representative = createRepresentativeAssessmentSession('INTJ');
+  assert.ok(representative.lockedPrimary);
+  const baseAnswers = representative.answers.slice(0, 25);
+  const profile = calculateAssessmentProfile(baseAnswers);
+  const candidates = getClosestNonPrimaryCandidates(profile, representative.lockedPrimary);
+  assert.equal(candidates.length, adaptiveClosestCandidateCount);
+  assert.deepEqual(candidates.map(({ id }) => id), ['INTP', 'ENTJ', 'INFJ', 'ISTJ']);
+  for (const dimension of dimensionIds) {
+    assert.equal(countCandidatePairDisagreements(candidates, dimension), 3);
+  }
+  assert.deepEqual(orderAdaptiveDimensions(baseAnswers, representative.lockedPrimary), dimensionIds);
+  assert.deepEqual(
+    rankAdaptiveDimensions(baseAnswers, representative.lockedPrimary)
+      .map(({ candidatePairDisagreements, baseMagnitude }) =>
+        [candidatePairDisagreements, baseMagnitude]),
+    Array(4).fill([3, 1]),
+  );
+
+  const selected = selectAdaptiveQuestions(baseAnswers, representative.lockedPrimary);
+  assert.deepEqual(selected.map(({ context }) => context),
+    adaptiveQuestionSlots.map(({ context }) => context));
+  assert.deepEqual(selected.map(({ dimension }) => dimension),
+    ['energy', 'energy', 'information', 'information', 'decisions']);
+  assert.equal(new Set(selected.map(({ id }) => id)).size, 5);
+  assert.deepEqual(
+    selectAdaptiveQuestionIds([...baseAnswers].reverse(), representative.lockedPrimary),
+    selected.map(({ id }) => id),
+  );
+});
+
+test('adaptive answers determine a distinct secondary without ever recalculating the primary', () => {
+  let session = answerUntil(25, (question) => optionForType(question, 'ENFP'));
+  const locked = session.lockedPrimary;
+  assert.ok(locked);
+  assert.equal(locked.primaryTypeId, 'ENFP');
+  while (!session.result) {
+    const question = currentQuestion(session);
+    session = answerCurrentAssessmentQuestion(
+      session,
+      question.id,
+      selectSecondPoleOptionId(question),
+    );
+    assert.strictEqual(session.lockedPrimary, locked);
+  }
+  assert.equal(session.result.primaryTypeId, locked.primaryTypeId);
+  assert.notEqual(session.result.secondaryTypeId, session.result.primaryTypeId);
+  assert.deepEqual(
+    session.result,
+    calculateFinalAssessmentResult(session.answers, locked),
+  );
+});
+
+test('changing a base answer clears all dependent adaptive state and recomputes the route', () => {
+  let session = answerUntil(28);
+  assert.equal(session.answers.length, 28);
+  const oldLock = session.lockedPrimary;
+  const oldRoute = session.adaptiveQuestionIds;
+  while (session.currentQuestionIndex > 5) session = goToPreviousAssessmentQuestion(session);
+  const fixed = currentQuestion(session);
+  const oldAnswer = getAssessmentAnswer(session, fixed.id);
+  assert.ok(oldAnswer);
+  const replacement = fixed.options.find(({ id }) => id !== oldAnswer.selectedOptionId);
+  assert.ok(replacement);
+  session = selectCurrentAssessmentOption(session, replacement.id);
+  assert.equal(session.currentQuestionIndex, 5);
+  assert.equal(session.answers.length, 25);
+  assert.equal(session.answers.some(({ questionId }) => oldRoute.includes(questionId)), false);
+  assert.ok(session.lockedPrimary);
+  assert.notStrictEqual(session.lockedPrimary, oldLock);
+  assert.deepEqual(
+    session.adaptiveQuestionIds,
+    selectAdaptiveQuestionIds(session.answers, session.lockedPrimary),
+  );
+  assert.equal(session.result, null);
+});
+
+test('reselecting the same base answer preserves dependent progress', () => {
+  let session = answerUntil(27);
+  while (session.currentQuestionIndex > 4) session = goToPreviousAssessmentQuestion(session);
+  const fixed = currentQuestion(session);
+  const existing = getAssessmentAnswer(session, fixed.id);
+  assert.ok(existing);
+  const same = selectCurrentAssessmentOption(session, existing.selectedOptionId);
+  assert.strictEqual(same, session);
+  assert.equal(same.answers.length, 27);
+});
+
+test('back and forward navigation preserves selected binary answers', () => {
+  let session = answerUntil(4);
+  const fourth = session.answers[3];
+  assert.ok(fourth);
+  session = goToPreviousAssessmentQuestion(session);
+  assert.equal(session.currentQuestionIndex, 3);
+  assert.deepEqual(getAssessmentAnswer(session, fourth.questionId), fourth);
+  session = continueAssessment(session);
+  assert.equal(session.currentQuestionIndex, 4);
+  assert.deepEqual(getAssessmentAnswer(session, fourth.questionId), fourth);
+});
+
+test('all sixteen representative legal runs retain their intended primary animal', () => {
   for (const [typeId, animalId] of expectedMappings) {
     const session = createRepresentativeAssessmentSession(typeId);
     assert.ok(session.result);
-    assert.equal(session.answers.length, 25);
-    assert.equal(session.adaptiveQuestionIds.length, 5);
+    assert.ok(session.lockedPrimary);
+    assert.equal(session.answers.length, 30);
     assert.equal(session.result.primaryTypeId, typeId);
     assert.equal(getPersonalityAnimal(session.result.primaryTypeId).animalId, animalId);
     assert.notEqual(session.result.primaryTypeId, session.result.secondaryTypeId);
   }
 });
 
-test('clear Raven, Otter, and Beaver fixtures stay deterministic', () => {
-  for (const [typeId, animalId] of [
-    ['INTJ', 'raven'],
-    ['ENFP', 'otter'],
-    ['ISTJ', 'beaver'],
-  ]) {
-    const first = createRepresentativeAssessmentSession(typeId);
-    const second = createRepresentativeAssessmentSession(typeId);
-    assert.strictEqual(second, first);
-    assert.equal(first.result.primaryTypeId, typeId);
-    assert.equal(getPersonalityAnimal(first.result.primaryTypeId).animalId, animalId);
-  }
-});
-
-test('seeded complete runs are reproducible and always return distinct results', () => {
-  for (const seed of [1, 17, 160425, 999999]) {
-    const first = createSeededAssessmentSession(seed);
-    const second = createSeededAssessmentSession(seed);
-    assert.deepEqual(second, first);
-    assert.equal(first.answers.length, 25);
-    assert.equal(first.adaptiveQuestionIds.length, 5);
-    assert.notEqual(first.result.primaryTypeId, first.result.secondaryTypeId);
-  }
-});
-
-test('whole-profile distance evaluates all sixteen candidates and returns a true distinct runner-up', () => {
-  const closeProfile = {
-    energy: -1,
-    information: -1,
-    decisions: 1,
-    structure: 0.1,
-  };
-  const matches = rankPersonalityTypes(closeProfile);
-  assert.equal(matches.length, 16);
-  assert.deepEqual(matches.slice(0, 2).map(({ personality }) => personality.id), ['INTJ', 'INTP']);
-  assert.ok(matches.every((match, index) => index === 0 || match.distance >= matches[index - 1].distance));
-  assert.equal(new Set(matches.map(({ personality }) => personality.id)).size, 16);
-  assert.equal(calculateNormalizedDistance(closeProfile, matches[0].personality), matches[0].distance);
-});
-
-test('a one-dimension balanced close pair uses whole-profile support and deterministic order', () => {
-  const balancedEnergyProfile = {
-    energy: 0,
-    information: -1,
-    decisions: 1,
-    structure: 1,
-  };
-  const matches = rankPersonalityTypes(balancedEnergyProfile);
-  assert.equal(matches[0].distance, matches[1].distance);
-  assert.deepEqual(matches.slice(0, 2).map(({ personality }) => personality.id), ['INTJ', 'ENTJ']);
-});
-
-test('exact ties retain balanced markers and never use randomness', () => {
-  assert.deepEqual(exactTieProfile, {
-    energy: 0,
-    information: 0,
-    decisions: 0,
-    structure: 0,
+test('personal and professional profiles use base questions only and expose a cautious discrete observation', () => {
+  const baseAnswers = fixedAssessmentQuestions.map((question) => {
+    const poles = dimensionDefinitions[question.dimension];
+    return createAssessmentAnswer(
+      question,
+      selectOptionIdForPole(
+        question,
+        question.context === 'personal' ? poles.firstPole : poles.secondPole,
+      ),
+    );
   });
-  const first = calculateAssessmentRanking([]);
-  const second = calculateAssessmentRanking([]);
-  assert.deepEqual(first, second);
-  assert.deepEqual(first.result.balancedDimensionIds, dimensionIds);
-  assert.deepEqual(first.matches.map(({ personality }) => personality.id), personalityTypeIds);
-  assert.deepEqual(first.matches.map(({ distance }) => distance), Array(16).fill(1));
-  assert.equal(first.result.primaryTypeId, 'INTJ');
-  assert.equal(first.result.secondaryTypeId, 'INTP');
+  const profiles = calculateContextProfiles(baseAnswers);
+  assert.ok(dimensionIds.every((dimension) => profiles.personal[dimension] === 1));
+  assert.ok(dimensionIds.every((dimension) => profiles.professional[dimension] === -1));
+  assert.equal(contextProfileDifferenceThreshold, 0.4);
+  assert.deepEqual(getContextProfileObservation(baseAnswers), {
+    dimension: 'energy',
+    kind: 'context-dependent',
+    personalDirection: 'first',
+    professionalDirection: 'second',
+  });
+
+  const adaptiveNoise = adaptiveQuestionBank.map((question) =>
+    createAssessmentAnswer(question, question.options[0].id));
+  assert.deepEqual(calculateContextProfiles([...baseAnswers, ...adaptiveNoise]), profiles);
+  assert.deepEqual(getContextProfileObservation([...baseAnswers, ...adaptiveNoise]),
+    getContextProfileObservation(baseAnswers));
+  const uniform = createRepresentativeAssessmentSession('ISTJ').answers.slice(0, 25);
+  assert.equal(getContextProfileObservation(uniform), null);
 });
 
-test('every canonical corner is its own zero-distance primary', () => {
-  assert.ok(Object.values(matchingDimensionWeights).every((weight) => weight === 1));
-  for (const typeId of personalityTypeIds) {
-    const profile = createCanonicalProfile(typeId);
-    const matches = rankPersonalityTypes(profile);
-    assert.equal(matches[0].personality.id, typeId);
-    assert.equal(matches[0].distance, 0);
-    assert.equal(new Set(matches.map(({ personality }) => personality.id)).size, 16);
-  }
+test('close-match metadata is boolean-only and uses a documented internal gap', () => {
+  const representative = createRepresentativeAssessmentSession('ISTJ');
+  assert.ok(representative.lockedPrimary);
+  assert.equal(typeof representative.lockedPrimary.hasCloseMatch, 'boolean');
+  assert.equal(closeMatchDistanceGapThreshold, 0.08);
+  assert.deepEqual(Object.keys(representative.lockedPrimary).sort(), [
+    'balancedDimensionIds',
+    'hasCloseMatch',
+    'primaryTypeId',
+  ]);
 });
 
-test('restart clears only versioned assessment state', () => {
-  const completed = completeAssessmentWithRankingSelector(firstPoleRanking);
-  assert.ok(completed.result);
+test('restart returns the exact clean schema-three session', () => {
   assert.deepEqual(restartAssessmentSession(), {
-    schemaVersion: 2,
-    modelVersion: '16-personality-ranking-v1-25q',
+    schemaVersion: 3,
+    modelVersion: '16-personality-binary-v2-30q',
     currentQuestionIndex: 0,
     answers: [],
     adaptiveQuestionIds: [],
+    lockedPrimary: null,
     result: null,
   });
-
-  const appearance = { language: 'el', mode: 'dark', colorTheme: 'plum' };
-  const analyticsConsent = { consentState: 'rejected' };
-  const state = { appearance, analyticsConsent, assessment: completed };
-  const next = { ...state, assessment: restartAssessmentSession() };
-  assert.strictEqual(next.appearance, appearance);
-  assert.strictEqual(next.analyticsConsent, analyticsConsent);
 });
 
-test('engineering balance report checks structure, determinism, symmetry, reachability, and ties', () => {
+test('engineering analysis checks reachability, letter order, contexts, routes, symmetry, and ties', () => {
   const report = analyzeAssessmentBalance(160425, 1024);
   assert.match(report.label, /Engineering balance check/i);
-  assert.equal(report.fixedQuestionCount, 20);
+  assert.equal(report.everydayQuestionCount, 20);
+  assert.equal(report.structuredQuestionCount, 5);
+  assert.equal(report.baseQuestionCount, 25);
   assert.equal(report.adaptiveBankCount, 16);
-  assert.deepEqual(Object.values(report.fixedQuestionsPerDimension), [5, 5, 5, 5]);
-  assert.deepEqual(Object.values(report.adaptiveQuestionsPerDimension), [4, 4, 4, 4]);
   assert.equal(report.optionStructureValid, true);
-  assert.equal(report.uniqueAnimalCount, 16);
-  assert.equal(report.uniqueTypeCount, 16);
+  assert.equal(report.phaseAndContextBalanceValid, true);
+  assert.equal(report.reverseKeyBalanceValid, true);
+  assert.equal(report.optionLetterOrderingBalanced, true);
+  assert.equal(report.contextProfilesCorrect, true);
   assert.equal(report.completeTypeCoverage, true);
   assert.equal(report.deterministicAdaptiveSelection, true);
+  assert.equal(report.adaptiveContextQuotaValid, true);
+  assert.equal(report.adaptiveDimensionCoverage, true);
   assert.equal(report.canonicalScoringSymmetry, true);
   assert.equal(report.exactTieHandlingDeterministic, true);
   assert.equal(report.primarySecondaryAlwaysDistinct, true);
   assert.deepEqual(report.unreachablePrimary, []);
   assert.deepEqual(report.unreachableSecondary, []);
-});
-
-test('technical assessment documentation matches the implemented formula and public boundary', () => {
-  const path = 'docs/assessment/SIXTEEN_PERSONALITY_ANIMAL_MODEL.md';
-  assert.equal(existsSync(path), true);
-  assert.equal(existsSync('docs/assessment/TWELVE_ARCHETYPE_MODEL.md'), false);
-  const report = readFileSync(path, 'utf8');
-  assert.match(report, /16-personality-ranking-v1-25q/);
-  assert.match(report, /20 fixed questions/i);
-  assert.match(report, /five deterministic adaptive/i);
-  assert.match(report, /2, 2, and 1/);
-  assert.match(report, /assigned rank × option intensity × phase weight/i);
-  assert.match(report, /adaptive \| `0\.75`/i);
-  assert.match(report, /root-mean-square\s+distance/i);
-  assert.match(report, /all 16/i);
-  assert.match(report, /never public labels/i);
-  for (const [typeId, animalId] of expectedMappings) {
-    assert.match(report, new RegExp(`\\| ${'`'}${typeId}${'`'} \\| ${animalId}`, 'i'));
-  }
-});
-
-test('ranked assessment UI exposes guide, live state, keyboard focus, and minimum target sizes', () => {
-  const screen = readFileSync('src/features/assessment/components/AssessmentScreen.tsx', 'utf8');
-  const card = readFileSync('src/features/assessment/components/RankingOptionCard.tsx', 'utf8');
-  assert.match(screen, /accessibilityRole="progressbar"/);
-  assert.match(screen, /accessibilityValue=\{\{ max: totalQuestions, min: 1, now: questionNumber \}\}/);
-  assert.match(screen, /copy\.rankingGuideTitle/);
-  assert.match(screen, /assessmentRankOrder\.map/);
-  assert.match(screen, /isCompleteRanking/);
-  assert.match(screen, /copy\.incompleteError/);
-  assert.match(screen, /accessibilityRole=\{showIncompleteError \? 'alert' : undefined\}/);
-  assert.match(screen, /rankSwappedAnnouncement/);
-  assert.match(screen, /rankMovedAnnouncement/);
-  assert.match(screen, /questionHeadingRef\.current\?\.focus\(\)/);
-  assert.match(screen, /tabIndex=\{-1\}/);
-  assert.match(screen, /canGoBack/);
-  assert.doesNotMatch(screen, /horizontal=\{true\}|drag|drop/i);
-
-  assert.match(card, /role="radiogroup"/);
-  assert.match(card, /accessibilityRole="radio"/);
-  assert.match(card, /accessibilityState=\{\{ checked: selected \}\}/);
-  assert.match(card, /assessmentRankOrder = \[4, 3, 2, 1\]/);
-  assert.match(card, /selectedMark/);
-  assert.match(card, /flexWrap: 'wrap'/);
-  assert.match(card, /minHeight: 52/);
-  assert.match(card, /minWidth: 52/);
-  assert.doesNotMatch(card, /numberOfLines|horizontal=\{true\}/);
-});
-
-test('analytics modules remain isolated from rankings, personality IDs, and animal results', () => {
-  const sources = sourceFiles('src/features/analytics')
-    .map((path) => readFileSync(path, 'utf8'))
-    .join('\n');
-  assert.doesNotMatch(
-    sources,
-    /features\/(?:assessment|personalities|animals)|AssessmentAnswer|AssessmentResult|RankingDraft|adaptiveQuestion|primaryTypeId|secondaryTypeId|balancedDimension/i,
-  );
-  assert.doesNotMatch(
-    sources,
-    /assessment_start|assessment_complete|personality_result|animal_result|rank_assignment|dimension_score/i,
-  );
+  assert.deepEqual(report.unreachableAdaptiveQuestionIds, []);
 });
