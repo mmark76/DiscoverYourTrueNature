@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
+import { assessmentGuidance } from '../../../i18n/content/assessmentGuidance';
 import { formatTranslation } from '../../../i18n/translations';
 import { useTranslation } from '../../../i18n/useTranslation';
 import { useAppearance } from '../../../settings/AppearanceProvider';
@@ -40,7 +41,7 @@ export function AssessmentScreen({
 }: AssessmentScreenProps) {
   const questionHeadingRef = useRef<View>(null);
   const { colors } = useAppearance();
-  const { content } = useTranslation();
+  const { content, language } = useTranslation();
   const copy = content.assessment;
   const progress = questionNumber / totalQuestions;
   const counter = formatTranslation(copy.counter, { current: questionNumber, total: totalQuestions });
@@ -76,9 +77,6 @@ export function AssessmentScreen({
             >
               <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
             </View>
-            {questionNumber === 1 && (
-              <AppText style={styles.introduction}>{copy.introduction}</AppText>
-            )}
           </View>
 
           <View style={styles.questionSection}>
@@ -96,6 +94,8 @@ export function AssessmentScreen({
               </AppText>
             </View>
           </View>
+
+          <AppText style={styles.guidance}>{assessmentGuidance[language]}</AppText>
 
           <View
             accessibilityLabel={copy.answerGroupLabel}
@@ -209,7 +209,7 @@ function createStyles(colors: SemanticColors) {
     progressSection: { minWidth: 0 },
     eyebrow: { color: colors.primary, fontSize: 12, fontWeight: '700', letterSpacing: 1.2 },
     counter: { color: colors.mutedText, fontSize: 14, marginTop: theme.spacing.sm },
-    introduction: { color: colors.text, fontSize: 15, lineHeight: 23, marginTop: theme.spacing.md },
+    guidance: { color: colors.text, fontSize: 15, lineHeight: 23 },
     progressTrack: {
       backgroundColor: colors.progressTrack,
       borderRadius: 999,
