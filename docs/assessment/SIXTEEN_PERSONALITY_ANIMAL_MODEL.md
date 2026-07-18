@@ -1,13 +1,13 @@
 # Sixteen-personality animal assessment model
 
-Model version: `16-personality-ranking-v1-25q`
+Model version: `16-personality-binary-v2-30q`
 
-Persisted assessment schema: `2`
+Persisted assessment schema: `3`
 
-Assessment storage key: `animals-within.assessment.v2`
+Assessment storage key: `animals-within.assessment.v3`
 
-This is developer-facing documentation. Four-letter personality codes, pole totals, normalized
-values, weights, distances, adaptive priorities, and tie metadata are internal implementation
+This is developer-facing documentation. Four-letter personality codes, dimension values, weights,
+candidate comparisons, distances, follow-up priorities, and tie metadata are internal implementation
 details. They must not be rendered in application copy, accessibility labels, URLs, page titles,
 feedback drafts, shareable content, analytics, cookies, or remote requests.
 
@@ -32,158 +32,186 @@ Required Greek disclaimer:
 
 ## Stable internal dimensions
 
-The model has exactly four language-neutral preference-dimension IDs in this order:
+The model has exactly four language-neutral preference-dimension IDs in deterministic order:
 
-1. `energy`: `E` (Extraversion) and `I` (Introversion)
-2. `information`: `S` (Sensing) and `N` (Intuition)
-3. `decisions`: `T` (Thinking) and `F` (Feeling)
-4. `structure`: `J` (Judging) and `P` (Perceiving)
+1. `energy`: `E` and `I`;
+2. `information`: `S` and `N`;
+3. `decisions`: `T` and `F`;
+4. `structure`: `J` and `P`.
 
-The declared order is a deterministic tie-break. Dimension and pole IDs remain language-neutral;
-their translated explanations belong to the localization layer.
-
-The 16 internal type identifiers are fixed, in deterministic order:
+The declared dimension order is a stable tie-break. The 16 internal type identifiers are also fixed
+in deterministic order:
 
 `INTJ`, `INTP`, `ENTJ`, `ENTP`, `INFJ`, `INFP`, `ENFJ`, `ENFP`, `ISTJ`, `ISFJ`, `ESTJ`, `ESFJ`,
 `ISTP`, `ISFP`, `ESTP`, `ESFP`.
 
-These identifiers may be used in domain models, scoring, adaptive selection, distance calculations,
+These identifiers may be used in domain models, scoring, follow-up selection, distance calculations,
 persistence, migration, automated tests, and developer documentation. They are never public labels.
 
-## Run structure
+## Thirty-question run structure
 
-Every completed run contains exactly 25 answered ranking questions:
+Every completed run contains exactly 30 binary answers:
 
-1. 20 fixed questions;
-2. five deterministic adaptive differentiators selected after all fixed questions are complete.
+| Questions | Internal phase | Context distribution | Weight |
+| --- | --- | --- | ---: |
+| 1–20 | `everyday` | 10 personal, then 10 professional | `1.00` |
+| 21–25 | `structured` | 3 personal, then 2 professional | `1.25` |
+| 26–30 | `adaptive` | exactly 2 personal and 3 professional | `1.50` |
 
-There are exactly five fixed questions for each dimension. Their scenario themes are:
+Within questions 1–20, questions 6–10 are the five personal questions about hobbies, interests, and
+learning. The first 20 questions are balanced exactly across dimensions: five `energy`, five
+`information`, five `decisions`, and five `structure`.
 
-| Dimension | Fixed themes |
-| --- | --- |
-| `energy` (E-I) | recovering after a demanding week; entering an unfamiliar group; processing a difficult problem; behavior at a social event; extended close work with people |
-| `information` (S-N) | learning something new; observing a situation; carrying out a task; realism versus possibilities; immediate practicality versus future potential |
-| `decisions` (T-F) | making a difficult decision; serious disagreement; responding to a serious mistake; objectivity versus compassion; corrective feedback |
-| `structure` (J-P) | planning a trip; handling deadlines; preferred working environment; closing decisions versus keeping options open; responding to a changed plan |
+The five structured questions have a more direct preference format. Neither `structured` nor
+`adaptive` is a required public phase label. The user-facing experience must not call questions
+“psychometric,” “adaptive,” or “differentiators.”
 
-The adaptive bank contains at least four candidates for each dimension. Adaptive scenarios must not
-repeat a fixed scenario or mention animals, personality codes, dimensions, or scoring.
+The three phase weights are centralized configurable constants. They are product-design weights for
+a deterministic entertainment experience, not scientifically validated psychometric coefficients.
 
 ## Language-neutral question data
 
-Question definitions contain only stable metadata:
+Each question definition owns stable metadata:
 
-- question and option IDs;
+- question ID and two option IDs;
+- `everyday`, `structured`, or `adaptive` phase;
+- `personal` or `professional` context;
 - dimension ID;
-- fixed or adaptive phase;
-- scenario category;
-- one pole and one intensity for every option.
+- the pole represented by each option;
+- phase weight, resolved from the phase constant;
+- whether the displayed A/B order is reverse-keyed;
+- deterministic source and selection order.
 
-Every question has exactly four options in this composition:
+Every visible question contains exactly two alternatives. Option A is not inherently the first pole
+and option B is not inherently the second pole. Approximately half the questions display the poles
+in reverse order to reduce habitual letter selection. The option's declared pole determines scoring.
 
-| Option role | Pole | Intensity |
-| --- | --- | ---: |
-| strong first pole | the dimension's first pole | 2 |
-| moderate first pole | the dimension's first pole | 1 |
-| moderate second pole | the dimension's second pole | 1 |
-| strong second pole | the dimension's second pole | 2 |
+English and Greek question text is keyed by the same question and option IDs. Translation files
+contain visible copy only and do not duplicate phase, context, pole, weight, reverse-key, candidate,
+or distance metadata. The supplied Greek wording is authoritative; English preserves its behavioral
+distinction and scoring direction naturally rather than mechanically.
 
-English and Greek question text is keyed by the same question and option IDs. Translation files do
-not duplicate poles, intensities, phase weights, or adaptive-selection metadata.
+## Binary interaction and answer validation
 
-## Ranking interaction and validation
+A persisted or committed answer contains only:
 
-Each option receives one of the ranks 4, 3, 2, or 1. A valid answer uses all four ranks exactly once.
-The user cannot continue with a missing rank, duplicate rank, or value outside that set.
+```ts
+{
+  questionId: AssessmentQuestionId;
+  selectedOptionId: AssessmentOptionId;
+}
+```
 
-Rank collision behavior is deterministic:
+A valid answer selects exactly one of the active question's two option IDs. Choosing the other option
+replaces the previous selection. Missing selections, arrays or multiple selections, unknown IDs,
+options belonging to a different question, stale question actions, and replayed actions cannot
+advance the session.
 
-- when the target option already has a rank and the chosen rank belongs to another option, the two
-  options swap ranks;
-- when the target option is unranked and the chosen rank belongs to another option, the rank moves to
-  the target and the previous owner becomes unranked;
-- choosing the target's existing rank leaves the answer unchanged.
+The visible A/B label, selected marker, border, and accessibility checked/selected state communicate
+selection without relying on color. Back and forward navigation preserve committed answers.
 
-The interaction uses explicit controls, not drag-and-drop alone. Visible numbers, text labels,
-borders or indicators, `selected` accessibility state, assigned-rank announcements, and completion
-or error announcements communicate state without relying on color.
+## Signed weighted scoring
 
-## Pole accumulation
+Each selected option contributes to one dimension:
 
-Each ranked option contributes only to its declared pole:
+```text
+first-pole option  = +1 × phase weight
+second-pole option = -1 × phase weight
+```
 
-`weighted contribution = assigned rank × option intensity × phase weight`
-
-Phase weights are fixed:
+The weights are:
 
 | Phase | Weight |
 | --- | ---: |
-| fixed | `1.00` |
-| adaptive | `0.75` |
+| `everyday` | `1.00` |
+| `structured` | `1.25` |
+| `adaptive` | `1.50` |
 
-For example, a strong `E` option ranked 2 in a fixed question contributes
-`2 × 2 × 1.00 = 4` to `E`. A moderate `I` option ranked 3 in an adaptive question contributes
-`3 × 1 × 0.75 = 2.25` to `I`.
+For each dimension, normalization is independent:
 
-The scorer accumulates separate totals for `E`, `I`, `S`, `N`, `T`, `F`, `J`, and `P`. It never
-persists or reports those values outside the assessment boundary.
+```text
+dimension score = signed weighted sum / total answered weight for that dimension
+```
 
-For a dimension with first-pole total `A` and second-pole total `B`, its signed normalized preference
-is:
+The denominator includes only valid answered questions for that dimension in the requested profile.
+The result is clamped to `[-1, 1]`. Positive values favor the first pole, negative values favor the
+second pole, and zero is an exact balance. Raw totals from dimensions with different question counts
+are never compared.
 
-`p = (A - B) / (A + B)`
+## Base profile and locked primary animal
 
-The denominator is positive for any answered run. Positive values favor the first pole, negative
-values favor the second pole, and zero is an exact balance. The closeness used for adaptive ordering
-is `abs(p)`: the smaller the magnitude, the more balanced the dimension.
+Immediately after question 25 is committed:
 
-## Deterministic adaptive selection
+1. calculate the four-dimensional base profile from questions 1–25 only;
+2. compare it with all 16 canonical personality corners using normalized deterministic distance;
+3. break equal distances with the fixed canonical type order;
+4. retain the nearest candidate as `lockedPrimary.primaryTypeId`;
+5. retain only the internal close/balanced metadata required for cautious result wording;
+6. select and persist the five follow-up question IDs.
 
-After exactly 20 valid fixed answers:
+No primary result exists before all 25 valid base answers exist. Questions 26–30 never recalculate or
+replace the locked primary.
 
-1. calculate the four fixed-only signed preferences;
-2. sort dimensions by ascending `abs(p)`;
-3. break equal balances with the declared dimension order `energy`, `information`, `decisions`,
-   `structure`;
-4. allocate two adaptive questions to the first dimension, two to the second, one to the third, and
-   none to the least balanced dimension;
-5. select unused candidates within each dimension by stable adaptive question ID order.
+If the product permits editing questions 1–25 after entering the follow-up phase, that edit invalidates
+the dependent follow-up answers, route, locked primary, and final result. Once the revised base 25 is
+complete, the primary and route are recalculated from that revised base and locked again. This does
+not permit follow-up answers themselves to alter the primary.
 
-This produces exactly five unique adaptive IDs with an allocation of 2, 2, and 1. No randomness,
-language, appearance setting, object-property order, or locale participates. The same 20 fixed
-ranking answers therefore always produce the same five-question sequence.
+## Deterministic follow-up selection
 
-The 0.75 phase weight lets the final questions refine close dimensions without giving one adaptive
-answer the same influence as a fixed answer of equal rank and intensity.
+The adaptive bank contains exactly 16 stable binary questions:
 
-## Whole-profile distance and primary result
+- four questions per dimension;
+- within each dimension, two personal and two professional contexts.
 
-Each of the 16 internal types is a canonical four-dimensional corner. For each dimension, the
-canonical value is `+1` when the type uses the first pole and `-1` when it uses the second pole.
+Selection begins with the base profile and locked primary:
 
-Using the final signed preference vector `p` and a type corner `c`, the normalized root-mean-square
-distance is:
+1. rank every non-primary canonical candidate by base-profile distance;
+2. consider at least the closest four non-primary candidates;
+3. prioritize dimensions on which those candidates disagree;
+4. within that evidence, give greater priority to base dimensions whose score is closer to zero;
+5. choose unused questions with stable metadata and ID tie-breaks;
+6. enforce exactly five IDs, exactly two personal and three professional contexts, and no duplicate;
+7. persist the ordered IDs so language, navigation, reload, and appearance cannot select a new route.
 
-`distance(p, c) = sqrt(((p.energy-c.energy)^2 + (p.information-c.information)^2 + (p.decisions-c.decisions)^2 + (p.structure-c.structure)^2) / 4)`
+The selector is deterministic. Randomness, translated text, locale sorting, appearance state, or
+object-property iteration order do not participate.
 
-All four dimensions have equal distance weight. All 16 corners are evaluated from the complete
-25-question profile. Sorting uses the unrounded distance, then the fixed internal type order. The
-closest supported type is primary.
+## Final profile and secondary animal
 
-## Exact ties and secondary result
+After question 30:
 
-An exact final dimension tie remains `0` and is recorded in the internal balanced-dimension list. It
-is not silently converted into either pole. A zero coordinate naturally gives equal support to the
-adjacent corners on that dimension; whole-profile distances across all 16 types decide which complete
-patterns are best supported. Equal whole-profile distances use the fixed internal type order, never
-randomness.
+1. keep `lockedPrimary.primaryTypeId` unchanged;
+2. calculate the final four-dimensional profile from all 30 weighted answers;
+3. rank all canonical candidates except the locked primary;
+4. choose the nearest remaining candidate as the secondary;
+5. break ties with canonical type order.
 
-The secondary result is the next closest distinct type in the same complete 16-corner ordering. It
-is not produced by simply flipping the smallest raw dimension. It may differ from the primary by one
-letter or, when supported by the complete profile, by two letters.
+The secondary is therefore always distinct from the primary. The higher `1.50` follow-up weight gives
+the final answers more influence on the secondary comparison, but it does not grant them any path to
+change the primary.
 
-The public result may state that the profile sits close between two related patterns. It does not
-show an `X` code, percentages, pole totals, confidence, distances, or the candidate ranking.
+An exact dimension tie remains zero. The public result may use cautious close-pattern language, but
+does not show an `X` code, percentage, confidence value, distance, or candidate ranking.
+
+## Personal and professional descriptive profiles
+
+Two context profiles are derived from questions 1–25 only:
+
+- personal: the 13 personal base questions;
+- professional: the 12 professional base questions.
+
+Each context and dimension is normalized by its own answered weight. The five selected follow-up
+answers are excluded because different users receive different follow-up measurement opportunities.
+
+The current internal observation threshold is `0.40`. A context observation is produced only when
+the difference is at least that threshold and the available directions support a cautious discrete
+description. The internal observation identifies the dimension, each context's `first`, `second`, or
+`balanced` direction, and whether the tendency is `personal-stronger`, `professional-stronger`, or
+`context-dependent`. It exposes no numeric score to presentation.
+
+The threshold is a conservative editorial product rule, not a confidence interval or scientific
+cutoff. Small differences produce no context claim.
 
 ## Fixed personality-to-animal mapping
 
@@ -219,37 +247,39 @@ The result screen presents only:
 5. interaction, information-processing, decision, and organization/adaptation tendencies;
 6. secondary animal name and symbol;
 7. secondary personality description;
-8. how the two animal patterns complement, soften, or differ from each other;
-9. retake and catalogue actions;
-10. the entertainment disclaimer.
+8. how the two animal patterns complement, soften, or differ;
+9. an optional cautious personal-versus-professional observation;
+10. retake and catalogue actions;
+11. the entertainment disclaimer.
 
-Catalogue cards lead with the animal name and contain animal-first descriptive copy. When a stored
-result exists, non-color labels may identify the user's primary and secondary animals. Neither result
-nor catalogue renders the internal type code or a personality classification title.
-
-The public presentation model contains no scores, percentages, confidence, pole totals, normalized
-preferences, weights, distances, candidate ranking, raw answers, or adaptive-selection rationale.
+Neither result nor catalogue renders an internal type code or personality classification title. The
+public presentation model contains no scores, percentages, confidence, pole totals, normalized
+preferences, weights, distances, candidate rankings, raw answers, selected option IDs, or follow-up
+selection rationale.
 
 ## Persistence and migration boundary
 
-Persisted schema 2 stores language-neutral assessment progress and verifies the model version before
-restore. A legacy schema or a different model version invalidates only assessment answers, adaptive
-IDs, and results. Appearance, language, analytics consent, and unrelated preferences are managed by
-their existing separate stores and are not reset. See
+Persisted schema 3 verifies model version `16-personality-binary-v2-30q` before restore. A ranking
+schema-2 record, schema-1 record, unknown schema, or different model version invalidates assessment
+answers, routes, and results only. Appearance, language, analytics consent, and unrelated preferences
+remain in their independent stores. See
 [Persistence and Migration](PERSISTENCE_AND_MIGRATION.md).
 
 ## Analytics and external-output boundary
 
-The analytics feature does not import assessment, ranking, or personality-result state. Analytics
-must never receive question IDs, option IDs, ranks, dimensions, poles, adaptive IDs, internal type
-codes, animal results, distances, or completion profiles. The generic page URL and document title do
-not encode results. Feedback drafts contain only language, build version, and an empty feedback area.
-There is no result-bearing share text or URL.
+Analytics does not import assessment or personality-result state. Analytics must never receive
+question IDs, option IDs, selected options, dimensions, poles, context profiles, follow-up routes,
+internal type codes, locked or final animal results, confidence, distances, or model scores. The
+generic page URL and document title do not encode results. Feedback drafts contain only language,
+build version, and an empty feedback area. There is no result-bearing share text or URL.
 
 ## Engineering analysis
 
-`node scripts/analyzeAssessmentBalance.mjs` is expected to verify structural question invariants,
-mapping uniqueness, deterministic 2/2/1 selection, scoring symmetry, complete type coverage,
-representative reachability, primary-secondary distinctness, and exact-tie behavior. Its seeded
-frequency report is an engineering balance check only and must not be described as scientific or
-psychometric validation.
+`node scripts/analyzeAssessmentBalance.mjs` verifies structural metadata, signed scoring symmetry,
+deterministic candidate-based follow-up selection, exact context quotas, primary locking,
+primary-secondary distinctness, tie handling, context-profile calculation, option-letter order bias,
+and primary/secondary reachability for all 16 animals under deterministic fixtures and seeded
+simulations.
+
+Its distributions and thresholds are engineering defect checks only. They are not evidence of
+scientific, psychological, or psychometric validity.

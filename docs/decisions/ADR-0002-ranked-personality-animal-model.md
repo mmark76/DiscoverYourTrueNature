@@ -1,8 +1,9 @@
 # ADR-0002: Adopt the Ranked Sixteen-Personality Animal Model
 
-- **Status:** Accepted
+- **Status:** Superseded
 - **Date:** 2026-07-16
 - **Supersedes:** the 12-animal assessment model `12-archetype-v2-25q`
+- **Superseded by:** [ADR-0003: Adopt the Thirty-Question Binary Animal Model](ADR-0003-binary-thirty-question-animal-model.md)
 
 ## Context
 
