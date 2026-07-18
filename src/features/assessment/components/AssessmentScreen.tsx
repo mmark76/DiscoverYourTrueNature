@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { formatTranslation } from '../../../i18n/translations';
@@ -14,21 +14,16 @@ import type {
   AssessmentQuestionId,
   AssessmentQuestionData,
 } from '../data/questions';
-import {
-  assignRank as assignRankToDraft,
-  isCompleteRanking,
-  type RankingDraft,
-} from '../services/ranking';
-import type { AssessmentRank } from '../types';
-import { assessmentRankOrder, RankingOptionCard } from './RankingOptionCard';
+import type { AssessmentOptionPosition } from '../types';
+import { BinaryOptionCard } from './BinaryOptionCard';
 
 interface AssessmentScreenProps {
   question: AssessmentQuestionData;
   questionNumber: number;
   totalQuestions: number;
-  rankings: RankingDraft;
+  selectedOptionId: string | null;
   canGoBack: boolean;
-  onRankingsChange: (rankings: RankingDraft) => void;
+  onSelectOption: (optionId: AssessmentOptionId) => void;
   onBack: () => void;
   onContinue: () => void;
 }
@@ -37,15 +32,13 @@ export function AssessmentScreen({
   question,
   questionNumber,
   totalQuestions,
-  rankings,
+  selectedOptionId,
   canGoBack,
-  onRankingsChange,
+  onSelectOption,
   onBack,
   onContinue,
 }: AssessmentScreenProps) {
   const questionHeadingRef = useRef<View>(null);
-  const [showIncompleteError, setShowIncompleteError] = useState(false);
-  const [rankAnnouncement, setRankAnnouncement] = useState('');
   const { colors } = useAppearance();
   const { content } = useTranslation();
   const copy = content.assessment;
@@ -55,51 +48,18 @@ export function AssessmentScreen({
     current: questionNumber,
     total: totalQuestions,
   });
-  const rankingByOption = useMemo(() => new Map(Object.entries(rankings)), [rankings]);
-  const rankingComplete = isCompleteRanking(question, rankings);
+  const selectedOption = question.options.find(({ id }) => id === selectedOptionId) ?? null;
+  const hasSelection = selectedOption !== null;
+  const selectedLetter = selectedOption ? getOptionLetter(selectedOption.position, copy) : null;
   const isLastQuestion = questionNumber === totalQuestions;
+  const contextLabel = question.context === 'personal'
+    ? copy.personalContext
+    : copy.professionalContext;
   const styles = createStyles(colors);
 
   useEffect(() => {
     questionHeadingRef.current?.focus();
-    setShowIncompleteError(false);
-    setRankAnnouncement('');
   }, [question.id]);
-
-  useEffect(() => {
-    if (rankingComplete) {
-      setShowIncompleteError(false);
-      setRankAnnouncement(copy.rankingComplete);
-    }
-  }, [copy.rankingComplete, rankingComplete]);
-
-  function assignRank(optionId: AssessmentOptionId, rank: AssessmentRank) {
-    const currentRank = rankings[optionId];
-    const update = assignRankToDraft(rankings, optionId, rank);
-
-    if (update.behavior === 'swapped') {
-      setRankAnnouncement(formatTranslation(copy.rankSwappedAnnouncement, {
-        rank,
-        previousRank: currentRank ?? rank,
-      }));
-    } else if (update.behavior === 'moved') {
-      setRankAnnouncement(formatTranslation(copy.rankMovedAnnouncement, { rank }));
-    } else {
-      setRankAnnouncement(formatTranslation(copy.rankAssignedAnnouncement, { rank }));
-    }
-
-    onRankingsChange(update.rankings);
-  }
-
-  function continueAssessment() {
-    if (!rankingComplete) {
-      setShowIncompleteError(true);
-      setRankAnnouncement(copy.incompleteError);
-      return;
-    }
-
-    onContinue();
-  }
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContent} style={styles.scrollView}>
@@ -121,67 +81,66 @@ export function AssessmentScreen({
             )}
           </View>
 
-          <View style={styles.guide}>
-            <AppText accessibilityRole="header" style={styles.guideTitle}>
-              {copy.rankingGuideTitle}
-            </AppText>
-            <View style={styles.guideItems}>
-              {assessmentRankOrder.map((rank) => (
-                <View key={rank} style={styles.guideItem}>
-                  <AppText style={styles.guideRank}>{rank}</AppText>
-                  <AppText style={styles.guideMeaning}>{copy.rankingGuide[rank]}</AppText>
-                </View>
-              ))}
+          <View style={styles.questionSection}>
+            <AppText style={styles.contextLabel}>{contextLabel}</AppText>
+            <View
+              accessible
+              accessibilityLabel={copy.questions[question.id as AssessmentQuestionId]}
+              accessibilityLiveRegion="polite"
+              accessibilityRole="header"
+              ref={questionHeadingRef}
+              tabIndex={-1}
+            >
+              <AppText style={styles.question}>
+                {copy.questions[question.id as AssessmentQuestionId]}
+              </AppText>
             </View>
           </View>
 
           <View
-            accessible
-            accessibilityLabel={copy.questions[question.id as AssessmentQuestionId]}
-            accessibilityLiveRegion="polite"
-            accessibilityRole="header"
-            ref={questionHeadingRef}
-            tabIndex={-1}
+            accessibilityLabel={copy.answerGroupLabel}
+            accessibilityRole="radiogroup"
+            style={styles.options}
           >
-            <AppText style={styles.question}>
-              {copy.questions[question.id as AssessmentQuestionId]}
-            </AppText>
-          </View>
-
-          <View style={styles.options}>
-            {question.options.map((option) => (
-              <RankingOptionCard
-                key={option.id}
-                assignedRank={rankingByOption.get(option.id)}
-                label={copy.options[option.id as AssessmentOptionId]}
-                rankControlHint={copy.rankControlHint}
-                rankControlLabel={copy.rankControlLabel}
-                rankLabels={copy.rankingGuide}
-                rankingGroupLabel={copy.rankingGroupLabel}
-                onAssignRank={(rank) => assignRank(option.id as AssessmentOptionId, rank)}
-              />
-            ))}
+            {question.options.map((option) => {
+              const letter = getOptionLetter(option.position, copy);
+              const label = copy.options[option.id as AssessmentOptionId];
+              return (
+                <BinaryOptionCard
+                  accessibilityHint={copy.optionHint}
+                  accessibilityLabel={formatTranslation(copy.optionAccessibilityLabel, {
+                    letter,
+                    statement: label,
+                  })}
+                  key={option.id}
+                  label={label}
+                  letter={letter}
+                  onSelect={() => onSelectOption(option.id as AssessmentOptionId)}
+                  selected={option.id === selectedOptionId}
+                  selectedLabel={copy.selected}
+                />
+              );
+            })}
           </View>
 
           <View
             accessibilityLiveRegion="polite"
-            accessibilityRole={showIncompleteError ? 'alert' : undefined}
             style={[
-              styles.rankingStatus,
-              rankingComplete ? styles.rankingStatusComplete : styles.rankingStatusIncomplete,
+              styles.selectionStatus,
+              hasSelection ? styles.selectionStatusComplete : styles.selectionStatusRequired,
             ]}
           >
             <AppText accessibilityElementsHidden style={styles.statusSymbol}>
-              {rankingComplete ? '✓' : '!'}
+              {hasSelection ? '✓' : '!'}
             </AppText>
             <AppText style={styles.statusText}>
-              {showIncompleteError
-                ? copy.incompleteError
-                : rankingComplete ? copy.rankingComplete : copy.rankingIncomplete}
+              {hasSelection ? copy.selectionComplete : copy.selectionRequired}
             </AppText>
           </View>
           <AppText accessibilityLiveRegion="polite" style={styles.srAnnouncement}>
-            {rankAnnouncement}
+            {selectedLetter
+              ? formatTranslation(copy.selectionAnnouncement, { letter: selectedLetter })
+              : copy.selectionRequired}
           </AppText>
 
           <View style={styles.actions}>
@@ -204,10 +163,19 @@ export function AssessmentScreen({
             <FocusablePressable
               accessibilityHint={isLastQuestion ? copy.finishHint : copy.continueHint}
               accessibilityRole="button"
-              onPress={continueAssessment}
-              style={({ pressed }) => [styles.continueButton, pressed && styles.primaryButtonPressed]}
+              accessibilityState={{ disabled: !hasSelection }}
+              disabled={!hasSelection}
+              onPress={onContinue}
+              style={({ pressed }) => [
+                styles.continueButton,
+                !hasSelection && styles.buttonDisabled,
+                pressed && hasSelection && styles.primaryButtonPressed,
+              ]}
             >
-              <AppText style={styles.continueButtonText}>
+              <AppText style={[
+                styles.continueButtonText,
+                !hasSelection && styles.buttonTextDisabled,
+              ]}>
                 {isLastQuestion ? copy.finish : copy.continue}
               </AppText>
             </FocusablePressable>
@@ -216,6 +184,13 @@ export function AssessmentScreen({
       </PageContent>
     </ScrollView>
   );
+}
+
+function getOptionLetter(
+  position: AssessmentOptionPosition,
+  copy: { optionA: string; optionB: string },
+): string {
+  return position === 'a' ? copy.optionA : copy.optionB;
 }
 
 function createStyles(colors: SemanticColors) {
@@ -243,48 +218,38 @@ function createStyles(colors: SemanticColors) {
       overflow: 'hidden',
     },
     progressFill: { backgroundColor: colors.primary, height: '100%' },
-    guide: {
-      backgroundColor: colors.surfaceMuted,
-      borderColor: colors.border,
-      borderRadius: theme.radius.md,
+    questionSection: { gap: theme.spacing.sm, minWidth: 0 },
+    contextLabel: {
+      alignSelf: 'flex-start',
+      backgroundColor: colors.accentMuted,
+      borderColor: colors.borderStrong,
+      borderRadius: 999,
       borderWidth: 1,
-      gap: theme.spacing.sm,
-      padding: theme.spacing.md,
-    },
-    guideTitle: { color: colors.heading, fontSize: 16, fontWeight: '800', lineHeight: 22 },
-    guideItems: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs },
-    guideItem: {
-      alignItems: 'center',
-      flexBasis: 155,
-      flexDirection: 'row',
-      flexGrow: 1,
-      gap: theme.spacing.xs,
-      minWidth: 0,
-    },
-    guideRank: {
       color: colors.heading,
-      fontSize: 15,
-      fontWeight: '900',
-      minWidth: 18,
-      textAlign: 'center',
+      fontSize: 13,
+      fontWeight: '800',
+      lineHeight: 19,
+      overflow: 'hidden',
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: theme.spacing.xs,
     },
-    guideMeaning: { color: colors.text, flex: 1, fontSize: 14, lineHeight: 20 },
-    question: { color: colors.heading, fontSize: 28, fontWeight: '700', lineHeight: 36 },
-    options: { gap: theme.spacing.sm, minWidth: 0, width: '100%' },
-    rankingStatus: {
+    question: { color: colors.heading, fontSize: 28, fontWeight: '700', lineHeight: 38 },
+    options: { gap: theme.spacing.md, minWidth: 0, width: '100%' },
+    selectionStatus: {
       alignItems: 'flex-start',
       borderRadius: theme.radius.sm,
       borderWidth: 1,
       flexDirection: 'row',
       gap: theme.spacing.sm,
+      minWidth: 0,
       padding: theme.spacing.sm,
     },
-    rankingStatusComplete: { backgroundColor: colors.successSurface, borderColor: colors.success },
-    rankingStatusIncomplete: { backgroundColor: colors.warningSurface, borderColor: colors.warning },
+    selectionStatusComplete: { backgroundColor: colors.successSurface, borderColor: colors.success },
+    selectionStatusRequired: { backgroundColor: colors.warningSurface, borderColor: colors.warning },
     statusSymbol: { color: colors.heading, fontSize: 16, fontWeight: '900', lineHeight: 22 },
-    statusText: { color: colors.text, flex: 1, fontSize: 14, lineHeight: 22 },
+    statusText: { color: colors.text, flex: 1, fontSize: 14, lineHeight: 22, minWidth: 0 },
     srAnnouncement: { height: 1, opacity: 0, overflow: 'hidden', width: 1 },
-    actions: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
+    actions: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm, minWidth: 0 },
     backButton: {
       alignItems: 'center',
       backgroundColor: colors.surface,
@@ -293,8 +258,10 @@ function createStyles(colors: SemanticColors) {
       borderWidth: 1,
       flexBasis: 180,
       flexGrow: 1,
+      flexShrink: 1,
       justifyContent: 'center',
       minHeight: 52,
+      minWidth: 0,
       paddingHorizontal: theme.spacing.md,
       paddingVertical: theme.spacing.sm,
     },
@@ -306,8 +273,10 @@ function createStyles(colors: SemanticColors) {
       borderWidth: 1,
       flexBasis: 180,
       flexGrow: 1,
+      flexShrink: 1,
       justifyContent: 'center',
       minHeight: 52,
+      minWidth: 0,
       paddingHorizontal: theme.spacing.md,
       paddingVertical: theme.spacing.sm,
     },

@@ -24,7 +24,12 @@ function assertAnimalFirstPublicText(text, context) {
 
 test('every visible English and Greek translation is animal-first and classification-free', () => {
   for (const [language, content] of Object.entries(translations)) {
-    assertAnimalFirstPublicText(stringLeaves(content).join('\n'), `${language} translations`);
+    const visibleText = stringLeaves(content).join('\n');
+    assertAnimalFirstPublicText(visibleText, `${language} translations`);
+    assert.doesNotMatch(
+      visibleText,
+      /differentiator|adaptive question|structured phase|psychometric|internal dimension|raw score|exact distance/i,
+    );
   }
 });
 
@@ -74,22 +79,37 @@ test('result UI receives public animals and presents descriptions without techni
   assert.match(resultScreen, /primaryCopy\.organization/);
   assert.match(resultScreen, /secondaryCopy\.description/);
   assert.match(resultScreen, /relationshipDescription/);
+  assert.match(resultScreen, /contextObservationText/);
+  assert.match(resultScreen, /hasCloseMatch/);
+  assert.doesNotMatch(resultScreen, /(?:primary|secondary)Copy\.metaphor|animalMetaphor/);
   assert.match(resultScreen, /primaryStrength: primaryCopy\.strengths\[0\]/);
   assert.match(resultScreen, /secondaryStrength: secondaryCopy\.strengths\[0\]/);
+
+  const resultOrder = [
+    'style={styles.primaryHero}',
+    'style={styles.secondaryCard}',
+    'style={styles.relationshipCard}',
+    'style={styles.twoColumnGrid}',
+    'style={styles.section}',
+  ].map((token) => resultScreen.indexOf(token));
+  assert.ok(resultOrder.every((index) => index >= 0));
+  assert.deepEqual(resultOrder, [...resultOrder].sort((left, right) => left - right));
 });
 
 test('accessibility labels announce animal names and descriptions, never implementation identifiers', () => {
   const resultScreen = readFileSync('src/features/results/components/ResultScreen.tsx', 'utf8');
   const animalCard = readFileSync('src/features/animals/components/AnimalCard.tsx', 'utf8');
   const assessmentScreen = readFileSync('src/features/assessment/components/AssessmentScreen.tsx', 'utf8');
-  const rankingCard = readFileSync('src/features/assessment/components/RankingOptionCard.tsx', 'utf8');
-  const accessibilitySource = `${resultScreen}\n${animalCard}\n${assessmentScreen}\n${rankingCard}`;
+  const binaryCard = readFileSync('src/features/assessment/components/BinaryOptionCard.tsx', 'utf8');
+  const accessibilitySource = `${resultScreen}\n${animalCard}\n${assessmentScreen}\n${binaryCard}`;
 
   assert.match(resultScreen, /primary: primaryCopy\.name/);
   assert.match(resultScreen, /secondary: secondaryCopy\.name/);
   assert.match(animalCard, /name: copy\.name/);
   assert.match(animalCard, /description: copy\.description/);
   assert.match(animalCard, /indicator: indicators/);
+  assert.match(binaryCard, /accessibilityRole="radio"/);
+  assert.match(binaryCard, /accessibilityState=\{\{ checked: selected \}\}/);
   assert.doesNotMatch(accessibilitySource, /primaryTypeId|secondaryTypeId|PersonalityTypeId|\.code\b|personalityTitle/i);
 
   for (const content of Object.values(translations)) {

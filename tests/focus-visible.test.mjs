@@ -13,6 +13,14 @@ const interactiveSources = [
   readFileSync('src/shared/components/ExternalTextLink.tsx', 'utf8'),
   readFileSync('src/shared/components/ActionTextLink.tsx', 'utf8'),
 ];
+const assessmentSource = readFileSync(
+  'src/features/assessment/components/AssessmentScreen.tsx',
+  'utf8',
+);
+const binaryOptionSource = readFileSync(
+  'src/features/assessment/components/BinaryOptionCard.tsx',
+  'utf8',
+);
 
 test('keyboard focus is visible and blurred controls have no focus ring', () => {
   assert.equal(isFocusVisible(true, true, 'keyboard'), true);
@@ -42,4 +50,17 @@ test('all shared pressable primitives preserve a visible inset keyboard outline'
     assert.match(source, /outlineOffset:\s*-2/);
     assert.match(source, /outlineWidth:\s*2/);
   }
+});
+
+test('binary assessment cards use the shared focus treatment and whole-card radio semantics', () => {
+  assert.match(binaryOptionSource, /<FocusablePressable/);
+  assert.match(binaryOptionSource, /accessibilityRole="radio"/);
+  assert.match(binaryOptionSource, /accessibilityState=\{\{ checked: selected \}\}/);
+  assert.match(binaryOptionSource, /minHeight:\s*88/);
+  assert.match(binaryOptionSource, /minHeight:\s*52/);
+  assert.match(binaryOptionSource, /borderWidth:\s*4/);
+  assert.match(binaryOptionSource, /selectedBadge/);
+  assert.match(assessmentSource, /accessibilityRole="radiogroup"/);
+  assert.match(assessmentSource, /questionHeadingRef\.current\?\.focus\(\)/);
+  assert.match(assessmentSource, /disabled=\{!hasSelection\}/);
 });

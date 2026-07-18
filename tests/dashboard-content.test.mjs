@@ -85,22 +85,21 @@ test('Home hero presents sixteen symbolic animals in normal-flow layout areas', 
   assert.match(hero, /motifCaption:\s*\{\s*color:\s*colors\.text/);
 });
 
-test('Home explains the ranked 20 plus 5 animal-first experience without mathematical detail', () => {
+test('Home explains the 30-question two-choice animal-first experience without internal detail', () => {
   const english = JSON.stringify(translations.en.home);
   const greek = JSON.stringify(translations.el.home);
-  assert.match(english, /25|twenty-five/i);
-  assert.match(english, /20|twenty fixed/i);
-  assert.match(english, /5|five adaptive/i);
+  assert.match(english, /30|thirty/i);
   assert.match(english, /16|sixteen/i);
-  assert.match(english, /rank/i);
+  assert.match(english, /two-choice|A\/B/i);
   assert.match(english, /primary/i);
   assert.match(english, /secondary/i);
   assert.match(english, /local|device/i);
-  assert.match(greek, /25|είκοσι πέντε/u);
-  assert.match(greek, /20|είκοσι/u);
-  assert.match(greek, /5|πέντε/u);
+  assert.match(greek, /30|τριάντα/u);
   assert.match(greek, /16|δεκαέξι/u);
-  assert.doesNotMatch(`${english}\n${greek}`, /0\.75|distance|euclidean|root-mean-square|pole total|confidence percentage/i);
+  assert.doesNotMatch(
+    `${english}\n${greek}`,
+    /rank|ranking|κατάταξ|differentiator|adaptive|structured|psychometric|0\.75|distance|euclidean|root-mean-square|pole total|confidence percentage/i,
+  );
 });
 
 test('catalogue uses responsive wrapping and Extra Large text forces one card per row', () => {

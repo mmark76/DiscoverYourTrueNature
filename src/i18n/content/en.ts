@@ -27,15 +27,15 @@ export const englishContent = {
     heroEyebrow: 'AN ENTERTAINMENT SELF-DISCOVERY EXPERIENCE',
     heroSubtitle: 'Discover your primary and secondary symbolic animals.',
     heroDescription:
-      'Rank everyday behaviours in a private, deterministic experience that runs locally on your device.',
+      'Choose between familiar behaviours in a private self-discovery experience that runs locally on your device.',
     heroAction: 'Start discovery',
-    heroActionHint: 'Starts the twenty-five-question Animals Within experience',
+    heroActionHint: 'Starts the thirty-question Animals Within experience',
     motifCaption: 'symbolic animals',
     highlights: [
-      '25 ranked questions: 20 broad questions and 5 focused differentiators.',
-      'Rank four statements from 4, most like you, to 1, least like you.',
-      'Four internal preference dimensions connect with 16 symbolic animal patterns.',
-      'Local scoring identifies a primary animal and a distinct secondary animal.',
+      '30 two-choice questions explore familiar situations in personal and professional life.',
+      'Choose the option that more closely describes what you usually do.',
+      'Across all 30 choices, the experience identifies your primary animal and a distinct secondary animal.',
+      'Your choices stay on your device while 16 symbolic animal patterns are considered.',
     ],
     sectionEyebrow: 'EXPLORE THE EXPERIENCE',
     sectionTitle: 'Choose where you want to begin',
@@ -44,7 +44,7 @@ export const englishContent = {
         eyebrow: 'THE EXPERIENCE',
         title: 'Find the animals within you',
         description:
-          'Complete 20 fixed questions and 5 deterministic differentiators by ranking every statement.',
+          'Complete 30 simple A/B questions and meet your primary and secondary symbolic animals.',
         actionLabel: 'Start now',
       },
       animals: {
@@ -58,7 +58,7 @@ export const englishContent = {
         eyebrow: 'HOW IT WORKS',
         title: 'See how the experience works',
         description:
-          'Learn about the ranking interaction, focused final questions, local calculation, and symbolic results.',
+          'Learn about the two-choice experience, local calculation, and animal-first results.',
         actionLabel: 'Learn more',
       },
     },
@@ -66,32 +66,26 @@ export const englishContent = {
   assessment: {
     eyebrow: 'DISCOVER YOUR ANIMAL PATTERNS',
     counter: 'Question {current} of {total}',
-    progressLabel: 'Assessment progress: question {current} of {total}',
+    progressLabel: 'Experience progress: question {current} of {total}',
+    personalContext: 'Personal life',
+    professionalContext: 'Professional life',
     introduction:
-      'Rank all four statements by what you usually do in practice. Use each number once.',
-    rankingGuideTitle: 'Use every ranking once',
-    rankingGuide: {
-      4: 'Describes me most',
-      3: 'Describes me quite well',
-      2: 'Describes me somewhat',
-      1: 'Describes me least',
-    },
-    rankingGroupLabel: 'Ranking choices for: {statement}',
-    rankControlLabel: 'Rank {rank}, {meaning}, for: {statement}',
-    rankControlHint:
-      'Choose this rank. If another statement already uses it, the rank moves or the two ranks swap.',
-    rankAssignedAnnouncement: 'Rank {rank} assigned.',
-    rankMovedAnnouncement: 'Rank {rank} moved from the other statement to this one.',
-    rankSwappedAnnouncement: 'Rank {rank} assigned here. The other statement now has rank {previousRank}.',
-    rankingComplete: 'All four statements have a unique ranking. You can continue.',
-    rankingIncomplete: 'Assign each of the rankings 4, 3, 2, and 1 once.',
-    incompleteError: 'Complete the ranking before continuing. Use 4, 3, 2, and 1 exactly once.',
+      'Choose the option that more closely describes what you usually do. Select one answer to continue.',
+    answerGroupLabel: 'Answer choices for this question',
+    optionA: 'A',
+    optionB: 'B',
+    optionAccessibilityLabel: 'Option {letter}: {statement}',
+    optionHint: 'Selects this answer',
+    selected: 'Selected',
+    selectionAnnouncement: 'Option {letter} selected. You can continue.',
+    selectionRequired: 'Choose one answer to continue.',
+    selectionComplete: 'One answer is selected. You can continue.',
     back: 'Back',
-    backHint: 'Returns to the previous question and keeps your saved ranking',
+    backHint: 'Returns to the previous question and keeps your saved answer',
     continue: 'Continue',
-    continueHint: 'Saves this complete ranking and moves to the next question',
+    continueHint: 'Moves to the next question',
     finish: 'See my animals',
-    finishHint: 'Saves the final ranking and shows your primary and secondary animals',
+    finishHint: 'Shows your primary and secondary animals',
     questions: englishAssessmentQuestions,
     options: englishAssessmentOptions,
   },
@@ -107,11 +101,17 @@ export const englishContent = {
     informationStyle: 'How you may process information',
     decisionStyle: 'How you may decide',
     organizationStyle: 'How you may organize or adapt',
-    animalMetaphor: 'Why this animal metaphor fits',
     relationship: 'How your two animal patterns relate',
     relationshipDescription:
       'You may lead with {primaryStrength}, represented here by {primary}. {secondary} adds {secondaryStrength}. Together, the secondary quality can broaden or soften how the leading quality appears, while the primary quality can give it direction. Which side is more noticeable may change with the situation.',
-    closePatterns: 'Your profile sits very close between two related patterns.',
+    contextObservationTitle: 'How the pattern may appear in different settings',
+    personalContextObservation:
+      'Some parts of this pattern appear more strongly in personal life than at work. Treat this as a prompt for reflection, not a fixed rule.',
+    professionalContextObservation:
+      'Some parts of this pattern appear more strongly at work than in personal life. Treat this as a prompt for reflection, not a fixed rule.',
+    contextDependentObservation:
+      'Some parts of this pattern may appear differently in personal and professional settings. The situation may bring a different side forward.',
+    closePatterns: 'Your answers suggest two closely related animal patterns, so both may feel familiar.',
     catalogue: 'Explore all 16 animals',
     catalogueHint: 'Opens the animal catalogue and marks your primary and secondary animals',
     restart: 'Take it again',
@@ -341,41 +341,41 @@ export const englishContent = {
   },
   howItWorks: {
     eyebrow: 'HOW IT WORKS',
-    title: 'A ranked, local, and animal-first experience',
+    title: 'A simple, local, and animal-first experience',
     introduction:
-      'Every completed run contains exactly 25 questions. The calculation happens on your device, and the result presents two symbolic animals without scores or percentages.',
+      'Every completed run contains exactly 30 A/B questions. The calculation happens on your device, and the result presents two symbolic animals without scores or percentages.',
     steps: [
       {
-        title: 'Rank every statement',
+        title: 'Choose what is closer to you',
         description:
-          'Each question has four statements. Assign 4 to the statement most like you, 3 to the next, 2 to the next, and 1 to the least like you. Use every number once.',
+          'Each question offers two behaviours. Choose the one that more closely describes what you usually do, even when both could sometimes fit.',
       },
       {
-        title: 'Build the broad pattern',
+        title: 'Consider everyday situations',
         description:
-          'The first 20 questions consider four internal preference dimensions through everyday, observable behaviour.',
+          'The first 20 questions use familiar situations from personal interests, learning, and professional life.',
       },
       {
-        title: 'Focus the closest areas',
+        title: 'Complete all 30 questions',
         description:
-          'The final 5 questions are selected deterministically to look more closely at the areas where your earlier rankings were most balanced.',
+          'The questions move from familiar situations to more focused comparisons across personal and professional life. Together, they shape a primary animal and a distinct secondary animal.',
       },
       {
         title: 'Meet two symbolic animals',
         description:
-          'The closest whole-pattern match becomes your primary animal. The next distinct whole-pattern match becomes your secondary animal.',
+          'Your result introduces a primary animal, a secondary animal, and how their two personality descriptions may work together.',
       },
     ],
     disclosureTitle: 'Important to know',
     disclosures: [
-      'The scoring is deterministic and runs locally on your device.',
+      'Your choices are calculated consistently and remain on your device.',
       'Your result does not show scores, percentages, confidence, or technical calculations.',
       'The animal associations are metaphors for reflection, not biological or scientific claims.',
       'Changing language or appearance does not change your answers or result.',
     ],
     disclaimer: entertainmentDisclaimer,
     action: 'Start discovery',
-    actionHint: 'Starts the twenty-five-question Animals Within experience',
+    actionHint: 'Starts the thirty-question Animals Within experience',
   },
   settings: {
     title: 'Appearance settings',
