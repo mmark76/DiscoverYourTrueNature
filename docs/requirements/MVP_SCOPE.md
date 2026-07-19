@@ -1,4 +1,4 @@
-# MVP Scope — Thirty-question binary animal assessment
+# MVP Scope — Short and Long binary animal questionnaires
 
 ## Goal
 
@@ -10,28 +10,41 @@ or app-store distribution.
 
 - Bilingual Greek and English Home, assessment, result, 16-animal catalogue, How It Works, Settings,
   shared header, and fixed two-row footer.
-- Exactly 30 completed questions per run, each with two visible A/B alternatives and one required
-  selection.
-- Questions 1–20: everyday behavior, exactly 10 personal and 10 professional, with questions 6–10
+- A Home choice between the independent Short route (15 questions, about 3 minutes) and existing Long
+  route (30 questions, about 6 minutes).
+- Exactly two visible acceptable A/B tendencies and one required selection on every question.
+- Short questions 1–12: exactly three questions in each internal area—sociability and social
+  intelligence, emotional intelligence, creativity and imagination, and practicality/logic/
+  analytical thinking—with each question measuring one area.
+- Short primary animal calculated and locked after question 12.
+- Short questions 13–15: three deterministic separator questions selected from an eight-question
+  bank, drawn from three distinct areas and used only to select a distinct secondary.
+- Short fixed/separator weights `1.0` and `1.5`, normalized through the canonical dimensions.
+- The existing Long questionnaire remains exactly 30 questions.
+- Long questions 1–20: everyday behavior, exactly 10 personal and 10 professional, with questions 6–10
   dedicated to hobbies, interests, and learning.
-- Exactly five everyday questions for each internal E-I, S-N, T-F, and J-P dimension.
-- Questions 21–25: structured preferences, exactly three personal and two professional.
-- Questions 26–30: five deterministic follow-up questions selected from a stable 16-question bank.
-- Adaptive bank coverage of four questions per dimension, each split two personal and two
+- Long has exactly five everyday questions for each internal E-I, S-N, T-F, and J-P dimension.
+- Long questions 21–25: structured preferences, exactly three personal and two professional.
+- Long questions 26–30: five deterministic follow-up questions selected from a stable 16-question bank.
+- Long adaptive-bank coverage of four questions per dimension, each split two personal and two
   professional.
-- Selected-route quota of exactly two personal and three professional questions.
+- Long selected-route quota of exactly two personal and three professional questions.
 - Approximately half reverse-keyed A/B displays, with scoring determined by option metadata rather
   than letter.
-- Signed weighted scoring with explicit phase weights `1.0`, `1.25`, and `1.5` and
+- Long signed weighted scoring with explicit phase weights `1.0`, `1.25`, and `1.5` and
   dimension-specific normalization.
-- Primary animal calculated and locked after question 25.
-- Distinct secondary animal calculated after question 30 without changing the primary.
+- Long primary animal calculated and locked after question 25.
+- Long distinct secondary animal calculated after question 30 without changing the primary.
 - Personal and professional descriptive profiles derived only from questions 1–25, with cautious
   result copy only above the documented threshold.
 - Exactly 16 unique symbolic animals with the existing one-to-one internal type mappings.
 - Animal-first result content: descriptions, strengths, possible blind spots, behavioral tendencies,
   secondary description, relationship, and optional context observation.
-- Assessment persistence schema 3 and assessment-only reset of incompatible ranked/legacy state.
+- Independent mode state with `assessmentMode: 'short' | 'long'` on sessions and results.
+- Separate Short schema-1 and Long schema-3 persistence plus an independent active-mode preference;
+  each route restores and restarts without overwriting the other.
+- Compatibility upgrade for valid pre-mode Long schema-3 state and assessment-only reset of
+  incompatible ranked/legacy Long state.
 - Existing independent appearance/language persistence and consent-gated analytics architecture.
 - Responsive Expo React Native foundation for web and Android-compatible surfaces.
 
@@ -68,11 +81,13 @@ developer documentation.
 
 ## State and migration constraints
 
-- A valid partial or completed assessment resumes after internal navigation and supported refresh or
-  close/reopen behavior.
-- Language and appearance changes preserve position, binary answers, adaptive IDs, locked primary,
-  and final result.
-- Restart clears only assessment answers, route, current position, locked primary, and final result.
+- Valid partial or completed Short and Long sessions resume independently after internal navigation
+  and supported refresh or close/reopen behavior.
+- Language and appearance changes preserve both sessions' position, binary answers, selected route,
+  locked primary, mode, and final result.
+- Restart clears only the active questionnaire's answers, route, current position, locked primary,
+  and final result. The other questionnaire remains byte-for-byte unchanged.
+- Valid older Long schema-3 records without `assessmentMode` restore as `long` without data loss.
 - Schema-2 ranked and schema-1 assessment data start a clean schema-3 session without clearing
   language, appearance, analytics consent, or unrelated preferences.
 - Persisted assessment state excludes translated copy, derived scores, context profiles, distances,
@@ -91,10 +106,13 @@ The owner should assess:
 
 1. Is choosing one of two behavior descriptions understandable and quick?
 2. Does changing A/B selection feel predictable across mouse, touch, keyboard, and screen reader?
-3. Is the 30-question length appropriate?
-4. Do the personal, hobby/learning, professional, and direct-preference contexts feel balanced?
+3. Is the 15-question Short route useful at about 3 minutes, and is the 30-question Long route useful
+   at about 6 minutes?
+4. Are the four Short areas balanced, and do the Long personal, hobby/learning, professional, and
+   direct-preference contexts still feel balanced?
 5. Do any choices feel repetitive, morally loaded, obvious, or mismatched between Greek and English?
-6. Does the primary animal still feel stable when the last five answers vary?
+6. Does the Short primary stay fixed while the last three answers vary, and does the Long primary
+   stay fixed while the last five answers vary?
 7. Does the secondary animal and relationship explanation add value?
 8. Is any personal-versus-work observation cautious and recognizably supported?
 9. Are strengths and possible blind spots balanced across all 16 animals?

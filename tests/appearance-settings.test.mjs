@@ -160,7 +160,6 @@ test('components use semantic Warm Ivory roles without hard-coded legacy sage va
   assert.doesNotMatch(forestValues, /#(?:F4F2EC|556C60|485F53|1B211E|A1B8AC|36443D)\b/i);
 
   for (const path of [
-    'src/features/home/components/HeroSection.tsx',
     'src/features/home/components/FeatureCard.tsx',
     'src/features/information/components/HowItWorksScreen.tsx',
     'src/features/results/components/ResultScreen.tsx',
@@ -170,6 +169,15 @@ test('components use semantic Warm Ivory roles without hard-coded legacy sage va
     assert.match(source, /color:\s*colors\.onPrimary\b/, `${path} must use onPrimary action text`);
   }
 
+  const modeChooser = readFileSync(
+    'src/features/assessment/components/AssessmentModeChooser.tsx',
+    'utf8',
+  );
+  assert.match(modeChooser, /color:\s*colors\.primary\b/);
+  assert.match(modeChooser, /color:\s*colors\.accent\b/);
+  assert.match(modeChooser, /backgroundColor:\s*colors\.surface\b/);
+  assert.match(modeChooser, /backgroundColor:\s*colors\.selection\b/);
+
   const footer = readFileSync('src/shared/components/AppFooter.tsx', 'utf8');
   assert.match(footer, /backgroundColor:\s*colors\.footerBackground/);
   assert.match(footer, /color:\s*colors\.footerMuted/);
@@ -177,6 +185,7 @@ test('components use semantic Warm Ivory roles without hard-coded legacy sage va
 
 test('page and card headings use heading while body copy uses text', () => {
   const headingFiles = [
+    'src/features/assessment/components/AssessmentModeChooser.tsx',
     'src/features/home/components/HeroSection.tsx',
     'src/features/home/components/FeatureCard.tsx',
     'src/features/home/components/HomeScreen.tsx',
@@ -192,6 +201,7 @@ test('page and card headings use heading while body copy uses text', () => {
     assert.match(source, /color:\s*colors\.heading\b/, `${path} must use heading`);
   }
   for (const path of [
+    'src/features/assessment/components/AssessmentModeChooser.tsx',
     'src/features/home/components/HeroSection.tsx',
     'src/features/home/components/FeatureCard.tsx',
     'src/features/assessment/components/BinaryOptionCard.tsx',

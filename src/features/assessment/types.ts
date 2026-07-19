@@ -21,10 +21,12 @@ export type {
 export const assessmentPhases = ['everyday', 'structured', 'adaptive'] as const;
 export const assessmentContexts = ['personal', 'professional'] as const;
 export const assessmentOptionPositions = ['a', 'b'] as const;
+export const assessmentModes = ['short', 'long'] as const;
 
 export type AssessmentPhase = (typeof assessmentPhases)[number];
 export type AssessmentContext = (typeof assessmentContexts)[number];
 export type AssessmentOptionPosition = (typeof assessmentOptionPositions)[number];
+export type AssessmentMode = (typeof assessmentModes)[number];
 
 export interface AssessmentOption {
   id: string;
@@ -60,6 +62,7 @@ export interface LockedPrimaryResult {
 }
 
 export interface AssessmentResult extends LockedPrimaryResult {
+  assessmentMode: AssessmentMode;
   secondaryTypeId: PersonalityTypeId;
 }
 
@@ -83,6 +86,7 @@ export interface ContextProfileObservation {
 export interface AssessmentSession {
   schemaVersion: 3;
   modelVersion: '16-personality-binary-v2-30q';
+  assessmentMode: 'long';
   currentQuestionIndex: number;
   answers: readonly AssessmentAnswer[];
   adaptiveQuestionIds: readonly string[];

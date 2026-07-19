@@ -1,10 +1,12 @@
-# Sixteen-personality animal assessment model
+# Animals Within questionnaire models
 
-Model version: `16-personality-binary-v2-30q`
+Long model: `16-personality-binary-v2-30q`, persisted schema `3`
 
-Persisted assessment schema: `3`
+Short model: `animals-within-short-binary-v1-15q`, persisted schema `1`
 
-Assessment storage key: `animals-within.assessment.v3`
+Long storage key: `animals-within.assessment.v3`
+
+Short storage key: `animals-within.assessment.short.v1`
 
 This is developer-facing documentation. Four-letter personality codes, dimension values, weights,
 candidate comparisons, distances, follow-up priorities, and tie metadata are internal implementation
@@ -48,9 +50,9 @@ in deterministic order:
 These identifiers may be used in domain models, scoring, follow-up selection, distance calculations,
 persistence, migration, automated tests, and developer documentation. They are never public labels.
 
-## Thirty-question run structure
+## Long questionnaire: thirty-question structure
 
-Every completed run contains exactly 30 binary answers:
+Every completed Long run contains exactly 30 binary answers:
 
 | Questions | Internal phase | Context distribution | Weight |
 | --- | --- | --- | ---: |
@@ -69,13 +71,47 @@ The five structured questions have a more direct preference format. Neither `str
 The three phase weights are centralized configurable constants. They are product-design weights for
 a deterministic entertainment experience, not scientifically validated psychometric coefficients.
 
+ADR-0003's Long question metadata, scoring, selection, and primary/secondary lifecycle remain
+unchanged.
+
+## Short questionnaire: fifteen-question structure
+
+The independent Short questionnaire has `assessmentMode: 'short'` and exactly 15 answers:
+
+| Questions | Internal phase | Structure | Weight |
+| --- | --- | --- | ---: |
+| 1–12 | `fixed` | exactly 3 questions in each of 4 areas | `1.00` |
+| 13–15 | `separator` | 3 deterministic questions from 3 distinct areas | `1.50` |
+
+Every Short question measures exactly one internal area. The area-to-canonical bridge is:
+
+| Short internal area | Canonical dimension |
+| --- | --- |
+| sociability and social intelligence (`sociability`) | `energy` |
+| emotional intelligence (`emotional-intelligence`) | `decisions` |
+| creativity and imagination (`creativity`) | `information` |
+| practicality, logic, and analytical thinking (`practicality`) | `structure` |
+
+The first 12 fixed questions include exactly three of each area. They repeat this order three times:
+sociability, emotional intelligence, creativity, practicality. Six are reverse-keyed. Each area
+appears twice in the eight-question separator bank; four bank entries are reverse-keyed. The
+completed route uses three bank questions.
+
+Immediately when question 12 is selected, the service calculates and stores the locked primary from
+the 12 fixed answers and selects the three ordered separator IDs. Questions 13–15 contribute only to
+the final comparison used to choose a distinct secondary; they never recalculate or replace the
+locked primary.
+
+The Short weights are product-design constants, not scientifically validated coefficients. The
+Short result does not derive the Long questionnaire's personal-versus-professional observation.
+
 ## Language-neutral question data
 
-Each question definition owns stable metadata:
+Each question definition owns stable metadata appropriate to its mode:
 
 - question ID and two option IDs;
-- `everyday`, `structured`, or `adaptive` phase;
-- `personal` or `professional` context;
+- Long `everyday`, `structured`, or `adaptive` phase and personal/professional context, or Short
+  `fixed`/`separator` phase and exactly one Short area;
 - dimension ID;
 - the pole represented by each option;
 - phase weight, resolved from the phase constant;
@@ -86,10 +122,11 @@ Every visible question contains exactly two alternatives. Option A is not inhere
 and option B is not inherently the second pole. Approximately half the questions display the poles
 in reverse order to reduce habitual letter selection. The option's declared pole determines scoring.
 
-English and Greek question text is keyed by the same question and option IDs. Translation files
-contain visible copy only and do not duplicate phase, context, pole, weight, reverse-key, candidate,
-or distance metadata. The supplied Greek wording is authoritative; English preserves its behavioral
-distinction and scoring direction naturally rather than mechanically.
+English and Greek question text is keyed by the same mode-specific question and option IDs.
+Translation files contain visible copy only and do not duplicate phase, context, pole, weight,
+reverse-key, candidate, area, or distance metadata. Short Greek uses simple
+lower-secondary-school wording. English preserves the same behavioral distinctions and
+metadata-driven scoring direction naturally rather than mechanically.
 
 ## Binary interaction and answer validation
 
@@ -119,7 +156,7 @@ first-pole option  = +1 × phase weight
 second-pole option = -1 × phase weight
 ```
 
-The weights are:
+Long uses:
 
 | Phase | Weight |
 | --- | ---: |
@@ -138,7 +175,11 @@ The result is clamped to `[-1, 1]`. Positive values favor the first pole, negati
 second pole, and zero is an exact balance. Raw totals from dimensions with different question counts
 are never compared.
 
-## Base profile and locked primary animal
+Short uses the same signed contribution, normalization, canonical-distance, and canonical-order tie
+rules, with weights `1.00` for fixed questions and `1.50` for separators. Its area metadata maps each
+question to exactly one canonical dimension before scoring.
+
+## Long base profile and locked primary animal
 
 Immediately after question 25 is committed:
 
@@ -157,7 +198,7 @@ the dependent follow-up answers, route, locked primary, and final result. Once t
 complete, the primary and route are recalculated from that revised base and locked again. This does
 not permit follow-up answers themselves to alter the primary.
 
-## Deterministic follow-up selection
+## Long deterministic follow-up selection
 
 The adaptive bank contains exactly 16 stable binary questions:
 
@@ -177,7 +218,7 @@ Selection begins with the base profile and locked primary:
 The selector is deterministic. Randomness, translated text, locale sorting, appearance state, or
 object-property iteration order do not participate.
 
-## Final profile and secondary animal
+## Long final profile and secondary animal
 
 After question 30:
 
@@ -194,7 +235,33 @@ change the primary.
 An exact dimension tie remains zero. The public result may use cautious close-pattern language, but
 does not show an `X` code, percentage, confidence value, distance, or candidate ranking.
 
-## Personal and professional descriptive profiles
+## Short separator selection and secondary animal
+
+After the 12 fixed answers lock the primary, Short separator selection:
+
+1. ranks all non-primary canonical candidates by fixed-profile distance;
+2. considers the closest four candidates;
+3. counts candidate-pair disagreements in each Short area;
+4. prioritizes higher disagreement, then a base dimension closer to zero, then canonical area order;
+5. chooses the first three areas, guaranteeing three unique areas;
+6. selects one of the two stable bank variants per chosen area from the canonical primary index and
+   area index;
+7. persists the ordered three IDs.
+
+There is no randomness, translated-text comparison, or locale-sensitive ordering. Identical 12
+answers always create the same route. Reordering the same validated fixed-answer collection does not
+change selection.
+
+After all 15 answers, the service calculates the final normalized profile, ranks all canonical
+candidates except the lock, and selects the nearest remaining candidate with canonical-order ties.
+The Short secondary is therefore deterministic and always distinct. The result retains the question
+12 lock and records `assessmentMode: 'short'`.
+
+If a fixed Short answer changes after separator progress, all separator answers and the prior route,
+lock, and result are invalidated. The complete revised fixed prefix then calculates a new lock and
+route. Editing a separator answer preserves the route and lock.
+
+## Long personal and professional descriptive profiles
 
 Two context profiles are derived from questions 1–25 only:
 
@@ -252,6 +319,10 @@ The result screen presents only:
 10. retake and catalogue actions;
 11. the entertainment disclaimer.
 
+The internal result also records `assessmentMode: 'short' | 'long'`. Presentation may use that mode
+only to identify which questionnaire produced the animal result and to control Long-only context
+copy. It never turns the mode into a score or classification.
+
 Neither result nor catalogue renders an internal type code or personality classification title. The
 public presentation model contains no scores, percentages, confidence, pole totals, normalized
 preferences, weights, distances, candidate rankings, raw answers, selected option IDs, or follow-up
@@ -259,11 +330,17 @@ selection rationale.
 
 ## Persistence and migration boundary
 
-Persisted schema 3 verifies model version `16-personality-binary-v2-30q` before restore. A ranking
-schema-2 record, schema-1 record, unknown schema, or different model version invalidates assessment
-answers, routes, and results only. Appearance, language, analytics consent, and unrelated preferences
-remain in their independent stores. See
-[Persistence and Migration](PERSISTENCE_AND_MIGRATION.md).
+Long schema 3 verifies model `16-personality-binary-v2-30q` under
+`animals-within.assessment.v3`. Short schema 1 verifies model
+`animals-within-short-binary-v1-15q` under `animals-within.assessment.short.v1`. The scalar active
+mode uses `animals-within.assessment.active-mode`. Both session and result records carry their
+expected mode, and a record from one mode is invalid in the other.
+
+Valid Long schema-3 records written before `assessmentMode` existed are accepted and normalized to
+`long` without changing answers, route, lock, or result. Ranking schema-2 and older schema-1 Long
+records retain the assessment-only reset. Short and Long restoration, save, corruption handling, and
+restart are independent. Appearance, language, analytics consent, and unrelated preferences remain
+in their own stores. See [Persistence and Migration](PERSISTENCE_AND_MIGRATION.md).
 
 ## Analytics and external-output boundary
 
@@ -275,11 +352,17 @@ build version, and an empty feedback area. There is no result-bearing share text
 
 ## Engineering analysis
 
-`node scripts/analyzeAssessmentBalance.mjs` verifies structural metadata, signed scoring symmetry,
+`node scripts/analyzeAssessmentBalance.mjs` verifies Long structural metadata, signed scoring symmetry,
 deterministic candidate-based follow-up selection, exact context quotas, primary locking,
 primary-secondary distinctness, tie handling, context-profile calculation, option-letter order bias,
 and primary/secondary reachability for all 16 animals under deterministic fixtures and seeded
 simulations.
+
+Focused Short model tests verify the 12+3 structure, 3+3+3+3 fixed-area distribution, one-area
+questions, eight-entry bank, balanced display direction, fixed and separator weights, question-12
+lock, deterministic three-area route, immutable primary, distinct secondary, and deterministic
+coverage of all canonical primary patterns. Persistence and localization suites verify both modes
+and their public boundary.
 
 Its distributions and thresholds are engineering defect checks only. They are not evidence of
 scientific, psychological, or psychometric validity.

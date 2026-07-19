@@ -8,6 +8,11 @@ import {
   fixedAssessmentQuestions,
 } from '../src/features/assessment/data/questions.ts';
 import {
+  allShortAssessmentQuestions,
+  shortFixedAssessmentQuestions,
+  shortSeparatorQuestionBank,
+} from '../src/features/assessment/data/shortQuestions.ts';
+import {
   answerCurrentAssessmentQuestion,
   createAssessmentSession,
   getCurrentAssessmentQuestion,
@@ -108,6 +113,33 @@ test('all 25 base questions and 16 final-question candidates resolve with two op
   }
 });
 
+test('all Short fixed and separator questions resolve completely in Greek and English', () => {
+  assert.equal(shortFixedAssessmentQuestions.length, 12);
+  assert.equal(shortSeparatorQuestionBank.length, 8);
+  assert.equal(allShortAssessmentQuestions.length, 20);
+  assert.equal(allShortAssessmentQuestions.flatMap(({ options }) => options).length, 40);
+
+  const expectedQuestionIds = allShortAssessmentQuestions.map(({ id }) => id);
+  const expectedOptionIds = allShortAssessmentQuestions.flatMap(
+    ({ options }) => options.map(({ id }) => id),
+  );
+  for (const language of ['el', 'en']) {
+    const assessment = getTranslation(language).shortAssessment;
+    assert.deepEqual(Object.keys(assessment.questions).sort(), [...expectedQuestionIds].sort());
+    assert.deepEqual(Object.keys(assessment.options).sort(), [...expectedOptionIds].sort());
+    for (const question of allShortAssessmentQuestions) {
+      assertPopulated(assessment.questions[question.id], `${language}.shortAssessment.${question.id}`);
+      assert.deepEqual(question.options.map(({ position }) => position), ['a', 'b']);
+      for (const option of question.options) {
+        assertPopulated(
+          assessment.options[option.id],
+          `${language}.shortAssessment.${option.id}`,
+        );
+      }
+    }
+  }
+});
+
 test('reverse display order is language-neutral and balanced without exposing scoring metadata', () => {
   const reverseKeyedCount = allAssessmentQuestions.filter(({ reverseKeyed }) => reverseKeyed).length;
   assert.ok(reverseKeyedCount >= 18 && reverseKeyedCount <= 23);
@@ -150,26 +182,33 @@ test('authoritative Greek wording remains intact, including deliberately reverse
   );
 });
 
-test('binary instructions and interaction feedback are complete and natural in both languages', () => {
+test('binary instructions and interaction feedback are complete in both modes and languages', () => {
   assert.equal(translations.en.assessment.optionA, 'A');
   assert.equal(translations.en.assessment.optionB, 'B');
   assert.equal(translations.el.assessment.optionA, 'Α');
   assert.equal(translations.el.assessment.optionB, 'Β');
 
   for (const language of ['el', 'en']) {
-    const copy = translations[language].assessment;
-    for (const key of [
-      'personalContext', 'professionalContext', 'introduction', 'answerGroupLabel',
-      'optionAccessibilityLabel', 'optionHint', 'selected', 'selectionAnnouncement',
-      'selectionRequired', 'selectionComplete', 'back', 'backHint', 'continue',
-      'continueHint', 'finish', 'finishHint',
-    ]) assertPopulated(copy[key], `${language}.assessment.${key}`);
-    assert.match(copy.optionAccessibilityLabel, /\{letter\}/);
-    assert.match(copy.optionAccessibilityLabel, /\{statement\}/);
-    assert.match(copy.selectionAnnouncement, /\{letter\}/);
+    for (const modeKey of ['assessment', 'shortAssessment']) {
+      const copy = translations[language][modeKey];
+      for (const key of [
+        'personalContext', 'professionalContext', 'introduction', 'answerGroupLabel',
+        'optionAccessibilityLabel', 'optionHint', 'selected', 'selectionAnnouncement',
+        'selectionRequired', 'selectionComplete', 'back', 'backHint', 'continue',
+        'continueHint', 'finish', 'finishHint',
+      ]) assertPopulated(copy[key], `${language}.${modeKey}.${key}`);
+      assert.match(copy.optionAccessibilityLabel, /\{letter\}/);
+      assert.match(copy.optionAccessibilityLabel, /\{statement\}/);
+      assert.match(copy.selectionAnnouncement, /\{letter\}/);
+    }
   }
 
-  const interactionCopy = [translations.en.assessment, translations.el.assessment]
+  const interactionCopy = [
+    translations.en.assessment,
+    translations.el.assessment,
+    translations.en.shortAssessment,
+    translations.el.shortAssessment,
+  ]
     .flatMap(({ questions: _questions, options: _options, ...copy }) => stringLeaves(copy))
     .join('\n');
   assert.doesNotMatch(interactionCopy, /rank|ranking|κατάταξ|4\s*,?\s*3\s*,?\s*2\s*,?\s*1/i);
@@ -181,6 +220,10 @@ test('question and option copy is behavioral, animal-neutral, and free of sensit
     ...Object.values(translations.en.assessment.options),
     ...Object.values(translations.el.assessment.questions),
     ...Object.values(translations.el.assessment.options),
+    ...Object.values(translations.en.shortAssessment.questions),
+    ...Object.values(translations.en.shortAssessment.options),
+    ...Object.values(translations.el.shortAssessment.questions),
+    ...Object.values(translations.el.shortAssessment.options),
   ].join('\n');
   assert.doesNotMatch(
     assessmentCopy,
@@ -236,13 +279,14 @@ test('all sixteen localized animal records contain the complete animal-first pub
   }
 });
 
-test('Home accurately summarizes the 30-question, two-choice, animal-first experience', () => {
+test('Home accurately summarizes both questionnaire lengths and the animal-first experience', () => {
   for (const language of ['el', 'en']) {
     const home = getTranslation(language).home;
     assertPopulated(home, `${language}.home`);
     assert.equal(Object.keys(home.features).length, 3);
     assert.equal(home.highlights.length, 4);
     const text = stringLeaves(home).join(' ');
+    assert.match(text, /15|fifteen|δεκαπέντε/i);
     assert.match(text, /30|thirty|τριάντα/i);
     assert.match(text, /16|sixteen|δεκαέξι/i);
     assert.doesNotMatch(text, /rank|ranking|κατάταξ|differentiator|adaptive|structured|psychometric/i);
@@ -250,20 +294,38 @@ test('Home accurately summarizes the 30-question, two-choice, animal-first exper
   }
 });
 
-test('How It Works explains two choices, all 30 questions, local calculation, and symbolic limits', () => {
+test('questionnaire choice copy is bilingual, complete, timed, and explicit about separate saving', () => {
+  for (const language of ['el', 'en']) {
+    const copy = getTranslation(language).questionnaires;
+    assertPopulated(copy, `${language}.questionnaires`);
+    const text = stringLeaves(copy).join(' ');
+    assert.match(text, /15|fifteen|δεκαπέντε/i);
+    assert.match(text, /30|thirty|τριάντα/i);
+    assert.match(text, /3|three|τρία/i);
+    assert.match(text, /6|six|έξι/i);
+    assert.match(text, /A\/B|Α\/Β/u);
+    assert.match(text, /separately|ξεχωριστά/iu);
+  }
+});
+
+test('How It Works explains both timed paths, A/B choices, local calculation, and symbolic limits', () => {
   const english = stringLeaves(translations.en.howItWorks).join(' ');
   const greek = stringLeaves(translations.el.howItWorks).join(' ');
   assert.match(english, /two behaviours|A\/B/i);
+  assert.match(english, /15|fifteen/i);
   assert.match(english, /30|thirty/i);
-  assert.match(english, /20|twenty/i);
+  assert.match(english, /3|three/i);
+  assert.match(english, /6|six/i);
   assert.match(english, /primary/i);
   assert.match(english, /secondary/i);
   assert.match(english, /local|device/i);
   assert.match(english, /symbol|metaphor/i);
   assert.match(english, /not a psychological diagnosis|not.*scientifically validated/i);
   assert.match(greek, /δύο συμπεριφορές|Α\/Β/u);
+  assert.match(greek, /15|δεκαπέντε/u);
   assert.match(greek, /30|τριάντα/u);
-  assert.match(greek, /20|είκοσι/u);
+  assert.match(greek, /3|τρία/u);
+  assert.match(greek, /6|έξι/u);
   assert.match(greek, /πρωτεύον|κύριο/u);
   assert.match(greek, /δευτερεύον/u);
   assert.match(greek, /συσκευή/u);
@@ -283,10 +345,11 @@ test('result, catalogue, settings, header, footer, and analytics copy resolve fu
     'behaviouralTendencies', 'catalogue', 'catalogueHint', 'closePatterns',
     'contextDependentObservation', 'contextObservationTitle', 'decisionStyle',
     'disclaimer', 'eyebrow', 'informationStyle', 'interactionStyle',
-    'organizationStyle', 'personalContextObservation', 'possibleBlindSpots',
+    'longQuestionnaireResult', 'organizationStyle', 'personalContextObservation', 'possibleBlindSpots',
     'primaryAnimal', 'professionalContextObservation', 'relationship',
     'relationshipDescription', 'restart', 'restartHint', 'revealAccessibilityLabel',
-    'secondaryAnimal', 'title', 'typicalStrengths',
+    'secondaryAnimal', 'shortQuestionnaireResult', 'title',
+    'typicalStrengths',
   ];
   for (const language of ['el', 'en']) {
     const content = getTranslation(language);

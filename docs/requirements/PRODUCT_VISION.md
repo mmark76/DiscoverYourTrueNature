@@ -30,22 +30,27 @@ The public product title remains **Animals Within**, supported by **Markellos Ec
 
 ## Assessment promise
 
-A completed run always contains:
+Home offers two complete routes:
 
-- 20 everyday questions: 10 personal and 10 professional;
-- five structured questions: three personal and two professional;
-- five deterministically selected follow-up questions: two personal and three professional;
-- exactly two alternatives and one answer per question;
-- 16 possible internal patterns mapped one-to-one to 16 unique symbolic animals;
-- a primary animal locked after question 25;
-- a distinct secondary animal selected after question 30.
+- **Short:** 15 binary questions, about 3 minutes. Twelve fixed questions contain exactly three in
+  each of four internal areas and lock the primary. Three deterministic separator questions select
+  a distinct secondary and cannot move that primary.
+- **Long:** the existing 30 binary questions, about 6 minutes. Twenty everyday and five more direct
+  questions lock the primary after question 25; five deterministic follow-ups select a distinct
+  secondary after question 30.
+
+Both routes offer exactly two acceptable tendencies per question, use the same 16 symbolic animals,
+produce deterministic primary/secondary pairs, and keep their progress independently. The completed
+internal result records whether it came from Short or Long without exposing implementation details
+in public result content.
 
 The internal dimensions and four-letter identifiers support implementation only. Four-letter codes
 and personality classification titles are never displayed. The application does not present itself
 as MBTI or imply that it is an official MBTI assessment.
 
-Phase weights and the context-observation threshold are deterministic product-design choices. They
-are not claims of psychometric precision or scientific validation.
+Question weights, separator/follow-up selection, and the Long context-observation threshold are
+deterministic product-design choices. They are not claims of psychometric precision or scientific
+validation.
 
 ## Product boundary
 

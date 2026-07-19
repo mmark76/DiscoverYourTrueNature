@@ -22,7 +22,7 @@ interface AppHeaderProps {
 const ecosystemUrl = 'https://markellosecosystem.com';
 const navigationItems = [
   { labelKey: 'home', screen: 'home' },
-  { labelKey: 'discover', screen: 'assessment' },
+  { labelKey: 'discover', screen: 'questionnaires' },
   { labelKey: 'animals', screen: 'animals' },
   { labelKey: 'howItWorks', screen: 'how-it-works' },
 ] as const satisfies ReadonlyArray<{

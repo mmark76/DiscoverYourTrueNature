@@ -10,10 +10,12 @@ import { FocusablePressable } from '../../../shared/components/FocusablePressabl
 import { PageContent } from '../../../shared/components/PageContent';
 import { theme } from '../../../shared/styles/theme';
 import type { AnimalData } from '../../animals/data/animals';
+import type { AssessmentMode } from '../../assessment/types';
 
 export type PublicContextObservation = 'personal' | 'professional' | 'context-dependent';
 
 interface ResultScreenProps {
+  assessmentMode: AssessmentMode;
   primaryAnimal: AnimalData;
   secondaryAnimal: AnimalData;
   contextObservation: PublicContextObservation | null;
@@ -23,6 +25,7 @@ interface ResultScreenProps {
 }
 
 export function ResultScreen({
+  assessmentMode,
   primaryAnimal,
   secondaryAnimal,
   contextObservation,
@@ -36,6 +39,9 @@ export function ResultScreen({
   const copy = content.results;
   const primaryCopy = content.animals.records[primaryAnimal.id];
   const secondaryCopy = content.animals.records[secondaryAnimal.id];
+  const modeLabel = assessmentMode === 'short'
+    ? copy.shortQuestionnaireResult
+    : copy.longQuestionnaireResult;
   const revealAccessibilityLabel = formatTranslation(copy.revealAccessibilityLabel, {
     primary: primaryCopy.name,
     secondary: secondaryCopy.name,
@@ -63,7 +69,7 @@ export function ResultScreen({
         <View style={styles.result}>
           <View
             accessible
-            accessibilityLabel={revealAccessibilityLabel}
+            accessibilityLabel={`${modeLabel}. ${revealAccessibilityLabel}`}
             accessibilityLiveRegion="polite"
             accessibilityRole="header"
             ref={revealHeadingRef}
@@ -71,6 +77,7 @@ export function ResultScreen({
             tabIndex={-1}
           >
             <AppText style={styles.eyebrow}>{copy.eyebrow}</AppText>
+            <AppText style={styles.modeLabel}>{modeLabel}</AppText>
             <AppText style={styles.pageTitle}>{copy.title}</AppText>
           </View>
 
@@ -214,6 +221,7 @@ function createStyles(colors: SemanticColors) {
     },
     introduction: { alignItems: 'center', gap: theme.spacing.xs, minWidth: 0 },
     eyebrow: { color: colors.primary, fontSize: 12, fontWeight: '900', letterSpacing: 1.2 },
+    modeLabel: { color: colors.mutedText, fontSize: 14, fontWeight: '800', lineHeight: 21 },
     pageTitle: { color: colors.heading, fontSize: 30, fontWeight: '900', lineHeight: 38, textAlign: 'center' },
     primaryHero: {
       alignItems: 'center',

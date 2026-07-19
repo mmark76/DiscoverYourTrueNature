@@ -1,6 +1,7 @@
 import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import type { NavigableScreen } from '../../../app/navigation';
+import type { AssessmentMode } from '../../assessment/types';
 import { useTranslation } from '../../../i18n/useTranslation';
 import { useAppearance } from '../../../settings/AppearanceProvider';
 import type { SemanticColors } from '../../../settings/appearanceTypes';
@@ -12,9 +13,12 @@ import { getHomeFeatureCardWidth } from '../layout';
 import { FeatureCard } from './FeatureCard';
 import { HeroSection } from './HeroSection';
 
-interface HomeScreenProps { onNavigate: (screen: NavigableScreen) => void; }
+interface HomeScreenProps {
+  onNavigate: (screen: NavigableScreen) => void;
+  onSelectAssessmentMode: (mode: AssessmentMode) => void;
+}
 
-export function HomeScreen({ onNavigate }: HomeScreenProps) {
+export function HomeScreen({ onNavigate, onSelectAssessmentMode }: HomeScreenProps) {
   const { colors } = useAppearance();
   const { content } = useTranslation();
   const { width } = useWindowDimensions();
@@ -23,7 +27,7 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
   return (
     <ScrollView contentContainerStyle={styles.scrollContent} style={styles.scrollView}>
       <PageContent style={styles.content}>
-        <HeroSection onStart={() => onNavigate('assessment')} />
+        <HeroSection onSelectMode={onSelectAssessmentMode} />
         <View style={styles.sectionHeading}>
           <AppText style={styles.sectionEyebrow}>{content.home.sectionEyebrow}</AppText>
           <AppText accessibilityRole="header" style={styles.sectionTitle}>

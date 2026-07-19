@@ -75,6 +75,7 @@ export function persistAssessmentSession(
     const persisted = {
       schemaVersion: session.schemaVersion,
       modelVersion: session.modelVersion,
+      assessmentMode: session.assessmentMode,
       currentQuestionIndex: session.currentQuestionIndex,
       answers: session.answers.map(({ questionId, selectedOptionId }) => ({
         questionId,
@@ -91,18 +92,23 @@ export function persistAssessmentSession(
 }
 
 export function normalizeStoredAssessmentSession(value: unknown): AssessmentSession | null {
-  if (!isRecord(value)
-    || !hasExactKeys(value, [
+  if (!isRecord(value)) return null;
+  const currentKeys = [
       'schemaVersion',
       'modelVersion',
+      'assessmentMode',
       'currentQuestionIndex',
       'answers',
       'adaptiveQuestionIds',
       'lockedPrimary',
       'result',
-    ])) return null;
+  ] as const;
+  const legacyKeys = currentKeys.filter((key) => key !== 'assessmentMode');
+  const isLegacySchemaThreePayload = hasExactKeys(value, legacyKeys);
+  if (!hasExactKeys(value, currentKeys) && !isLegacySchemaThreePayload) return null;
   if (value.schemaVersion !== assessmentSchemaVersion
     || value.modelVersion !== assessmentModelVersion
+    || (!isLegacySchemaThreePayload && value.assessmentMode !== 'long')
     || !Number.isInteger(value.currentQuestionIndex)
     || !Array.isArray(value.answers)
     || !Array.isArray(value.adaptiveQuestionIds)) return null;
@@ -139,6 +145,7 @@ export function normalizeStoredAssessmentSession(value: unknown): AssessmentSess
   const candidateSession: AssessmentSession = {
     schemaVersion: assessmentSchemaVersion,
     modelVersion: assessmentModelVersion,
+    assessmentMode: 'long',
     currentQuestionIndex: value.currentQuestionIndex as number,
     answers,
     adaptiveQuestionIds,
@@ -153,7 +160,7 @@ export function normalizeStoredAssessmentSession(value: unknown): AssessmentSess
   if (candidateSession.currentQuestionIndex < 0
     || candidateSession.currentQuestionIndex > maximumCurrentIndex) return null;
 
-  const storedResult = normalizeResult(value.result);
+  const storedResult = normalizeResult(value.result, isLegacySchemaThreePayload);
   if (value.result !== null && !storedResult) return null;
   if (storedResult) {
     if (!lockedPrimary || answers.length !== completedAssessmentQuestionCount
@@ -207,14 +214,23 @@ function normalizeLockedPrimary(value: unknown): LockedPrimaryResult | null {
   };
 }
 
-function normalizeResult(value: unknown): AssessmentResult | null {
-  if (!isRecord(value)
-    || !hasExactKeys(value, [
+function normalizeResult(
+  value: unknown,
+  allowLegacyMode: boolean,
+): AssessmentResult | null {
+  if (!isRecord(value)) return null;
+  const currentKeys = [
       'primaryTypeId',
       'secondaryTypeId',
       'balancedDimensionIds',
       'hasCloseMatch',
-    ])
+      'assessmentMode',
+  ] as const;
+  const expectedKeys = allowLegacyMode
+    ? currentKeys.filter((key) => key !== 'assessmentMode')
+    : currentKeys;
+  if (!hasExactKeys(value, expectedKeys)
+    || (!allowLegacyMode && value.assessmentMode !== 'long')
     || !isPersonalityTypeId(value.primaryTypeId)
     || !isPersonalityTypeId(value.secondaryTypeId)
     || value.primaryTypeId === value.secondaryTypeId
@@ -227,6 +243,7 @@ function normalizeResult(value: unknown): AssessmentResult | null {
     secondaryTypeId: value.secondaryTypeId,
     balancedDimensionIds: value.balancedDimensionIds,
     hasCloseMatch: value.hasCloseMatch,
+    assessmentMode: 'long',
   };
 }
 
@@ -244,6 +261,7 @@ function copyResult(result: AssessmentResult | null): AssessmentResult | null {
     secondaryTypeId: result.secondaryTypeId,
     balancedDimensionIds: [...result.balancedDimensionIds],
     hasCloseMatch: result.hasCloseMatch,
+    assessmentMode: 'long',
   } : null;
 }
 
@@ -255,7 +273,8 @@ function sameLockedPrimary(left: LockedPrimaryResult, right: LockedPrimaryResult
 
 function sameResults(left: AssessmentResult, right: AssessmentResult): boolean {
   return sameLockedPrimary(left, right)
-    && left.secondaryTypeId === right.secondaryTypeId;
+    && left.secondaryTypeId === right.secondaryTypeId
+    && left.assessmentMode === right.assessmentMode;
 }
 
 function removeLegacyAssessmentState(storage: AssessmentStorageAdapter): void {

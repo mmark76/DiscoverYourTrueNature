@@ -4,12 +4,13 @@ import { useTranslation } from '../../../i18n/useTranslation';
 import { useAppearance } from '../../../settings/AppearanceProvider';
 import type { SemanticColors } from '../../../settings/appearanceTypes';
 import { AppText } from '../../../shared/components/AppText';
-import { FocusablePressable } from '../../../shared/components/FocusablePressable';
 import { theme } from '../../../shared/styles/theme';
+import { AssessmentModeChooser } from '../../assessment/components/AssessmentModeChooser';
+import type { AssessmentMode } from '../../assessment/types';
 
-interface HeroSectionProps { onStart: () => void; }
+interface HeroSectionProps { onSelectMode: (mode: AssessmentMode) => void; }
 
-export function HeroSection({ onStart }: HeroSectionProps) {
+export function HeroSection({ onSelectMode }: HeroSectionProps) {
   const { colors } = useAppearance();
   const { content } = useTranslation();
   const copy = content.home;
@@ -30,14 +31,7 @@ export function HeroSection({ onStart }: HeroSectionProps) {
             </View>
           ))}
         </View>
-        <FocusablePressable
-          accessibilityHint={copy.heroActionHint}
-          accessibilityRole="button"
-          onPress={onStart}
-          style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
-        >
-          <AppText style={styles.buttonText}>{copy.heroAction}</AppText>
-        </FocusablePressable>
+        <AssessmentModeChooser onSelectMode={onSelectMode} />
       </View>
 
       <View accessibilityElementsHidden style={styles.motif}>
@@ -58,7 +52,7 @@ export function HeroSection({ onStart }: HeroSectionProps) {
 function createStyles(colors: SemanticColors) {
   return StyleSheet.create({
     hero: { backgroundColor: colors.selection, borderColor: colors.border, borderRadius: theme.radius.lg, borderWidth: 1, flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.lg, overflow: 'hidden', padding: theme.spacing.xl },
-    copy: { flex: 1, gap: theme.spacing.sm, minWidth: 220, zIndex: 1 },
+    copy: { flex: 1, flexBasis: 580, gap: theme.spacing.md, minWidth: 220, zIndex: 1 },
     eyebrow: { color: colors.primary, fontSize: 11, fontWeight: '800', letterSpacing: 1.3 },
     title: { color: colors.heading, fontSize: 44, fontWeight: '900', letterSpacing: -1, lineHeight: 49 },
     subtitle: { color: colors.heading, fontSize: 21, fontWeight: '700', lineHeight: 29 },
@@ -67,9 +61,6 @@ function createStyles(colors: SemanticColors) {
     highlight: { alignItems: 'flex-start', flexDirection: 'row', gap: theme.spacing.xs, minWidth: 0 },
     highlightMark: { color: colors.primary, fontSize: 14, fontWeight: '900', lineHeight: 21 },
     highlightText: { color: colors.text, flex: 1, fontSize: 14, lineHeight: 21 },
-    button: { alignItems: 'center', alignSelf: 'flex-start', backgroundColor: colors.primary, borderRadius: theme.radius.sm, marginTop: theme.spacing.xs, minHeight: 44, paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.sm },
-    buttonPressed: { backgroundColor: colors.primaryPressed },
-    buttonText: { color: colors.onPrimary, fontSize: 15, fontWeight: '800' },
     motif: { alignItems: 'center', alignSelf: 'center', aspectRatio: 1, flexBasis: 180, flexGrow: 0, flexShrink: 1, justifyContent: 'center', maxWidth: 180, minWidth: 0, position: 'relative', width: '100%' },
     motifOuterCircle: { borderColor: colors.heroDecoration, borderRadius: 999, borderWidth: 1, height: '100%', opacity: 0.55, position: 'absolute', width: '100%' },
     motifContent: { alignItems: 'center', gap: theme.spacing.sm, justifyContent: 'center', paddingHorizontal: theme.spacing.md, width: '100%' },

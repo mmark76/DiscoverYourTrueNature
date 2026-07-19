@@ -73,7 +73,10 @@ test('header keeps navigation, links, and controls in three explicit complete gr
   );
 
   assert.match(navigationGroup, /navigationItems\.map/);
-  assert.equal((headerSource.match(/screen: '(?:home|assessment|animals|how-it-works)'/g) ?? []).length, 4);
+  assert.equal(
+    (headerSource.match(/screen: '(?:home|questionnaires|animals|how-it-works)'/g) ?? []).length,
+    4,
+  );
 
   assert.match(linkGroup, /label="Feedback"/);
   assert.match(linkGroup, /accessibilityLabel="Feedback μέσω email"/);
@@ -166,7 +169,9 @@ test('footer centers copyright and links independently from its secondary build 
 });
 
 test('animal-first result keeps normal app chrome and the consent layer in the shell', () => {
-  for (const screen of ['home', 'assessment', 'result', 'animals', 'how-it-works', 'settings']) {
+  for (const screen of [
+    'home', 'questionnaires', 'assessment', 'result', 'animals', 'how-it-works', 'settings',
+  ]) {
     assert.equal(shouldShowAppChrome(screen), true);
   }
 

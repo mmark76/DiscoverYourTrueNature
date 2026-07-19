@@ -464,6 +464,7 @@ test('restart returns the exact clean schema-three session', () => {
   assert.deepEqual(restartAssessmentSession(), {
     schemaVersion: 3,
     modelVersion: '16-personality-binary-v2-30q',
+    assessmentMode: 'long',
     currentQuestionIndex: 0,
     answers: [],
     adaptiveQuestionIds: [],
