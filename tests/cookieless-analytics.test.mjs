@@ -12,6 +12,9 @@ const shellSource = readFileSync('src/shared/layout/AppShell.tsx', 'utf8');
 test('cookie-less analytics loads only the central collector on the exact production hostname', () => {
   assert.match(loaderSource, /https:\/\/analytics\.markellosecosystem\.com\/v1\/script\.js/);
   assert.match(loaderSource, /animalswithin\.markellosecosystem\.com/);
+  assert.match(loaderSource, /Platform\.OS !== 'web'/);
+  assert.match(loaderSource, /typeof document === 'undefined'/);
+  assert.match(loaderSource, /typeof window\.location === 'undefined'/);
   assert.match(loaderSource, /window\.location\.protocol !== 'https:'/);
   assert.match(loaderSource, /window\.location\.hostname\.toLowerCase\(\) !== productionHostname/);
   assert.match(loaderSource, /document\.getElementById\(scriptId\)/);
