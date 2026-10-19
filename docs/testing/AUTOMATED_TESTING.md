@@ -89,7 +89,7 @@ Tests exercise selection behavior independently from rendering:
 - all 25 base answers precede adaptive answers;
 - question 25 creates the five-question route and locked primary atomically;
 - exactly 30 valid answers complete a run;
-- restart creates a clean assessment while leaving settings and consent untouched.
+- restart creates a clean assessment while leaving settings untouched.
 
 If a base answer is edited after adaptive progress, tests require dependent adaptive answers, route,
 lock, and final result to be invalidated and regenerated from the revised base. Editing an adaptive
@@ -232,15 +232,17 @@ Storage tests use an in-memory adapter and cover:
 - language and appearance changes preserving the exact assessment object;
 - restart clearing only the selected questionnaire state;
 - a persisted-field allowlist excluding translations, scores, context profiles, weights, distances,
-  candidates, debug data, analytics consent, and appearance preferences.
+  candidates, debug data, and appearance preferences.
 
 ## Analytics and Feedback privacy
 
-Tests retain fail-closed consent checks and verify that analytics modules do not import or accept
-assessment state. GA4 payloads are limited to the generic initial page location and generic
-**Animals Within** title. They contain no answers, selected options, question/option IDs, dimensions,
-context profiles, adaptive routes, internal codes, animals, locked primary, final result, confidence,
-distances, model scores, build information, or Feedback content.
+Tests verify that the production-only analytics loader targets only the central cookie-less collector
+on the exact HTTPS production hostname, does not import or accept assessment state, and has no GA4,
+analytics-consent UI, or analytics-storage implementation. The collector records aggregate UTC hour,
+domain, and country only; it contains no visitor identifiers, paths, referrers, device details,
+events, answers, selected options, question/option IDs, dimensions, context profiles, adaptive
+routes, internal codes, animals, locked primary, final result, confidence, distances, model scores,
+build information, or Feedback content.
 
 The Feedback mail draft remains recipient, subject, language, build version, and an empty feedback
 area. Its builder accepts no assessment or result fields. The visible word **Feedback** deliberately

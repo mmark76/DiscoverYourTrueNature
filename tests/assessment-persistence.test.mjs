@@ -306,13 +306,11 @@ test('normalization rejects premature, malformed, or inconsistent final results'
 
 test('migration removes only obsolete v1 and v2 assessment state', () => {
   const appearanceKey = 'animals-within.appearance.v1';
-  const consentKey = 'animals-within.analytics-consent.v1';
   const unrelatedKey = 'unrelated.preference';
   const storage = createMemoryStorage({
     [legacyAssessmentStorageKey]: JSON.stringify({ answers: [{ optionId: 'old' }] }),
     [legacyRankingAssessmentStorageKey]: JSON.stringify({ rankings: [1, 2, 3, 4] }),
     [appearanceKey]: JSON.stringify({ language: 'el', mode: 'dark' }),
-    [consentKey]: 'rejected',
     [unrelatedKey]: 'keep-me',
   });
 
@@ -321,7 +319,6 @@ test('migration removes only obsolete v1 and v2 assessment state', () => {
   assert.equal(storage.values.has(legacyAssessmentStorageKey), false);
   assert.equal(storage.values.has(legacyRankingAssessmentStorageKey), false);
   assert.equal(storage.values.get(appearanceKey), JSON.stringify({ language: 'el', mode: 'dark' }));
-  assert.equal(storage.values.get(consentKey), 'rejected');
   assert.equal(storage.values.get(unrelatedKey), 'keep-me');
 });
 
@@ -329,13 +326,11 @@ test('malformed current storage fails clean and preserves non-assessment prefere
   const storage = createMemoryStorage({
     [assessmentStorageKey]: '{not-json',
     'animals-within.appearance.v1': 'appearance',
-    'animals-within.analytics-consent.v1': 'accepted',
     unrelated: 'keep',
   });
   assert.deepEqual(restoreAssessmentSession(storage), createAssessmentSession());
   assert.deepEqual(storage.removed, [assessmentStorageKey]);
   assert.equal(storage.values.get('animals-within.appearance.v1'), 'appearance');
-  assert.equal(storage.values.get('animals-within.analytics-consent.v1'), 'accepted');
   assert.equal(storage.values.get('unrelated'), 'keep');
 });
 
@@ -408,13 +403,11 @@ test('language and appearance changes retain the exact assessment object', () =>
 test('restart persistence touches only the current assessment key', () => {
   const storage = createMemoryStorage({
     'animals-within.appearance.v1': 'appearance',
-    'animals-within.analytics-consent.v1': 'accepted',
     unrelated: 'keep',
   });
   persistAssessmentSession(storage, answerUntil(6));
   persistAssessmentSession(storage, restartAssessmentSession());
   assert.deepEqual(restoreAssessmentSession(storage), createAssessmentSession());
   assert.equal(storage.values.get('animals-within.appearance.v1'), 'appearance');
-  assert.equal(storage.values.get('animals-within.analytics-consent.v1'), 'accepted');
   assert.equal(storage.values.get('unrelated'), 'keep');
 });

@@ -90,8 +90,8 @@ test('footer has exactly two semantic rows in accessible content order', () => {
   assert.equal((footerSource.match(/testID="footer-row-/g) ?? []).length, 2);
   const order = [
     'testID="footer-row-copyright"',
+    'content.footer.analyticsInformationAccessibilityLabel',
     'accessibilityLabel="Feedback μέσω email"',
-    'content.footer.analyticsChoicesAccessibilityLabel',
     'content.footer.ecosystemAccessibilityLabel',
     'content.footer.buildAccessibilityLabel',
   ].map((needle) => footerSource.indexOf(needle));
@@ -99,8 +99,13 @@ test('footer has exactly two semantic rows in accessible content order', () => {
   assert.deepEqual(order, [...order].sort((a, b) => a - b));
 });
 
-test('footer renders no inactive legal placeholders', () => {
-  assert.match(footerSource, /content\.footer\.analyticsChoicesLabel/);
+test('footer explains the cookie-less aggregate analytics boundary without a choice control', () => {
+  assert.match(footerSource, /content\.footer\.analyticsInformation/);
+  assert.doesNotMatch(footerSource, /AnalyticsConsent|analyticsChoices|ActionTextLink|openChoices/);
+  assert.match(translations.en.footer.analyticsInformation, /No analytics cookies are used/);
+  assert.match(translations.en.footer.analyticsInformation, /UTC hour, domain and country/);
+  assert.match(translations.el.footer.analyticsInformation, /Δεν χρησιμοποιούνται cookies analytics/);
+  assert.match(translations.el.footer.analyticsInformation, /ώρα UTC, domain και χώρα/);
   assert.doesNotMatch(footerSource, /privacy|license|copyright protected|coming soon|accessibilityState=\{\{ disabled: true \}\}/i);
   assert.equal('privacyLabel' in translations.en.footer, false);
   assert.equal('privacyLabel' in translations.el.footer, false);
@@ -138,4 +143,6 @@ test('new footer and Feedback accessibility copy resolves in both languages', ()
   assert.equal(translations.el.footer.buildAccessibilityLabel, 'Έκδοση εφαρμογής');
   assert.equal(translations.en.common.selectedLanguageName, 'English');
   assert.equal(translations.el.common.selectedLanguageName, 'Ελληνικά');
+  assert.equal(translations.en.footer.analyticsInformationAccessibilityLabel, 'Cookie-less analytics information');
+  assert.equal(translations.el.footer.analyticsInformationAccessibilityLabel, 'Πληροφορίες για analytics χωρίς cookies');
 });

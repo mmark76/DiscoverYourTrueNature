@@ -45,7 +45,7 @@ or app-store distribution.
   each route restores and restarts without overwriting the other.
 - Compatibility upgrade for valid pre-mode Long schema-3 state and assessment-only reset of
   incompatible ranked/legacy Long state.
-- Existing independent appearance/language persistence and consent-gated analytics architecture.
+- Existing independent appearance/language persistence and production-only cookie-less analytics loader.
 - Responsive Expo React Native foundation for web and Android-compatible surfaces.
 
 The weights and context threshold are product-design rules for an entertainment experience. They are
@@ -89,7 +89,7 @@ developer documentation.
   and final result. The other questionnaire remains byte-for-byte unchanged.
 - Valid older Long schema-3 records without `assessmentMode` restore as `long` without data loss.
 - Schema-2 ranked and schema-1 assessment data start a clean schema-3 session without clearing
-  language, appearance, analytics consent, or unrelated preferences.
+  language, appearance, or unrelated preferences.
 - Persisted assessment state excludes translated copy, derived scores, context profiles, distances,
   candidate lists, and debug records.
 

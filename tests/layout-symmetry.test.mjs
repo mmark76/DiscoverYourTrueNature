@@ -165,10 +165,10 @@ test('footer centers copyright and links independently from its secondary build 
   );
   assert.ok(versionFontSize < linkFontSize);
 
-  assert.equal((footerSource.match(/style=\{styles\.linkPair\}/g) ?? []).length, 2);
+  assert.equal((footerSource.match(/style=\{styles\.linkPair\}/g) ?? []).length, 1);
 });
 
-test('animal-first result keeps normal app chrome and the consent layer in the shell', () => {
+test('animal-first result keeps normal app chrome without an analytics consent layer', () => {
   for (const screen of [
     'home', 'questionnaires', 'assessment', 'result', 'animals', 'how-it-works', 'settings',
   ]) {
@@ -183,6 +183,5 @@ test('animal-first result keeps normal app chrome and the consent layer in the s
   );
   assert.match(appShellSource, /\{showChrome && header\}/);
   assert.match(appShellSource, /\{showChrome && <AppFooter \/>\}/);
-  assert.match(appShellSource, /<AnalyticsConsentBanner \/>/);
-  assert.match(appShellSource, /<AnalyticsConsentDialog \/>/);
+  assert.doesNotMatch(appShellSource, /AnalyticsConsent/);
 });

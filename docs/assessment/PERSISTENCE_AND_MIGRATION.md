@@ -12,9 +12,9 @@ Active-mode key: `animals-within.assessment.active-mode`
 
 Incompatible assessment keys: `animals-within.assessment.v2`, `animals-within.assessment.v1`
 
-This document covers questionnaire state only. Language and appearance settings, analytics consent,
-and unrelated preferences remain in their existing independent persistence boundaries. Short and
-Long are also independent from each other.
+This document covers questionnaire state only. Language and appearance settings and unrelated
+preferences remain in their existing independent persistence boundaries. Short and Long are also
+independent from each other.
 
 ## Goals
 
@@ -69,7 +69,7 @@ The record deliberately excludes:
 - phase weights, pole totals, normalized profiles, and context subprofiles;
 - candidate distances, complete candidate rankings, confidence, or percentages;
 - follow-up selection priorities or explanations;
-- analytics consent, language, appearance, Feedback, or build information;
+- language, appearance, Feedback, or build information;
 - timestamps, device identifiers, remote-account data, or production logs.
 
 Internal primary and secondary type IDs are restoration identifiers. UI code projects them to public
@@ -210,7 +210,6 @@ Migration must not scan, clear, or rewrite unrelated storage. It must preserve b
 
 - selected language;
 - appearance mode, color theme, font family, and text size;
-- analytics consent;
 - unrelated application and browser preferences.
 
 This is an assessment reset, not a global application reset.
@@ -296,8 +295,7 @@ Restart creates a clean state for the active questionnaire only:
 - `result: null`.
 
 It persists only that mode's reset. The other questionnaire and its completed or partial result stay
-unchanged. Restart also does not touch language, appearance, analytics consent, or unrelated
-preferences.
+unchanged. Restart also does not touch language, appearance, or unrelated preferences.
 
 ## Privacy boundary
 

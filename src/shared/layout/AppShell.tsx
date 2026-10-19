@@ -1,8 +1,6 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { AnalyticsConsentBanner } from '../../features/analytics/consent/AnalyticsConsentBanner';
-import { AnalyticsConsentDialog } from '../../features/analytics/consent/AnalyticsConsentDialog';
 import { AppFooter } from '../components/AppFooter';
 import { FooterLayoutProvider, useFooterLayout } from './FooterLayoutProvider';
 
@@ -28,9 +26,7 @@ function MeasuredAppShell({ header, children, showChrome = true }: AppShellProps
       {showChrome && header}
       <View style={[styles.screen, { paddingBottom: showChrome ? footerHeight : 0 }]}>
         <View style={styles.screenContent}>{children}</View>
-        <AnalyticsConsentBanner />
       </View>
-      <AnalyticsConsentDialog />
       {showChrome && <AppFooter />}
     </View>
   );

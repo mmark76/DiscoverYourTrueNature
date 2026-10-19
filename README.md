@@ -166,7 +166,7 @@ unchanged.
 
 Ranking-based schema-2 data under `animals-within.assessment.v2` and older assessment data under
 `animals-within.assessment.v1` are incompatible. They are discarded rather than approximated.
-Migration resets assessment state only; language, appearance, analytics consent, and unrelated
+Migration resets assessment state only; language, appearance, and unrelated
 preferences remain intact. Details are in
 [Persistence and Migration](docs/assessment/PERSISTENCE_AND_MIGRATION.md).
 
@@ -196,12 +196,11 @@ identifiers, animal results, or scoring data.
 The public build identifier uses `version_YYYYMMDD_HHmm_abcdefg`, with the timestamp prepared in the
 `Europe/Nicosia` timezone and the seven-character source revision supplied at build time.
 
-The existing GA4 integration remains consent-gated. Before acceptance, the application does not load
-the Google tag or send events. After acceptance, it sends only the existing initial page view with a
-generic page location and the generic **Animals Within** document title. It does not send question or
-option IDs, selected options, dimension values, personal or professional profiles, follow-up routes,
-locked or final animal results, internal codes, confidence, distances, appearance preferences,
-Feedback content, or build version. All assessment calculation remains local.
+The application uses the Markellos Ecosystem cookie-less aggregate collector only on
+`animalswithin.markellosecosystem.com` over HTTPS. It records only aggregate visits by UTC hour,
+domain, and country so the administrator can understand overall traffic. It does not use analytics
+cookies, visitor identifiers, paths, referrers, device details, events, assessment data, Feedback
+content, or build version. All assessment calculation remains local.
 
 ## Repository structure
 
@@ -214,7 +213,7 @@ Feedback content, or build version. All assessment calculation remains local.
 - `src/features/results/` — animal-first primary, secondary, relationship, and optional context
   presentation.
 - `src/features/home/` and `src/features/information/` — entry points and plain-language explanation.
-- `src/features/analytics/` — persisted consent controls and the isolated GA4 bootstrap.
+- `src/features/analytics/` — the isolated production-only cookie-less collector loader.
 - `src/i18n/` — typed Greek and English dictionaries plus translation helpers.
 - `src/settings/` — appearance provider, presets, and independent preference persistence.
 - `src/shared/` — shared shell, components, accessibility helpers, and theme tokens.

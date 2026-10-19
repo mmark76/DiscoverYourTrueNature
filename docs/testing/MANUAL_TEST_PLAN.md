@@ -17,7 +17,6 @@ Know the independent local keys:
 - `animals-within.assessment.v2` — incompatible ranked assessment;
 - `animals-within.assessment.v1` — older incompatible assessment;
 - appearance/language key;
-- analytics-consent key.
 
 When inspecting storage or network traffic, do not copy real user answers into issue trackers, logs,
 screenshots, or remote tools. Internal IDs may be inspected only for this engineering verification.
@@ -325,11 +324,11 @@ No text may present the experience as psychometric, scientifically validated, MB
 
 1. Store a representative `16-personality-ranking-v1-25q` record under
    `animals-within.assessment.v2` with ranked answers, adaptive IDs, and a result.
-2. Store known language, appearance, analytics consent, and unrelated preference values.
+2. Store known language, appearance, and unrelated preference values.
 3. Load the application.
 4. Verify no ranked answer, route, primary, secondary, or balance marker is converted.
 5. Verify a clean schema-3 binary session starts.
-6. Verify Short progress, all independent settings, consent, and unrelated values are byte-for-byte
+6. Verify Short progress, all independent settings and unrelated values are byte-for-byte
    unchanged.
 
 ### Older schema 1
@@ -340,12 +339,12 @@ ignored. The implementation must not scan or clear unrelated keys.
 ## Restart behavior
 
 1. Create partial or completed Short and Long sessions.
-2. Record both sessions, language, appearance, consent, and one unrelated preference.
+2. Record both sessions, language, appearance, and one unrelated preference.
 3. Select Short and activate Retake/Restart.
 4. Verify Short question 1 opens with no answers, separator IDs, lock, or result; verify Long is
    unchanged.
 5. Recreate Short progress, select Long, and restart. Verify Long is clean and Short is unchanged.
-6. Verify language, appearance, consent, and unrelated preference remain unchanged in both cases.
+6. Verify language, appearance, and unrelated preference remain unchanged in both cases.
 
 ## Keyboard-only completion
 
@@ -355,7 +354,7 @@ ignored. The implementation must not scan or clear unrelated keys.
 4. Select A, switch to B, trigger an incomplete error on another question, and continue.
 5. Verify selected state, error focus/announcement, and question-heading focus after navigation.
 6. Complete a representative Short run through question 15 and Long run through question 30.
-7. Verify catalogue/result actions and consent controls remain keyboard accessible.
+7. Verify catalogue and result actions remain keyboard accessible.
 
 ## Screen-reader verification
 
@@ -371,7 +370,7 @@ For English and Greek, verify announcements include:
 - primary/secondary animal result hierarchy and relationship text;
 - optional context observation without dimension identifiers;
 - catalogue primary/secondary indicators;
-- disclaimer, Feedback, analytics choices, and build-version labels.
+- disclaimer, Feedback, cookie-less analytics information, and build-version labels.
 
 No accessibility label or hint may contain a personality code, classification title, selected option
 ID, raw context profile, score, percentage, distance, Short area, hidden dimension, separator ID, or
@@ -392,27 +391,16 @@ At each required width/zoom/text-size combination, verify:
 - header/footer groups wrap as complete groups;
 - catalogue/result layouts remain usable.
 
-## Analytics consent and network privacy
+## Cookie-less analytics and network privacy
 
-### Unknown and rejected
-
-1. Start with unknown consent and verify the banner appears in normal flow.
-2. Inspect network/script state: no Google tag and no analytics request may occur.
-3. Reject and reload; verify rejection persists.
-
-### Accepted
-
-1. Accept consent.
-2. Verify the Google tag initializes once and emits only the generic initial page view.
-3. Confirm payloads contain none of: question/option ID, selected option, dimension, context profile,
-   adaptive route, internal code, animal/result, locked primary, confidence, distance, model score,
-   appearance, Feedback, or build version.
-
-### Revoke and reaccept
-
-1. Open Analytics choices from the footer.
-2. Revoke and verify collection stops and only the integration's own `_ga` cookies are cleared.
-3. Reaccept without reload and verify no duplicate initialization/page view.
+1. Open the exact HTTPS production hostname and verify the central collector script initializes once.
+2. Open a preview, local, non-HTTPS, or different-hostname build and verify the collector does not load.
+3. Verify no GA4/Google tag, analytics-consent UI, analytics local-storage key, or analytics cookie is
+   present.
+4. Confirm collection is limited to aggregate UTC hour, domain, and country. It must contain none of:
+   visitor identifier, path, referrer, device detail, event, question/option ID, selected option,
+   dimension, context profile, adaptive route, internal code, animal/result, locked primary,
+   confidence, distance, model score, appearance, Feedback, or build version.
 
 ## Feedback, URLs, page titles, and sharing
 
@@ -430,8 +418,8 @@ At each required width/zoom/text-size combination, verify:
 
 1. Verify the header retains navigation, an English highlighted **Feedback** link, Markellos
    Ecosystem link, language control, and Settings as complete groups.
-2. Verify the footer has exactly two semantic rows: centered copyright, then the link/navigation row
-   with Feedback, analytics choices, ecosystem, and a secondary build version.
+2. Verify the footer has exactly two semantic rows: centered copyright with cookie-less analytics
+   information, then the link/navigation row with Feedback, ecosystem, and a secondary build version.
 3. Verify the footer is fixed, measured, safe-area aware, and never covers content.
 4. Verify the build ID format and accessibility label without exposing it to analytics.
 5. Repeat in System/Light/Dark, Warm Ivory/Ocean/Amber/Plum, all fonts, and all text sizes.
