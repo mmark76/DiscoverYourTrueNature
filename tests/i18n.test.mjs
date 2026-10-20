@@ -340,7 +340,7 @@ test('How It Works explains both timed paths, A/B choices, local calculation, an
   );
 });
 
-test('result, catalogue, settings, header, footer, and analytics copy resolve fully', () => {
+test('result, catalogue, settings, header, and footer copy resolve fully', () => {
   const expectedResultKeys = [
     'behaviouralTendencies', 'catalogue', 'catalogueHint', 'closePatterns',
     'contextDependentObservation', 'contextObservationTitle', 'decisionStyle',
@@ -358,7 +358,6 @@ test('result, catalogue, settings, header, footer, and analytics copy resolve fu
     assertPopulated(content.settings);
     assertPopulated(content.header);
     assertPopulated(content.footer);
-    assertPopulated(content.analyticsConsent);
     assert.deepEqual(Object.keys(content.results).sort(), expectedResultKeys);
   }
 });
@@ -404,8 +403,9 @@ test('language content contains only documented cross-language exceptions', () =
 
   const allowedGreekModeTerms = new Set([
     'Animals', 'Ecosystem', 'English', 'Feedback', 'Markellos', 'Within',
-    'analytics', 'current', 'description', 'email', 'indicator', 'letter', 'name',
+    'analytics', 'cookies', 'current', 'description', 'domain', 'email', 'indicator', 'letter', 'name',
     'primary', 'primaryStrength', 'secondary', 'secondaryStrength', 'statement', 'total',
+    'UTC',
   ]);
   const latinTerms = stringLeaves(translations.el).flatMap((value) => value.match(/[A-Za-z]+/g) ?? []);
   for (const term of latinTerms) {

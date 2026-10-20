@@ -12,7 +12,7 @@ Product capabilities are organized by feature:
 - `results` projects internal locked-primary/secondary IDs into animal-only localized result content;
 - `home` and `information` explain and start the experience without exposing internal codes or
   technical phase labels;
-- `analytics` owns consent and the isolated GA4 bootstrap.
+- `analytics` owns the isolated production-only cookie-less collector loader.
 
 Each feature owns its components, services, validation, and types. Shared shell, layout,
 accessibility, and style utilities remain in `src/shared`.
@@ -44,5 +44,5 @@ the entertainment disclaimer. Personality classification titles are not public l
 - Analytics does not import assessment, personality, animal-result, context-profile, or persistence
   state.
 - Short and Long use separate storage records; restarting or restoring one does not mutate the other.
-- Restart and migration do not mutate settings or analytics consent.
+- Restart and migration do not mutate settings.
 - No feature sends assessment information to a remote service.

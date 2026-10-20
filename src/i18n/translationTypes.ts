@@ -201,22 +201,13 @@ export interface TranslationContent {
     cancel: string;
     back: string;
   };
-  analyticsConsent: {
-    title: string;
-    description: string;
-    accept: string;
-    reject: string;
-    close: string;
-    bannerAccessibilityLabel: string;
-    dialogAccessibilityLabel: string;
-  };
   footer: {
     accessibilityLabel: string;
     navigationLabel: string;
     feedbackLabel: string;
     feedbackAccessibilityLabel: string;
-    analyticsChoicesLabel: string;
-    analyticsChoicesAccessibilityLabel: string;
+    analyticsInformation: string;
+    analyticsInformationAccessibilityLabel: string;
     ecosystemLabel: string;
     ecosystemAccessibilityLabel: string;
     buildAccessibilityLabel: string;

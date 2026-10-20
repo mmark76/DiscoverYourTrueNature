@@ -339,7 +339,7 @@ expected mode, and a record from one mode is invalid in the other.
 Valid Long schema-3 records written before `assessmentMode` existed are accepted and normalized to
 `long` without changing answers, route, lock, or result. Ranking schema-2 and older schema-1 Long
 records retain the assessment-only reset. Short and Long restoration, save, corruption handling, and
-restart are independent. Appearance, language, analytics consent, and unrelated preferences remain
+restart are independent. Appearance, language, and unrelated preferences remain
 in their own stores. See [Persistence and Migration](PERSISTENCE_AND_MIGRATION.md).
 
 ## Analytics and external-output boundary

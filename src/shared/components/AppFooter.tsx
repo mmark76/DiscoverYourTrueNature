@@ -4,14 +4,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { buildVersion } from '../../config/buildInfo';
 import { createFeedbackMailto } from '../../config/feedback';
-import { useAnalyticsConsent } from '../../features/analytics/consent/AnalyticsConsentProvider';
 import { useTranslation } from '../../i18n/useTranslation';
 import { useAppearance } from '../../settings/AppearanceProvider';
 import type { SemanticColors } from '../../settings/appearanceTypes';
 import { useFooterLayout } from '../layout/FooterLayoutProvider';
 import { shouldStackFooterNavigation } from '../layout/responsiveLayout';
 import { theme } from '../styles/theme';
-import { ActionTextLink } from './ActionTextLink';
 import { AppText } from './AppText';
 import { ExternalTextLink } from './ExternalTextLink';
 import { PageContent } from './PageContent';
@@ -21,7 +19,6 @@ const ecosystemUrl = 'https://markellosecosystem.com';
 export function AppFooter() {
   const { colors, settings } = useAppearance();
   const { content } = useTranslation();
-  const { openChoices } = useAnalyticsConsent();
   const { setFooterHeight } = useFooterLayout();
   const { width } = useWindowDimensions();
   const styles = createStyles(colors);
@@ -48,6 +45,12 @@ export function AppFooter() {
       <PageContent style={styles.footerInner}>
         <View testID="footer-row-copyright" style={styles.copyrightRow}>
           <AppText style={styles.copyright}>{copyrightNotice}</AppText>
+          <AppText
+            accessibilityLabel={content.footer.analyticsInformationAccessibilityLabel}
+            style={styles.analyticsInformation}
+          >
+            {content.footer.analyticsInformation}
+          </AppText>
         </View>
 
         <View
@@ -64,16 +67,6 @@ export function AppFooter() {
               style={styles.link}
               textStyle={styles.feedbackLinkLabel}
             />
-            <View style={styles.linkPair}>
-              <AppText accessibilityElementsHidden style={styles.separator}>·</AppText>
-              <ActionTextLink
-                accessibilityLabel={content.footer.analyticsChoicesAccessibilityLabel}
-                label={content.footer.analyticsChoicesLabel}
-                onPress={openChoices}
-                style={styles.link}
-                textStyle={styles.linkLabel}
-              />
-            </View>
             <View style={styles.linkPair}>
               <AppText accessibilityElementsHidden style={styles.separator}>·</AppText>
               <ExternalTextLink
@@ -117,6 +110,7 @@ function createStyles(colors: SemanticColors) {
     footerInner: { gap: 3, paddingBottom: 6, paddingTop: 6 },
     copyrightRow: { alignItems: 'center', minWidth: 0, width: '100%' },
     copyright: { color: colors.footerText, fontSize: 10, lineHeight: 14, textAlign: 'center', width: '100%' },
+    analyticsInformation: { color: colors.footerMuted, fontSize: 9, lineHeight: 13, maxWidth: 720, textAlign: 'center' },
     navigationRow: {
       alignItems: 'center',
       justifyContent: 'center',

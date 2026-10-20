@@ -3,8 +3,7 @@ import { StyleSheet } from 'react-native';
 import { SafeAreaProvider, SafeAreaView as InsetSafeAreaView } from 'react-native-safe-area-context';
 
 import { AppScreen, NavigableScreen, shouldShowAppChrome } from './src/app/navigation';
-import { AnalyticsConsentProvider } from './src/features/analytics/consent/AnalyticsConsentProvider';
-import { Ga4ConsentBridge } from './src/features/analytics/ga4/Ga4ConsentBridge';
+import { CookieLessAnalytics } from './src/features/analytics/CookieLessAnalytics';
 import { AnimalsScreen } from './src/features/animals/components/AnimalsScreen';
 import type { AnimalData, AnimalId } from './src/features/animals/data/animals';
 import { AssessmentScreen } from './src/features/assessment/components/AssessmentScreen';
@@ -61,10 +60,8 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <AppearanceProvider>
-        <AnalyticsConsentProvider>
-          <Ga4ConsentBridge />
-          <AppContent />
-        </AnalyticsConsentProvider>
+        <CookieLessAnalytics />
+        <AppContent />
       </AppearanceProvider>
     </SafeAreaProvider>
   );

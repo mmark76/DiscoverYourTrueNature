@@ -5,9 +5,9 @@ logic local and vendor-independent.
 
 Infrastructure boundaries include:
 
-- storage adapters used by independently versioned appearance, analytics-consent, Short
-  questionnaire, Long questionnaire, and active-mode records;
-- consent-gated analytics transport;
+- storage adapters used by independently versioned appearance, Short questionnaire, Long
+  questionnaire, and active-mode records;
+- production-only cookie-less analytics loader;
 - Expo and platform-specific integration points;
 - future backend or AI adapters only after a separate approved product decision.
 

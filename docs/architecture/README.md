@@ -14,7 +14,7 @@ React Native surfaces. Assessment logic is local, deterministic, and independent
 | Personality-animal domain | 16 internal canonical corners and one-to-one symbolic animal mapping |
 | Localization | Greek and English visible strings keyed by language-neutral IDs |
 | Presentation features | Home, binary assessment, animal-first result, catalogue, How It Works, Settings |
-| Analytics | independent consent state and isolated GA4 bootstrap |
+| Analytics | isolated production-only cookie-less aggregate collector loader |
 
 Business rules remain in small pure typed functions inside their feature. Screens consume those
 functions and public presentation data; they do not reimplement scoring, selection, or migration.
@@ -131,16 +131,18 @@ Restore validates the complete record and phase relationships. Incompatible rank
 unknown schema/model, or inconsistent content yields a clean assessment session. Migration discards
 only assessment data.
 
-Language/appearance settings and analytics consent retain their separate stores. Questionnaire
-restart and Long migration never clear those records. Storage failure is non-fatal and falls back to
-an in-memory session. See [Persistence and Migration](../assessment/PERSISTENCE_AND_MIGRATION.md).
+Language/appearance settings retain their separate stores. Questionnaire restart and Long migration
+never clear those records. Storage failure is non-fatal and falls back to an in-memory session. See
+[Persistence and Migration](../assessment/PERSISTENCE_AND_MIGRATION.md).
 
 ## Analytics and external integrations
 
-Analytics modules remain isolated from assessment and personality-animal domains. The existing GA4
-bridge activates only after explicit consent and sends only its generic initial page view. It has no
-custom assessment events or payload path for answers, selected options, dimensions, context profiles,
-adaptive routes, personality identifiers, animals, locked primary, or final results.
+Analytics modules remain isolated from assessment and personality-animal domains. The production-only
+loader adds the central cookie-less collector only on the exact HTTPS production hostname. The
+collector records aggregate UTC hour, domain, and country only; it has no visitor identifiers,
+paths, referrers, device details, events, or payload path for answers, selected options, dimensions,
+context profiles, adaptive routes, personality identifiers, animals, locked primary, or final
+results.
 
 Feedback builds a local mail draft from interface language and public build version only. Assessment
 state is not included in Feedback, cookies, URLs, page titles, production console output, shareable
